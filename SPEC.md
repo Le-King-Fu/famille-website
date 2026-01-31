@@ -354,8 +354,8 @@ vercel --prod
 
 ## 8. Questions Ouvertes
 
-- [ ] Nom de domaine souhaité ?
+- [ ] Nom de domaine souhaité ? mafamillelandry.ca
 - [ ] Liste des membres de la famille à inscrire initialement ?
-- [ ] Questions de sécurité spécifiques à utiliser ?
+- [ ] Questions de sécurité spécifiques à utiliser ? Oui, les questions réponses seront gérés dans l'interface administrateur
 - [ ] Catégories de forum souhaitées ?
-- [ ] Nom/titre du site ?
+- [ ] Nom/titre du site ? Ma Famille Landry
