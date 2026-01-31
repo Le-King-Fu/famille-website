@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maquette - Site Familial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,52 +13,96 @@
         }
 
         :root {
-            --primary: #4A90A4;
-            --primary-dark: #3A7A94;
-            --cream: #FFF8F0;
-            --terracotta: #C17767;
-            --terracotta-light: #D4918A;
-            --text: #2D3748;
-            --text-light: #718096;
-            --border: #E2E8F0;
-            --success: #48BB78;
-            --warning: #ECC94B;
+            /* Cyberpunk friendly palette */
+            --bg-dark: #0f0a1f;
+            --bg-card: rgba(25, 18, 45, 0.8);
+            --bg-card-solid: #1a1230;
+            --bg-input: rgba(40, 30, 70, 0.6);
+
+            /* Neon accents */
+            --neon-cyan: #00f5ff;
+            --neon-pink: #ff6bca;
+            --neon-purple: #b266ff;
+            --neon-orange: #ff9f43;
+            --neon-green: #00ff88;
+
+            /* Friendly warm accent */
+            --warm-pink: #ff8fab;
+            --warm-purple: #c9a0ff;
+
+            /* Text */
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+
+            /* Borders */
+            --border-glow: rgba(0, 245, 255, 0.3);
+            --border-subtle: rgba(255, 255, 255, 0.1);
+
+            /* Gradients */
+            --gradient-pink-purple: linear-gradient(135deg, #ff6bca, #b266ff);
+            --gradient-cyan-purple: linear-gradient(135deg, #00f5ff, #b266ff);
+            --gradient-warm: linear-gradient(135deg, #ff8fab, #ffc3a0);
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--cream);
-            color: var(--text);
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(178, 102, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 107, 202, 0.05) 0%, transparent 70%);
+            background-attachment: fixed;
+            color: var(--text-primary);
             line-height: 1.6;
+            min-height: 100vh;
         }
 
-        /* Navigation */
+        /* Glow effects */
+        .glow-cyan { box-shadow: 0 0 20px rgba(0, 245, 255, 0.3), 0 0 40px rgba(0, 245, 255, 0.1); }
+        .glow-pink { box-shadow: 0 0 20px rgba(255, 107, 202, 0.3), 0 0 40px rgba(255, 107, 202, 0.1); }
+        .glow-purple { box-shadow: 0 0 20px rgba(178, 102, 255, 0.3), 0 0 40px rgba(178, 102, 255, 0.1); }
+
+        /* Mockup Navigation */
         .mockup-nav {
             display: flex;
             justify-content: center;
-            gap: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
             padding: 1rem;
-            background: var(--primary);
+            background: rgba(15, 10, 31, 0.95);
+            backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
             z-index: 100;
+            border-bottom: 1px solid var(--border-glow);
         }
 
         .mockup-nav button {
             padding: 0.5rem 1rem;
-            border: 2px solid white;
+            border: 1px solid var(--neon-cyan);
             background: transparent;
-            color: white;
-            border-radius: 4px;
+            color: var(--neon-cyan);
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            font-size: 0.85rem;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .mockup-nav button:hover,
+        .mockup-nav button:hover {
+            background: rgba(0, 245, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+        }
+
         .mockup-nav button.active {
-            background: white;
-            color: var(--primary);
+            background: var(--gradient-cyan-purple);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
         }
 
         /* Page container */
@@ -70,36 +115,49 @@
 
         .page.active {
             display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .page-title {
             text-align: center;
             margin-bottom: 2rem;
             padding-bottom: 1rem;
-            border-bottom: 3px solid var(--terracotta);
+            border-bottom: 2px solid;
+            border-image: var(--gradient-pink-purple) 1;
         }
 
         .page-title h1 {
-            color: var(--primary-dark);
             font-size: 1.5rem;
+            font-weight: 600;
             margin-bottom: 0.5rem;
+            background: var(--gradient-pink-purple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .page-title p {
-            color: var(--text-light);
+            color: var(--text-secondary);
             font-size: 0.9rem;
         }
 
         /* Header component */
         .header {
-            background: white;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
 
         .logo {
@@ -107,40 +165,51 @@
             align-items: center;
             gap: 0.75rem;
             font-weight: 700;
-            color: var(--primary);
             font-size: 1.25rem;
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--terracotta);
-            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            background: var(--gradient-pink-purple);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.25rem;
+            font-size: 1.4rem;
+            box-shadow: 0 0 20px rgba(255, 107, 202, 0.4);
+        }
+
+        .logo-text {
+            background: var(--gradient-warm);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 0.5rem;
         }
 
         .nav-links a {
             text-decoration: none;
-            color: var(--text);
+            color: var(--text-secondary);
             font-weight: 500;
-            padding: 0.5rem 0;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
 
-        .nav-links a:hover,
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
         .nav-links a.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
+            color: var(--neon-cyan);
+            background: rgba(0, 245, 255, 0.1);
         }
 
         .user-menu {
@@ -149,25 +218,38 @@
             gap: 0.75rem;
         }
 
+        .user-menu span {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
         .avatar {
-            width: 36px;
-            height: 36px;
-            background: var(--primary);
-            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-cyan-purple);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
         }
 
         /* Cards */
         .card {
-            background: white;
-            border-radius: 12px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
             padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-subtle);
             margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.1);
         }
 
         .card-header {
@@ -176,142 +258,182 @@
             align-items: center;
             margin-bottom: 1rem;
             padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .card-header h3 {
-            color: var(--primary-dark);
             font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
         /* Buttons */
         .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+            padding: 0.6rem 1.25rem;
+            border-radius: 10px;
             border: none;
             cursor: pointer;
             font-weight: 500;
             font-size: 0.875rem;
-            transition: all 0.2s;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .btn-primary {
-            background: var(--primary);
+            background: var(--gradient-cyan-purple);
             color: white;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
         }
 
         .btn-secondary {
-            background: var(--terracotta);
+            background: var(--gradient-pink-purple);
             color: white;
+            box-shadow: 0 0 20px rgba(255, 107, 202, 0.3);
         }
 
         .btn-outline {
             background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
+            border: 1px solid var(--border-glow);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(0, 245, 255, 0.1);
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
         }
 
         /* Grid layouts */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-        }
-
-        .grid-4 {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-        }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
 
         /* Security Gate Page */
         .gate-container {
-            max-width: 500px;
-            margin: 4rem auto;
+            max-width: 480px;
+            margin: 3rem auto;
             text-align: center;
         }
 
         .gate-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--terracotta);
-            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-pink-purple);
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 2rem;
-            font-size: 2.5rem;
+            font-size: 3rem;
+            box-shadow: 0 0 40px rgba(255, 107, 202, 0.4);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(255, 107, 202, 0.4); }
+            50% { box-shadow: 0 0 60px rgba(255, 107, 202, 0.6); }
+        }
+
+        .gate-container h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            background: var(--gradient-warm);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .question-box {
-            background: white;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
             padding: 2rem;
-            border-radius: 12px;
+            border-radius: 20px;
             margin-top: 2rem;
             text-align: left;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
         .question-box label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             font-weight: 500;
-            color: var(--text);
+            color: var(--text-primary);
         }
 
-        .question-box input {
+        .question-box input, .question-box select {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
+            padding: 0.9rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
             font-size: 1rem;
+            font-family: inherit;
+            color: var(--text-primary);
             margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .question-box input:focus, .question-box select:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+        }
+
+        .question-box input::placeholder {
+            color: var(--text-muted);
         }
 
         .attempts {
-            color: var(--text-light);
+            color: var(--neon-orange);
             font-size: 0.875rem;
             margin-top: 1rem;
+            text-align: center;
         }
 
         /* Calendar */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
-            background: var(--border);
-            border-radius: 8px;
+            gap: 3px;
+            background: var(--border-subtle);
+            border-radius: 12px;
             overflow: hidden;
         }
 
         .calendar-header {
-            background: var(--primary);
+            background: var(--gradient-cyan-purple);
             color: white;
             padding: 0.75rem;
             text-align: center;
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
         }
 
         .calendar-day {
-            background: white;
+            background: var(--bg-card-solid);
             padding: 0.5rem;
-            min-height: 80px;
+            min-height: 85px;
             font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background: rgba(0, 245, 255, 0.05);
         }
 
         .calendar-day.other-month {
-            background: #f7f7f7;
-            color: var(--text-light);
+            background: rgba(15, 10, 31, 0.8);
+            color: var(--text-muted);
         }
 
         .calendar-day .date {
@@ -320,89 +442,109 @@
         }
 
         .calendar-event {
-            background: var(--terracotta-light);
+            background: var(--gradient-pink-purple);
             color: white;
-            padding: 2px 6px;
-            border-radius: 3px;
+            padding: 3px 8px;
+            border-radius: 6px;
             font-size: 0.7rem;
-            margin-top: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            margin-top: 4px;
+            font-weight: 500;
+            box-shadow: 0 0 10px rgba(255, 107, 202, 0.3);
         }
 
         .calendar-event.birthday {
-            background: var(--primary);
+            background: var(--gradient-cyan-purple);
+            box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
         }
 
         /* Games */
         .game-card {
-            background: white;
-            border-radius: 12px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.4s ease;
         }
 
         .game-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-8px);
+            border-color: var(--neon-pink);
+            box-shadow: 0 20px 40px rgba(255, 107, 202, 0.2);
         }
 
         .game-preview {
-            height: 140px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-preview::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, var(--bg-card-solid) 100%);
         }
 
         .game-info {
-            padding: 1rem;
+            padding: 1.25rem;
         }
 
         .game-info h4 {
-            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
         .game-info p {
-            color: var(--text-light);
-            font-size: 0.8rem;
-            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
         }
 
         .game-stats {
             display: flex;
             justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--text-light);
+            font-size: 0.8rem;
+            padding: 0.75rem;
+            background: rgba(0, 245, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .game-stats span {
+            color: var(--neon-cyan);
         }
 
         /* Leaderboard */
-        .leaderboard {
-            width: 100%;
-        }
-
         .leaderboard-row {
             display: flex;
             align-items: center;
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
         }
 
-        .leaderboard-row:last-child {
-            border-bottom: none;
+        .leaderboard-row:hover {
+            background: rgba(0, 245, 255, 0.05);
         }
 
         .leaderboard-rank {
-            width: 40px;
+            width: 45px;
             font-weight: 700;
-            color: var(--primary);
+            font-size: 1.25rem;
         }
 
-        .leaderboard-rank.gold { color: #D69E2E; }
-        .leaderboard-rank.silver { color: #A0AEC0; }
-        .leaderboard-rank.bronze { color: #C17767; }
+        .leaderboard-rank.gold { color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .leaderboard-rank.silver { color: #C0C0C0; text-shadow: 0 0 10px rgba(192, 192, 192, 0.5); }
+        .leaderboard-rank.bronze { color: #CD7F32; text-shadow: 0 0 10px rgba(205, 127, 50, 0.5); }
 
         .leaderboard-user {
             flex: 1;
@@ -413,61 +555,89 @@
 
         .leaderboard-score {
             font-weight: 600;
-            color: var(--primary-dark);
+            font-size: 1.1rem;
+            background: var(--gradient-cyan-purple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         /* Photos */
         .album-card {
-            background: white;
-            border-radius: 12px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.4s ease;
+        }
+
+        .album-card:hover {
+            transform: scale(1.02);
+            border-color: var(--neon-purple);
+            box-shadow: 0 20px 40px rgba(178, 102, 255, 0.2);
         }
 
         .album-cover {
             height: 160px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 3rem;
+            font-size: 3.5rem;
+            position: relative;
+        }
+
+        .album-cover::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 40%, var(--bg-card-solid) 100%);
         }
 
         .album-info {
-            padding: 1rem;
+            padding: 1.25rem;
         }
 
         .album-info h4 {
+            font-weight: 600;
             margin-bottom: 0.25rem;
         }
 
         .album-info p {
-            color: var(--text-light);
-            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
         }
 
         /* Forum */
         .forum-category {
-            background: white;
-            border-radius: 12px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
             padding: 1.25rem;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            gap: 1.25rem;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+        }
+
+        .forum-category:hover {
+            border-color: var(--border-glow);
+            transform: translateX(5px);
         }
 
         .forum-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--primary);
-            border-radius: 10px;
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-cyan-purple);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+            flex-shrink: 0;
         }
 
         .forum-content {
@@ -475,29 +645,37 @@
         }
 
         .forum-content h4 {
+            font-weight: 600;
             margin-bottom: 0.25rem;
         }
 
         .forum-content p {
-            color: var(--text-light);
+            color: var(--text-secondary);
             font-size: 0.85rem;
         }
 
         .forum-stats {
             text-align: right;
-            font-size: 0.8rem;
-            color: var(--text-light);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .forum-stats strong {
+            color: var(--neon-cyan);
         }
 
         .topic-row {
             display: flex;
             align-items: center;
             padding: 1rem;
-            border-bottom: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
         }
 
-        .topic-row:last-child {
-            border-bottom: none;
+        .topic-row:hover {
+            background: rgba(0, 245, 255, 0.05);
         }
 
         .topic-title {
@@ -505,18 +683,19 @@
         }
 
         .topic-title h5 {
+            font-weight: 500;
             margin-bottom: 0.25rem;
         }
 
         .topic-title span {
-            color: var(--text-light);
+            color: var(--text-muted);
             font-size: 0.8rem;
         }
 
         .topic-meta {
             text-align: right;
             font-size: 0.8rem;
-            color: var(--text-light);
+            color: var(--text-muted);
         }
 
         /* Dashboard widgets */
@@ -528,25 +707,28 @@
             display: flex;
             align-items: center;
             gap: 1rem;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
         }
 
-        .widget-events li:last-child {
-            border-bottom: none;
+        .widget-events li:hover {
+            background: rgba(255, 107, 202, 0.05);
         }
 
         .event-date {
-            background: var(--terracotta);
-            color: white;
-            padding: 0.5rem;
-            border-radius: 8px;
+            background: var(--gradient-pink-purple);
+            padding: 0.6rem 0.8rem;
+            border-radius: 12px;
             text-align: center;
-            min-width: 50px;
+            min-width: 55px;
+            box-shadow: 0 0 15px rgba(255, 107, 202, 0.3);
         }
 
         .event-date .day {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 700;
             line-height: 1;
         }
@@ -554,6 +736,7 @@
         .event-date .month {
             font-size: 0.7rem;
             text-transform: uppercase;
+            opacity: 0.9;
         }
 
         .activity-feed {
@@ -563,40 +746,62 @@
         .activity-feed li {
             display: flex;
             gap: 0.75rem;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
             font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
         }
 
-        .activity-feed li:last-child {
-            border-bottom: none;
+        .activity-feed li:hover {
+            background: rgba(0, 245, 255, 0.05);
         }
 
         .activity-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--cream);
-            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 245, 255, 0.1);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         /* Admin panel */
         .admin-stat {
             text-align: center;
             padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background: var(--gradient-cyan-purple);
+            border-radius: 0 0 3px 3px;
         }
 
         .admin-stat .number {
-            font-size: 2.5rem;
+            font-size: 2.75rem;
             font-weight: 700;
-            color: var(--primary);
+            background: var(--gradient-cyan-purple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .admin-stat .label {
-            color: var(--text-light);
+            color: var(--text-secondary);
             font-size: 0.9rem;
+            margin-top: 0.25rem;
         }
 
         .user-table {
@@ -606,34 +811,350 @@
 
         .user-table th,
         .user-table td {
-            padding: 0.75rem;
+            padding: 0.9rem;
             text-align: left;
-            border-bottom: 1px solid var(--border);
         }
 
         .user-table th {
-            background: var(--cream);
+            background: rgba(0, 245, 255, 0.05);
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .user-table td {
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .user-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .badge {
             display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .badge-admin { background: #FED7D7; color: #C53030; }
-        .badge-member { background: #C6F6D5; color: #276749; }
-        .badge-child { background: #BEE3F8; color: #2B6CB0; }
+        .badge-admin {
+            background: rgba(255, 107, 202, 0.2);
+            color: var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 107, 202, 0.2);
+        }
+        .badge-member {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+        }
+        .badge-child {
+            background: rgba(0, 245, 255, 0.2);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+        }
 
+        /* Upload zone */
+        .upload-zone {
+            border: 2px dashed var(--border-glow);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 245, 255, 0.05);
+        }
+
+        .upload-zone .icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        .upload-zone p {
+            color: var(--text-secondary);
+        }
+
+        /* Photo grid */
+        .photo-preview {
+            height: 75px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo-preview::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(178, 102, 255, 0.1));
+        }
+
+        /* Mobile First - Tablet */
+        @media (max-width: 1024px) {
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Mobile */
         @media (max-width: 768px) {
+            .page {
+                padding: 1rem;
+            }
+
             .grid-2, .grid-3, .grid-4 {
                 grid-template-columns: 1fr;
             }
+
             .nav-links {
+                display: none;
+            }
+
+            .header {
+                padding: 0.75rem 1rem;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+
+            .logo {
+                font-size: 1rem;
+            }
+
+            .logo-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1.1rem;
+            }
+
+            .user-menu span {
+                display: none;
+            }
+
+            .avatar {
+                width: 36px;
+                height: 36px;
+            }
+
+            .card {
+                padding: 1rem;
+                border-radius: 12px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .card-header h3 {
+                font-size: 1rem;
+            }
+
+            .card-header > div {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                width: 100%;
+            }
+
+            .btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            /* Gate */
+            .gate-container {
+                margin: 2rem auto;
+                padding: 0 0.5rem;
+            }
+
+            .gate-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+
+            .gate-container h2 {
+                font-size: 1.4rem;
+            }
+
+            .question-box {
+                padding: 1.25rem;
+            }
+
+            /* Calendar */
+            .calendar-grid {
+                font-size: 0.75rem;
+            }
+
+            .calendar-header {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.7rem;
+            }
+
+            .calendar-day {
+                min-height: 60px;
+                padding: 0.25rem;
+            }
+
+            .calendar-event {
+                font-size: 0.6rem;
+                padding: 2px 4px;
+            }
+
+            /* Games */
+            .game-card {
+                border-radius: 16px;
+            }
+
+            .game-preview {
+                height: 120px;
+                font-size: 3rem;
+            }
+
+            .game-info {
+                padding: 1rem;
+            }
+
+            .game-info h4 {
+                font-size: 1rem;
+            }
+
+            /* Photos */
+            .album-cover {
+                height: 140px;
+            }
+
+            /* Forum */
+            .forum-category {
+                padding: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .forum-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 1.25rem;
+            }
+
+            .forum-stats {
+                width: 100%;
+                text-align: left;
+                display: flex;
+                gap: 1rem;
+                margin-top: 0.5rem;
+                padding-top: 0.5rem;
+                border-top: 1px solid var(--border-subtle);
+            }
+
+            .topic-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .topic-meta {
+                text-align: left;
+                font-size: 0.75rem;
+            }
+
+            /* Leaderboard */
+            .leaderboard-row {
+                padding: 0.75rem;
+            }
+
+            .leaderboard-rank {
+                width: 35px;
+                font-size: 1rem;
+            }
+
+            .leaderboard-user {
+                gap: 0.5rem;
+            }
+
+            .leaderboard-score {
+                font-size: 0.9rem;
+            }
+
+            /* Events */
+            .widget-events li {
+                padding: 0.5rem;
+            }
+
+            .event-date {
+                min-width: 48px;
+                padding: 0.5rem;
+            }
+
+            .event-date .day {
+                font-size: 1.1rem;
+            }
+
+            /* Admin */
+            .admin-stat .number {
+                font-size: 2rem;
+            }
+
+            .user-table {
+                font-size: 0.8rem;
+            }
+
+            .user-table th,
+            .user-table td {
+                padding: 0.5rem;
+            }
+
+            .user-table td:nth-child(2) {
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .upload-zone {
+                padding: 2rem 1rem;
+            }
+
+            .upload-zone .icon {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Small mobile */
+        @media (max-width: 380px) {
+            .mockup-nav {
+                padding: 0.75rem;
+                gap: 0.35rem;
+            }
+
+            .mockup-nav button {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.7rem;
+            }
+
+            .page-title h1 {
+                font-size: 1.2rem;
+            }
+
+            .header {
+                justify-content: center;
+            }
+
+            .logo-text {
+                display: none;
+            }
+        }
+
+        /* Bottom navigation for mobile (simulation) */
+        @media (max-width: 768px) {
+            .header .nav-links {
                 display: none;
             }
         }
@@ -656,14 +1177,14 @@
 <!-- PAGE: Security Gate -->
 <div id="gate" class="page active">
     <div class="page-title">
-        <h1>Page: Portail de Securite</h1>
+        <h1>Portail de Securite</h1>
         <p>Premiere barriere avant d'acceder au site</p>
     </div>
 
     <div class="gate-container">
         <div class="gate-icon">🏠</div>
         <h2>Bienvenue sur l'espace familial</h2>
-        <p style="color: var(--text-light); margin-top: 0.5rem;">
+        <p style="color: var(--text-secondary); margin-top: 0.5rem;">
             Pour acceder a ce site, veuillez repondre a cette question.
         </p>
 
@@ -679,7 +1200,7 @@
 <!-- PAGE: Login -->
 <div id="login" class="page">
     <div class="page-title">
-        <h1>Page: Connexion</h1>
+        <h1>Connexion</h1>
         <p>Authentification des membres</p>
     </div>
 
@@ -693,12 +1214,12 @@
             <label>Mot de passe</label>
             <input type="password" placeholder="••••••••">
             <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal;">
-                    <input type="checkbox"> Se souvenir de moi
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; color: var(--text-secondary); cursor: pointer;">
+                    <input type="checkbox" style="width: auto; margin: 0;"> Se souvenir de moi
                 </label>
             </div>
             <button class="btn btn-primary" style="width: 100%;">Se connecter</button>
-            <p style="text-align: center; margin-top: 1rem; color: var(--text-light); font-size: 0.875rem;">
+            <p style="text-align: center; margin-top: 1rem; color: var(--text-muted); font-size: 0.875rem;">
                 Mot de passe oublie ? Contactez l'administrateur.
             </p>
         </div>
@@ -708,14 +1229,14 @@
 <!-- PAGE: Home Dashboard -->
 <div id="home" class="page">
     <div class="page-title">
-        <h1>Page: Accueil / Tableau de bord</h1>
+        <h1>Accueil / Tableau de bord</h1>
         <p>Vue d'ensemble de l'activite familiale</p>
     </div>
 
     <div class="header">
         <div class="logo">
             <div class="logo-icon">🏠</div>
-            Famille Dupont
+            <span class="logo-text">Famille Dupont</span>
         </div>
         <div class="nav-links">
             <a href="#" class="active">Accueil</a>
@@ -744,7 +1265,7 @@
                     </div>
                     <div>
                         <strong>Anniversaire de Papa</strong>
-                        <p style="color: var(--text-light); font-size: 0.85rem;">65 ans !</p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">65 ans !</p>
                     </div>
                 </li>
                 <li>
@@ -754,7 +1275,7 @@
                     </div>
                     <div>
                         <strong>Reunion de famille</strong>
-                        <p style="color: var(--text-light); font-size: 0.85rem;">Chez Mamie, 12h</p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Chez Mamie, 12h</p>
                     </div>
                 </li>
                 <li>
@@ -764,7 +1285,7 @@
                     </div>
                     <div>
                         <strong>Fete des grand-meres</strong>
-                        <p style="color: var(--text-light); font-size: 0.85rem;">Ne pas oublier !</p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Ne pas oublier !</p>
                     </div>
                 </li>
             </ul>
@@ -778,29 +1299,22 @@
                 <li>
                     <div class="activity-icon">📷</div>
                     <div>
-                        <strong>Admin</strong> a ajoute 12 photos dans <em>Noel 2025</em>
-                        <br><span style="color: var(--text-light); font-size: 0.8rem;">Il y a 2 heures</span>
+                        <strong>Admin</strong> a ajoute 12 photos dans <em style="color: var(--neon-pink);">Noel 2025</em>
+                        <br><span style="color: var(--text-muted); font-size: 0.8rem;">Il y a 2 heures</span>
                     </div>
                 </li>
                 <li>
                     <div class="activity-icon">🎮</div>
                     <div>
-                        <strong>Lucas</strong> a battu le record sur <em>Piano Hero</em>
-                        <br><span style="color: var(--text-light); font-size: 0.8rem;">Il y a 5 heures</span>
+                        <strong>Lucas</strong> a battu le record sur <em style="color: var(--neon-cyan);">Piano Hero</em>
+                        <br><span style="color: var(--text-muted); font-size: 0.8rem;">Il y a 5 heures</span>
                     </div>
                 </li>
                 <li>
                     <div class="activity-icon">💬</div>
                     <div>
-                        <strong>Marie</strong> a repondu dans <em>Recette du gateau...</em>
-                        <br><span style="color: var(--text-light); font-size: 0.8rem;">Hier</span>
-                    </div>
-                </li>
-                <li>
-                    <div class="activity-icon">📅</div>
-                    <div>
-                        <strong>Papa</strong> a cree l'evenement <em>Reunion de famille</em>
-                        <br><span style="color: var(--text-light); font-size: 0.8rem;">Il y a 2 jours</span>
+                        <strong>Marie</strong> a repondu dans <em style="color: var(--neon-purple);">Recette du gateau...</em>
+                        <br><span style="color: var(--text-muted); font-size: 0.8rem;">Hier</span>
                     </div>
                 </li>
             </ul>
@@ -815,25 +1329,25 @@
             </div>
             <div class="leaderboard">
                 <div class="leaderboard-row">
-                    <div class="leaderboard-rank gold">1</div>
+                    <div class="leaderboard-rank gold">🥇</div>
                     <div class="leaderboard-user">
-                        <div class="avatar" style="background: #D69E2E;">L</div>
+                        <div class="avatar" style="background: linear-gradient(135deg, #FFD700, #FFA500);">L</div>
                         Lucas
                     </div>
                     <div class="leaderboard-score">4,250 pts</div>
                 </div>
                 <div class="leaderboard-row">
-                    <div class="leaderboard-rank silver">2</div>
+                    <div class="leaderboard-rank silver">🥈</div>
                     <div class="leaderboard-user">
-                        <div class="avatar" style="background: #A0AEC0;">M</div>
+                        <div class="avatar" style="background: linear-gradient(135deg, #C0C0C0, #A0A0A0);">M</div>
                         Marie
                     </div>
                     <div class="leaderboard-score">3,800 pts</div>
                 </div>
                 <div class="leaderboard-row">
-                    <div class="leaderboard-rank bronze">3</div>
+                    <div class="leaderboard-rank bronze">🥉</div>
                     <div class="leaderboard-user">
-                        <div class="avatar" style="background: var(--terracotta);">P</div>
+                        <div class="avatar" style="background: linear-gradient(135deg, #CD7F32, #8B4513);">P</div>
                         Papa
                     </div>
                     <div class="leaderboard-score">2,100 pts</div>
@@ -847,10 +1361,10 @@
                 <button class="btn btn-outline">Voir albums</button>
             </div>
             <div class="grid-4">
-                <div style="height: 70px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 8px;"></div>
-                <div style="height: 70px; background: linear-gradient(135deg, #f093fb, #f5576c); border-radius: 8px;"></div>
-                <div style="height: 70px; background: linear-gradient(135deg, #4facfe, #00f2fe); border-radius: 8px;"></div>
-                <div style="height: 70px; background: linear-gradient(135deg, #43e97b, #38f9d7); border-radius: 8px;"></div>
+                <div class="photo-preview" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+                <div class="photo-preview" style="background: linear-gradient(135deg, #f093fb, #f5576c);"></div>
+                <div class="photo-preview" style="background: linear-gradient(135deg, #4facfe, #00f2fe);"></div>
+                <div class="photo-preview" style="background: linear-gradient(135deg, #43e97b, #38f9d7);"></div>
             </div>
         </div>
     </div>
@@ -859,14 +1373,14 @@
 <!-- PAGE: Calendar -->
 <div id="calendar" class="page">
     <div class="page-title">
-        <h1>Page: Calendrier Familial</h1>
+        <h1>Calendrier Familial</h1>
         <p>Gestion des evenements et anniversaires</p>
     </div>
 
     <div class="header">
         <div class="logo">
             <div class="logo-icon">🏠</div>
-            Famille Dupont
+            <span class="logo-text">Famille Dupont</span>
         </div>
         <div class="nav-links">
             <a href="#">Accueil</a>
@@ -885,8 +1399,8 @@
         <div class="card-header">
             <h3>Fevrier 2026</h3>
             <div style="display: flex; gap: 0.5rem;">
-                <button class="btn btn-outline">&lt; Precedent</button>
-                <button class="btn btn-outline">Suivant &gt;</button>
+                <button class="btn btn-outline">← Precedent</button>
+                <button class="btn btn-outline">Suivant →</button>
                 <button class="btn btn-primary">+ Nouvel evenement</button>
             </div>
         </div>
@@ -952,14 +1466,14 @@
 <!-- PAGE: Games -->
 <div id="games" class="page">
     <div class="page-title">
-        <h1>Page: Jeux</h1>
+        <h1>Jeux</h1>
         <p>Collection de jeux familiaux avec classements</p>
     </div>
 
     <div class="header">
         <div class="logo">
             <div class="logo-icon">🏠</div>
-            Famille Dupont
+            <span class="logo-text">Famille Dupont</span>
         </div>
         <div class="nav-links">
             <a href="#">Accueil</a>
@@ -984,7 +1498,7 @@
                     <span>🏆 Record: 12,450</span>
                     <span>👤 Lucas</span>
                 </div>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 0.75rem;">Jouer</button>
+                <button class="btn btn-primary" style="width: 100%;">Jouer</button>
             </div>
         </div>
 
@@ -997,7 +1511,7 @@
                     <span>🏆 Record: 8,200</span>
                     <span>👤 Marie</span>
                 </div>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 0.75rem;">Jouer</button>
+                <button class="btn btn-primary" style="width: 100%;">Jouer</button>
             </div>
         </div>
 
@@ -1010,7 +1524,7 @@
                     <span>🏆 Record: 15,800</span>
                     <span>👤 Lucas</span>
                 </div>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 0.75rem;">Jouer</button>
+                <button class="btn btn-primary" style="width: 100%;">Jouer</button>
             </div>
         </div>
 
@@ -1023,7 +1537,7 @@
                     <span>🏆 Record: 6,500</span>
                     <span>👤 Papa</span>
                 </div>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 0.75rem;">Jouer</button>
+                <button class="btn btn-primary" style="width: 100%;">Jouer</button>
             </div>
         </div>
     </div>
@@ -1041,10 +1555,10 @@
             <div class="leaderboard-row">
                 <div class="leaderboard-rank gold">🥇</div>
                 <div class="leaderboard-user">
-                    <div class="avatar" style="background: #D69E2E;">L</div>
+                    <div class="avatar" style="background: linear-gradient(135deg, #FFD700, #FFA500);">L</div>
                     <div>
                         <strong>Lucas</strong>
-                        <br><span style="color: var(--text-light); font-size: 0.8rem;">28 parties jouees</span>
+                        <br><span style="color: var(--text-muted); font-size: 0.8rem;">28 parties jouees</span>
                     </div>
                 </div>
                 <div class="leaderboard-score">42,500 pts</div>
@@ -1052,10 +1566,10 @@
             <div class="leaderboard-row">
                 <div class="leaderboard-rank silver">🥈</div>
                 <div class="leaderboard-user">
-                    <div class="avatar" style="background: #A0AEC0;">M</div>
+                    <div class="avatar" style="background: linear-gradient(135deg, #C0C0C0, #A0A0A0);">M</div>
                     <div>
                         <strong>Marie</strong>
-                        <br><span style="color: var(--text-light); font-size: 0.8rem;">22 parties jouees</span>
+                        <br><span style="color: var(--text-muted); font-size: 0.8rem;">22 parties jouees</span>
                     </div>
                 </div>
                 <div class="leaderboard-score">38,200 pts</div>
@@ -1063,10 +1577,10 @@
             <div class="leaderboard-row">
                 <div class="leaderboard-rank bronze">🥉</div>
                 <div class="leaderboard-user">
-                    <div class="avatar" style="background: var(--terracotta);">P</div>
+                    <div class="avatar" style="background: linear-gradient(135deg, #CD7F32, #8B4513);">P</div>
                     <div>
                         <strong>Papa</strong>
-                        <br><span style="color: var(--text-light); font-size: 0.8rem;">15 parties jouees</span>
+                        <br><span style="color: var(--text-muted); font-size: 0.8rem;">15 parties jouees</span>
                     </div>
                 </div>
                 <div class="leaderboard-score">21,400 pts</div>
@@ -1077,7 +1591,7 @@
                     <div class="avatar">E</div>
                     <div>
                         <strong>Emma</strong>
-                        <br><span style="color: var(--text-light); font-size: 0.8rem;">12 parties jouees</span>
+                        <br><span style="color: var(--text-muted); font-size: 0.8rem;">12 parties jouees</span>
                     </div>
                 </div>
                 <div class="leaderboard-score">18,900 pts</div>
@@ -1088,7 +1602,7 @@
                     <div class="avatar">T</div>
                     <div>
                         <strong>Tatie Sophie</strong>
-                        <br><span style="color: var(--text-light); font-size: 0.8rem;">8 parties jouees</span>
+                        <br><span style="color: var(--text-muted); font-size: 0.8rem;">8 parties jouees</span>
                     </div>
                 </div>
                 <div class="leaderboard-score">12,100 pts</div>
@@ -1100,14 +1614,14 @@
 <!-- PAGE: Photos -->
 <div id="photos" class="page">
     <div class="page-title">
-        <h1>Page: Albums Photos</h1>
+        <h1>Albums Photos</h1>
         <p>Galerie de photos familiales (upload admin uniquement)</p>
     </div>
 
     <div class="header">
         <div class="logo">
             <div class="logo-icon">🏠</div>
-            Famille Dupont
+            <span class="logo-text">Famille Dupont</span>
         </div>
         <div class="nav-links">
             <a href="#">Accueil</a>
@@ -1124,7 +1638,7 @@
 
     <div class="grid-3">
         <div class="album-card">
-            <div class="album-cover" style="background: linear-gradient(135deg, #C17767, #D4918A);">🎄</div>
+            <div class="album-cover" style="background: linear-gradient(135deg, #ff6bca, #b266ff);">🎄</div>
             <div class="album-info">
                 <h4>Noel 2025</h4>
                 <p>48 photos - 25 decembre 2025</p>
@@ -1132,7 +1646,7 @@
         </div>
 
         <div class="album-card">
-            <div class="album-cover" style="background: linear-gradient(135deg, #4A90A4, #3A7A94);">☀️</div>
+            <div class="album-cover" style="background: linear-gradient(135deg, #00f5ff, #0099ff);">☀️</div>
             <div class="album-info">
                 <h4>Vacances Bretagne</h4>
                 <p>124 photos - Aout 2025</p>
@@ -1164,7 +1678,7 @@
         </div>
 
         <div class="album-card">
-            <div class="album-cover" style="background: linear-gradient(135deg, #ffecd2, #fcb69f);">📷</div>
+            <div class="album-cover" style="background: linear-gradient(135deg, #ff9f43, #ee5a24);">📷</div>
             <div class="album-info">
                 <h4>Photos anciennes</h4>
                 <p>89 photos - Archives</p>
@@ -1176,14 +1690,14 @@
 <!-- PAGE: Forum -->
 <div id="forum" class="page">
     <div class="page-title">
-        <h1>Page: Forum / Messagerie</h1>
+        <h1>Forum / Messagerie</h1>
         <p>Espace de discussion familial</p>
     </div>
 
     <div class="header">
         <div class="logo">
             <div class="logo-icon">🏠</div>
-            Famille Dupont
+            <span class="logo-text">Famille Dupont</span>
         </div>
         <div class="nav-links">
             <a href="#">Accueil</a>
@@ -1211,7 +1725,7 @@
     </div>
 
     <div class="forum-category">
-        <div class="forum-icon" style="background: var(--terracotta);">🍳</div>
+        <div class="forum-icon" style="background: var(--gradient-pink-purple);">🍳</div>
         <div class="forum-content">
             <h4>Recettes de famille</h4>
             <p>Partagez les recettes transmises de generation en generation</p>
@@ -1223,7 +1737,7 @@
     </div>
 
     <div class="forum-category">
-        <div class="forum-icon" style="background: #D69E2E;">📖</div>
+        <div class="forum-icon" style="background: linear-gradient(135deg, #ff9f43, #ee5a24);">📖</div>
         <div class="forum-content">
             <h4>Souvenirs & Anecdotes</h4>
             <p>Racontez vos souvenirs de famille, partagez des anecdotes</p>
@@ -1235,7 +1749,7 @@
     </div>
 
     <div class="forum-category">
-        <div class="forum-icon" style="background: #48BB78;">📅</div>
+        <div class="forum-icon" style="background: linear-gradient(135deg, #00ff88, #00b894);">📅</div>
         <div class="forum-content">
             <h4>Organisation</h4>
             <p>Planifiez les reunions, evenements et sorties familiales</p>
@@ -1297,14 +1811,14 @@
 <!-- PAGE: Admin -->
 <div id="admin" class="page">
     <div class="page-title">
-        <h1>Page: Administration</h1>
+        <h1>Administration</h1>
         <p>Gestion du site (admin uniquement)</p>
     </div>
 
     <div class="header">
         <div class="logo">
             <div class="logo-icon">🏠</div>
-            Famille Dupont
+            <span class="logo-text">Famille Dupont</span>
         </div>
         <div class="nav-links">
             <a href="#">Accueil</a>
@@ -1316,7 +1830,7 @@
         </div>
         <div class="user-menu">
             <span>Admin</span>
-            <div class="avatar" style="background: var(--terracotta);">A</div>
+            <div class="avatar" style="background: var(--gradient-pink-purple);">A</div>
         </div>
     </div>
 
@@ -1365,19 +1879,19 @@
                         <td>Marie</td>
                         <td>marie@email.com</td>
                         <td><span class="badge badge-member">Membre</span></td>
-                        <td><button class="btn btn-outline">Editer</button></td>
+                        <td><button class="btn btn-outline" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Editer</button></td>
                     </tr>
                     <tr>
                         <td>Lucas</td>
                         <td>lucas@email.com</td>
                         <td><span class="badge badge-child">Enfant</span></td>
-                        <td><button class="btn btn-outline">Editer</button></td>
+                        <td><button class="btn btn-outline" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Editer</button></td>
                     </tr>
                     <tr>
                         <td>Papa</td>
                         <td>papa@email.com</td>
                         <td><span class="badge badge-member">Membre</span></td>
-                        <td><button class="btn btn-outline">Editer</button></td>
+                        <td><button class="btn btn-outline" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Editer</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -1389,26 +1903,26 @@
                 <button class="btn btn-primary">+ Ajouter</button>
             </div>
             <div style="padding: 0.5rem 0;">
-                <div style="padding: 0.75rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                    <div>
+                <div class="topic-row">
+                    <div style="flex: 1;">
                         <strong>Question 1</strong><br>
-                        <span style="color: var(--text-light); font-size: 0.9rem;">Quel est le prenom de la grand-mere maternelle ?</span>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Quel est le prenom de la grand-mere maternelle ?</span>
                     </div>
-                    <button class="btn btn-outline">Modifier</button>
+                    <button class="btn btn-outline" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Modifier</button>
                 </div>
-                <div style="padding: 0.75rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                    <div>
+                <div class="topic-row">
+                    <div style="flex: 1;">
                         <strong>Question 2</strong><br>
-                        <span style="color: var(--text-light); font-size: 0.9rem;">Dans quelle ville Mamie et Papi se sont-ils rencontres ?</span>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Dans quelle ville Mamie et Papi se sont-ils rencontres ?</span>
                     </div>
-                    <button class="btn btn-outline">Modifier</button>
+                    <button class="btn btn-outline" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Modifier</button>
                 </div>
-                <div style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
+                <div class="topic-row" style="margin-bottom: 0;">
+                    <div style="flex: 1;">
                         <strong>Question 3</strong><br>
-                        <span style="color: var(--text-light); font-size: 0.9rem;">Quel est le plat prefere de Mamie pour Noel ?</span>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Quel est le plat prefere de Mamie pour Noel ?</span>
                     </div>
-                    <button class="btn btn-outline">Modifier</button>
+                    <button class="btn btn-outline" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Modifier</button>
                 </div>
             </div>
         </div>
@@ -1418,10 +1932,10 @@
         <div class="card-header">
             <h3>📷 Upload de photos (admin)</h3>
         </div>
-        <div style="border: 2px dashed var(--border); border-radius: 8px; padding: 3rem; text-align: center; color: var(--text-light);">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+        <div class="upload-zone">
+            <div class="icon">📁</div>
             <p>Glissez-deposez vos photos ici ou</p>
-            <button class="btn btn-primary" style="margin-top: 1rem;">Parcourir les fichiers</button>
+            <button class="btn btn-secondary" style="margin-top: 1rem;">Parcourir les fichiers</button>
         </div>
     </div>
 
@@ -1432,7 +1946,7 @@
         <div style="display: flex; gap: 1rem; align-items: end;">
             <div style="flex: 1;">
                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Selectionner un membre</label>
-                <select style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px;">
+                <select>
                     <option>Marie</option>
                     <option>Lucas</option>
                     <option>Papa</option>
@@ -1442,7 +1956,7 @@
             </div>
             <button class="btn btn-secondary">Generer nouveau mot de passe</button>
         </div>
-        <p style="margin-top: 1rem; color: var(--text-light); font-size: 0.875rem;">
+        <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.875rem;">
             Le nouveau mot de passe temporaire sera affiche ici. L'utilisateur devra le changer a sa prochaine connexion.
         </p>
     </div>
@@ -1450,11 +1964,8 @@
 
 <script>
     function showPage(pageId) {
-        // Hide all pages
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        // Show selected page
         document.getElementById(pageId).classList.add('active');
-        // Update nav buttons
         document.querySelectorAll('.mockup-nav button').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
     }
