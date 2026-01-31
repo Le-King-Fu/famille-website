@@ -1,0 +1,225 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== AUTHENTICATION ====================
+
+enum UserRole {
+  ADMIN
+  MEMBER
+  CHILD
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  password              String
+  firstName             String
+  lastName              String
+  role                  UserRole  @default(MEMBER)
+  mustChangePassword    Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  lastLoginAt           DateTime?
+
+  // Relations
+  events                Event[]
+  albums                Album[]
+  photos                Photo[]
+  topics                Topic[]
+  replies               Reply[]
+  gameScores            GameScore[]
+  photoComments         PhotoComment[]
+  invitationCodesUsed   InvitationCode? @relation("UsedBy")
+  invitationCodesCreated InvitationCode[] @relation("CreatedBy")
+}
+
+model SecurityQuestion {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   // Stored lowercase, trimmed for comparison
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SecurityAttempt {
+  id        String   @id @default(cuid())
+  ipAddress String
+  attempts  Int      @default(0)
+  blockedUntil DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InvitationCode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  isUsed      Boolean   @default(false)
+  usedAt      DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  createdById String
+  createdBy   User      @relation("CreatedBy", fields: [createdById], references: [id])
+  usedById    String?   @unique
+  usedBy      User?     @relation("UsedBy", fields: [usedById], references: [id])
+}
+
+// ==================== CALENDAR ====================
+
+enum EventCategory {
+  BIRTHDAY
+  REUNION
+  VACATION
+  HOLIDAY
+  OTHER
+}
+
+model Event {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  allDay      Boolean       @default(false)
+  category    EventCategory @default(OTHER)
+  color       String?
+  imageUrl    String?       // URL image (Supabase Storage) - ADMIN ONLY
+  recurrence  Json?         // RecurrenceRule stored as JSON
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  createdById String
+  createdBy   User          @relation(fields: [createdById], references: [id])
+}
+
+// ==================== PHOTOS ====================
+
+model Album {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  createdById  String
+  createdBy    User     @relation(fields: [createdById], references: [id])
+  photos       Photo[]
+  coverPhotoId String?
+}
+
+model Photo {
+  id           String   @id @default(cuid())
+  url          String
+  thumbnailUrl String
+  caption      String?
+  takenAt      DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  albumId      String
+  album        Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  tags         PersonTag[]
+  comments     PhotoComment[]
+}
+
+model PersonTag {
+  id      String @id @default(cuid())
+  name    String
+  photoId String
+  photo   Photo  @relation(fields: [photoId], references: [id], onDelete: Cascade)
+}
+
+model PhotoComment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  photoId   String
+  photo     Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+// ==================== FORUM ====================
+
+model ForumCategory {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  topics      Topic[]
+}
+
+model Topic {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  isPinned    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastReplyAt DateTime @default(now())
+
+  // Relations
+  categoryId  String
+  category    ForumCategory @relation(fields: [categoryId], references: [id])
+  authorId    String
+  author      User          @relation(fields: [authorId], references: [id])
+  replies     Reply[]
+}
+
+model Reply {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  topicId       String
+  topic         Topic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  authorId      String
+  author        User    @relation(fields: [authorId], references: [id])
+  quotedReplyId String?
+  quotedReply   Reply?  @relation("QuotedReplies", fields: [quotedReplyId], references: [id])
+  quotedBy      Reply[] @relation("QuotedReplies")
+}
+
+// ==================== GAMES ====================
+
+enum GameType {
+  PIANO_HERO
+  PIANO_HERO_V2
+  WITCH_CASE
+  BELLE_BETE_SAGE
+}
+
+model GameScore {
+  id        String   @id @default(cuid())
+  game      GameType
+  score     Int
+  metadata  Json?    // difficulté, personnage, niveau, etc.
+  playedAt  DateTime @default(now())
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
