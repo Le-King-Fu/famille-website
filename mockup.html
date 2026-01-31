@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maquette - Site Familial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4A90A4;
+            --primary-dark: #3A7A94;
+            --cream: #FFF8F0;
+            --terracotta: #C17767;
+            --terracotta-light: #D4918A;
+            --text: #2D3748;
+            --text-light: #718096;
+            --border: #E2E8F0;
+            --success: #48BB78;
+            --warning: #ECC94B;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .mockup-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .mockup-nav button {
+            padding: 0.5rem 1rem;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .mockup-nav button:hover,
+        .mockup-nav button.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        /* Page container */
+        .page {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--terracotta);
+        }
+
+        .page-title h1 {
+            color: var(--primary-dark);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-title p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Header component */
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--terracotta);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h3 {
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--terracotta);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        /* Grid layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        /* Security Gate Page */
+        .gate-container {
+            max-width: 500px;
+            margin: 4rem auto;
+            text-align: center;
+        }
+
+        .gate-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--terracotta);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2.5rem;
+        }
+
+        .question-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .question-box label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .question-box input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .attempts {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+
+        /* Calendar */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            background: var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar-header {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .calendar-day {
+            background: white;
+            padding: 0.5rem;
+            min-height: 80px;
+            font-size: 0.875rem;
+        }
+
+        .calendar-day.other-month {
+            background: #f7f7f7;
+            color: var(--text-light);
+        }
+
+        .calendar-day .date {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .calendar-event {
+            background: var(--terracotta-light);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .calendar-event.birthday {
+            background: var(--primary);
+        }
+
+        /* Games */
+        .game-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .game-preview {
+            height: 140px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .game-info {
+            padding: 1rem;
+        }
+
+        .game-info h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .game-info p {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            width: 100%;
+        }
+
+        .leaderboard-row {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .leaderboard-row:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard-rank {
+            width: 40px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .leaderboard-rank.gold { color: #D69E2E; }
+        .leaderboard-rank.silver { color: #A0AEC0; }
+        .leaderboard-rank.bronze { color: #C17767; }
+
+        .leaderboard-user {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .leaderboard-score {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        /* Photos */
+        .album-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .album-cover {
+            height: 160px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .album-info {
+            padding: 1rem;
+        }
+
+        .album-info h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .album-info p {
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        /* Forum */
+        .forum-category {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .forum-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .forum-content {
+            flex: 1;
+        }
+
+        .forum-content h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .forum-content p {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .forum-stats {
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .topic-row {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topic-row:last-child {
+            border-bottom: none;
+        }
+
+        .topic-title {
+            flex: 1;
+        }
+
+        .topic-title h5 {
+            margin-bottom: 0.25rem;
+        }
+
+        .topic-title span {
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        .topic-meta {
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* Dashboard widgets */
+        .widget-events {
+            list-style: none;
+        }
+
+        .widget-events li {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .widget-events li:last-child {
+            border-bottom: none;
+        }
+
+        .event-date {
+            background: var(--terracotta);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .event-date .day {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .event-date .month {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .activity-feed {
+            list-style: none;
+        }
+
+        .activity-feed li {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .activity-feed li:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--cream);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Admin panel */
+        .admin-stat {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .admin-stat .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .admin-stat .label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .user-table th,
+        .user-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-table th {
+            background: var(--cream);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-admin { background: #FED7D7; color: #C53030; }
+        .badge-member { background: #C6F6D5; color: #276749; }
+        .badge-child { background: #BEE3F8; color: #2B6CB0; }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Mockup Navigation -->
+<nav class="mockup-nav">
+    <button onclick="showPage('gate')" class="active">Portail</button>
+    <button onclick="showPage('login')">Connexion</button>
+    <button onclick="showPage('home')">Accueil</button>
+    <button onclick="showPage('calendar')">Calendrier</button>
+    <button onclick="showPage('games')">Jeux</button>
+    <button onclick="showPage('photos')">Photos</button>
+    <button onclick="showPage('forum')">Forum</button>
+    <button onclick="showPage('admin')">Admin</button>
+</nav>
+
+<!-- PAGE: Security Gate -->
+<div id="gate" class="page active">
+    <div class="page-title">
+        <h1>Page: Portail de Securite</h1>
+        <p>Premiere barriere avant d'acceder au site</p>
+    </div>
+
+    <div class="gate-container">
+        <div class="gate-icon">🏠</div>
+        <h2>Bienvenue sur l'espace familial</h2>
+        <p style="color: var(--text-light); margin-top: 0.5rem;">
+            Pour acceder a ce site, veuillez repondre a cette question.
+        </p>
+
+        <div class="question-box">
+            <label>Quel est le prenom de la grand-mere maternelle ?</label>
+            <input type="text" placeholder="Votre reponse...">
+            <button class="btn btn-primary" style="width: 100%;">Valider</button>
+            <p class="attempts">Tentatives restantes : 3</p>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE: Login -->
+<div id="login" class="page">
+    <div class="page-title">
+        <h1>Page: Connexion</h1>
+        <p>Authentification des membres</p>
+    </div>
+
+    <div class="gate-container">
+        <div class="gate-icon">🔐</div>
+        <h2>Connexion</h2>
+
+        <div class="question-box">
+            <label>Adresse email</label>
+            <input type="email" placeholder="votre@email.com">
+            <label>Mot de passe</label>
+            <input type="password" placeholder="••••••••">
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal;">
+                    <input type="checkbox"> Se souvenir de moi
+                </label>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;">Se connecter</button>
+            <p style="text-align: center; margin-top: 1rem; color: var(--text-light); font-size: 0.875rem;">
+                Mot de passe oublie ? Contactez l'administrateur.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE: Home Dashboard -->
+<div id="home" class="page">
+    <div class="page-title">
+        <h1>Page: Accueil / Tableau de bord</h1>
+        <p>Vue d'ensemble de l'activite familiale</p>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🏠</div>
+            Famille Dupont
+        </div>
+        <div class="nav-links">
+            <a href="#" class="active">Accueil</a>
+            <a href="#">Calendrier</a>
+            <a href="#">Jeux</a>
+            <a href="#">Photos</a>
+            <a href="#">Forum</a>
+        </div>
+        <div class="user-menu">
+            <span>Marie</span>
+            <div class="avatar">M</div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-header">
+                <h3>📅 Prochains evenements</h3>
+                <button class="btn btn-outline">Voir tout</button>
+            </div>
+            <ul class="widget-events">
+                <li>
+                    <div class="event-date">
+                        <div class="day">14</div>
+                        <div class="month">Fev</div>
+                    </div>
+                    <div>
+                        <strong>Anniversaire de Papa</strong>
+                        <p style="color: var(--text-light); font-size: 0.85rem;">65 ans !</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="event-date">
+                        <div class="day">22</div>
+                        <div class="month">Fev</div>
+                    </div>
+                    <div>
+                        <strong>Reunion de famille</strong>
+                        <p style="color: var(--text-light); font-size: 0.85rem;">Chez Mamie, 12h</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="event-date">
+                        <div class="day">8</div>
+                        <div class="month">Mar</div>
+                    </div>
+                    <div>
+                        <strong>Fete des grand-meres</strong>
+                        <p style="color: var(--text-light); font-size: 0.85rem;">Ne pas oublier !</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>📰 Activite recente</h3>
+            </div>
+            <ul class="activity-feed">
+                <li>
+                    <div class="activity-icon">📷</div>
+                    <div>
+                        <strong>Admin</strong> a ajoute 12 photos dans <em>Noel 2025</em>
+                        <br><span style="color: var(--text-light); font-size: 0.8rem;">Il y a 2 heures</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="activity-icon">🎮</div>
+                    <div>
+                        <strong>Lucas</strong> a battu le record sur <em>Piano Hero</em>
+                        <br><span style="color: var(--text-light); font-size: 0.8rem;">Il y a 5 heures</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="activity-icon">💬</div>
+                    <div>
+                        <strong>Marie</strong> a repondu dans <em>Recette du gateau...</em>
+                        <br><span style="color: var(--text-light); font-size: 0.8rem;">Hier</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="activity-icon">📅</div>
+                    <div>
+                        <strong>Papa</strong> a cree l'evenement <em>Reunion de famille</em>
+                        <br><span style="color: var(--text-light); font-size: 0.8rem;">Il y a 2 jours</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-header">
+                <h3>🏆 Classement du mois</h3>
+                <button class="btn btn-outline">Tous les jeux</button>
+            </div>
+            <div class="leaderboard">
+                <div class="leaderboard-row">
+                    <div class="leaderboard-rank gold">1</div>
+                    <div class="leaderboard-user">
+                        <div class="avatar" style="background: #D69E2E;">L</div>
+                        Lucas
+                    </div>
+                    <div class="leaderboard-score">4,250 pts</div>
+                </div>
+                <div class="leaderboard-row">
+                    <div class="leaderboard-rank silver">2</div>
+                    <div class="leaderboard-user">
+                        <div class="avatar" style="background: #A0AEC0;">M</div>
+                        Marie
+                    </div>
+                    <div class="leaderboard-score">3,800 pts</div>
+                </div>
+                <div class="leaderboard-row">
+                    <div class="leaderboard-rank bronze">3</div>
+                    <div class="leaderboard-user">
+                        <div class="avatar" style="background: var(--terracotta);">P</div>
+                        Papa
+                    </div>
+                    <div class="leaderboard-score">2,100 pts</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>📸 Dernieres photos</h3>
+                <button class="btn btn-outline">Voir albums</button>
+            </div>
+            <div class="grid-4">
+                <div style="height: 70px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 8px;"></div>
+                <div style="height: 70px; background: linear-gradient(135deg, #f093fb, #f5576c); border-radius: 8px;"></div>
+                <div style="height: 70px; background: linear-gradient(135deg, #4facfe, #00f2fe); border-radius: 8px;"></div>
+                <div style="height: 70px; background: linear-gradient(135deg, #43e97b, #38f9d7); border-radius: 8px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE: Calendar -->
+<div id="calendar" class="page">
+    <div class="page-title">
+        <h1>Page: Calendrier Familial</h1>
+        <p>Gestion des evenements et anniversaires</p>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🏠</div>
+            Famille Dupont
+        </div>
+        <div class="nav-links">
+            <a href="#">Accueil</a>
+            <a href="#" class="active">Calendrier</a>
+            <a href="#">Jeux</a>
+            <a href="#">Photos</a>
+            <a href="#">Forum</a>
+        </div>
+        <div class="user-menu">
+            <span>Marie</span>
+            <div class="avatar">M</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Fevrier 2026</h3>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-outline">&lt; Precedent</button>
+                <button class="btn btn-outline">Suivant &gt;</button>
+                <button class="btn btn-primary">+ Nouvel evenement</button>
+            </div>
+        </div>
+
+        <div class="calendar-grid">
+            <div class="calendar-header">Lun</div>
+            <div class="calendar-header">Mar</div>
+            <div class="calendar-header">Mer</div>
+            <div class="calendar-header">Jeu</div>
+            <div class="calendar-header">Ven</div>
+            <div class="calendar-header">Sam</div>
+            <div class="calendar-header">Dim</div>
+
+            <div class="calendar-day other-month"><div class="date">26</div></div>
+            <div class="calendar-day other-month"><div class="date">27</div></div>
+            <div class="calendar-day other-month"><div class="date">28</div></div>
+            <div class="calendar-day other-month"><div class="date">29</div></div>
+            <div class="calendar-day other-month"><div class="date">30</div></div>
+            <div class="calendar-day other-month"><div class="date">31</div></div>
+            <div class="calendar-day"><div class="date">1</div></div>
+
+            <div class="calendar-day"><div class="date">2</div></div>
+            <div class="calendar-day"><div class="date">3</div></div>
+            <div class="calendar-day"><div class="date">4</div></div>
+            <div class="calendar-day"><div class="date">5</div></div>
+            <div class="calendar-day"><div class="date">6</div></div>
+            <div class="calendar-day"><div class="date">7</div></div>
+            <div class="calendar-day"><div class="date">8</div></div>
+
+            <div class="calendar-day"><div class="date">9</div></div>
+            <div class="calendar-day"><div class="date">10</div></div>
+            <div class="calendar-day"><div class="date">11</div></div>
+            <div class="calendar-day"><div class="date">12</div></div>
+            <div class="calendar-day"><div class="date">13</div></div>
+            <div class="calendar-day">
+                <div class="date">14</div>
+                <div class="calendar-event birthday">🎂 Anniv. Papa</div>
+            </div>
+            <div class="calendar-day"><div class="date">15</div></div>
+
+            <div class="calendar-day"><div class="date">16</div></div>
+            <div class="calendar-day"><div class="date">17</div></div>
+            <div class="calendar-day"><div class="date">18</div></div>
+            <div class="calendar-day"><div class="date">19</div></div>
+            <div class="calendar-day"><div class="date">20</div></div>
+            <div class="calendar-day"><div class="date">21</div></div>
+            <div class="calendar-day">
+                <div class="date">22</div>
+                <div class="calendar-event">Reunion famille</div>
+            </div>
+
+            <div class="calendar-day"><div class="date">23</div></div>
+            <div class="calendar-day"><div class="date">24</div></div>
+            <div class="calendar-day"><div class="date">25</div></div>
+            <div class="calendar-day"><div class="date">26</div></div>
+            <div class="calendar-day"><div class="date">27</div></div>
+            <div class="calendar-day"><div class="date">28</div></div>
+            <div class="calendar-day other-month"><div class="date">1</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE: Games -->
+<div id="games" class="page">
+    <div class="page-title">
+        <h1>Page: Jeux</h1>
+        <p>Collection de jeux familiaux avec classements</p>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🏠</div>
+            Famille Dupont
+        </div>
+        <div class="nav-links">
+            <a href="#">Accueil</a>
+            <a href="#">Calendrier</a>
+            <a href="#" class="active">Jeux</a>
+            <a href="#">Photos</a>
+            <a href="#">Forum</a>
+        </div>
+        <div class="user-menu">
+            <span>Marie</span>
+            <div class="avatar">M</div>
+        </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom: 2rem;">
+        <div class="game-card">
+            <div class="game-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">🎹</div>
+            <div class="game-info">
+                <h4>Piano Hero</h4>
+                <p>Appuyez sur les touches au bon moment pour jouer la melodie !</p>
+                <div class="game-stats">
+                    <span>🏆 Record: 12,450</span>
+                    <span>👤 Lucas</span>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 0.75rem;">Jouer</button>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🐍</div>
+            <div class="game-info">
+                <h4>Witch Case</h4>
+                <p>Collectez les lettres pour epeler PASCAL sans vous mordre la queue !</p>
+                <div class="game-stats">
+                    <span>🏆 Record: 8,200</span>
+                    <span>👤 Marie</span>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 0.75rem;">Jouer</button>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-preview" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🎹</div>
+            <div class="game-info">
+                <h4>Piano Hero v2</h4>
+                <p>Version amelioree avec systeme de vies et niveaux progressifs.</p>
+                <div class="game-stats">
+                    <span>🏆 Record: 15,800</span>
+                    <span>👤 Lucas</span>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 0.75rem;">Jouer</button>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-preview" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">🐕</div>
+            <div class="game-info">
+                <h4>La Belle, la Bete et la Sage</h4>
+                <p>Choisissez votre chien et evitez les obstacles dans cette course infinie !</p>
+                <div class="game-stats">
+                    <span>🏆 Record: 6,500</span>
+                    <span>👤 Papa</span>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 0.75rem;">Jouer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>🏆 Classement Global</h3>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary">Ce mois</button>
+                <button class="btn btn-outline">Cette semaine</button>
+                <button class="btn btn-outline">Tout le temps</button>
+            </div>
+        </div>
+        <div class="leaderboard">
+            <div class="leaderboard-row">
+                <div class="leaderboard-rank gold">🥇</div>
+                <div class="leaderboard-user">
+                    <div class="avatar" style="background: #D69E2E;">L</div>
+                    <div>
+                        <strong>Lucas</strong>
+                        <br><span style="color: var(--text-light); font-size: 0.8rem;">28 parties jouees</span>
+                    </div>
+                </div>
+                <div class="leaderboard-score">42,500 pts</div>
+            </div>
+            <div class="leaderboard-row">
+                <div class="leaderboard-rank silver">🥈</div>
+                <div class="leaderboard-user">
+                    <div class="avatar" style="background: #A0AEC0;">M</div>
+                    <div>
+                        <strong>Marie</strong>
+                        <br><span style="color: var(--text-light); font-size: 0.8rem;">22 parties jouees</span>
+                    </div>
+                </div>
+                <div class="leaderboard-score">38,200 pts</div>
+            </div>
+            <div class="leaderboard-row">
+                <div class="leaderboard-rank bronze">🥉</div>
+                <div class="leaderboard-user">
+                    <div class="avatar" style="background: var(--terracotta);">P</div>
+                    <div>
+                        <strong>Papa</strong>
+                        <br><span style="color: var(--text-light); font-size: 0.8rem;">15 parties jouees</span>
+                    </div>
+                </div>
+                <div class="leaderboard-score">21,400 pts</div>
+            </div>
+            <div class="leaderboard-row">
+                <div class="leaderboard-rank">4</div>
+                <div class="leaderboard-user">
+                    <div class="avatar">E</div>
+                    <div>
+                        <strong>Emma</strong>
+                        <br><span style="color: var(--text-light); font-size: 0.8rem;">12 parties jouees</span>
+                    </div>
+                </div>
+                <div class="leaderboard-score">18,900 pts</div>
+            </div>
+            <div class="leaderboard-row">
+                <div class="leaderboard-rank">5</div>
+                <div class="leaderboard-user">
+                    <div class="avatar">T</div>
+                    <div>
+                        <strong>Tatie Sophie</strong>
+                        <br><span style="color: var(--text-light); font-size: 0.8rem;">8 parties jouees</span>
+                    </div>
+                </div>
+                <div class="leaderboard-score">12,100 pts</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE: Photos -->
+<div id="photos" class="page">
+    <div class="page-title">
+        <h1>Page: Albums Photos</h1>
+        <p>Galerie de photos familiales (upload admin uniquement)</p>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🏠</div>
+            Famille Dupont
+        </div>
+        <div class="nav-links">
+            <a href="#">Accueil</a>
+            <a href="#">Calendrier</a>
+            <a href="#">Jeux</a>
+            <a href="#" class="active">Photos</a>
+            <a href="#">Forum</a>
+        </div>
+        <div class="user-menu">
+            <span>Marie</span>
+            <div class="avatar">M</div>
+        </div>
+    </div>
+
+    <div class="grid-3">
+        <div class="album-card">
+            <div class="album-cover" style="background: linear-gradient(135deg, #C17767, #D4918A);">🎄</div>
+            <div class="album-info">
+                <h4>Noel 2025</h4>
+                <p>48 photos - 25 decembre 2025</p>
+            </div>
+        </div>
+
+        <div class="album-card">
+            <div class="album-cover" style="background: linear-gradient(135deg, #4A90A4, #3A7A94);">☀️</div>
+            <div class="album-info">
+                <h4>Vacances Bretagne</h4>
+                <p>124 photos - Aout 2025</p>
+            </div>
+        </div>
+
+        <div class="album-card">
+            <div class="album-cover" style="background: linear-gradient(135deg, #667eea, #764ba2);">🎂</div>
+            <div class="album-info">
+                <h4>Anniversaire Emma</h4>
+                <p>36 photos - 15 juin 2025</p>
+            </div>
+        </div>
+
+        <div class="album-card">
+            <div class="album-cover" style="background: linear-gradient(135deg, #f093fb, #f5576c);">💒</div>
+            <div class="album-info">
+                <h4>Mariage Pierre & Julie</h4>
+                <p>215 photos - 3 mai 2025</p>
+            </div>
+        </div>
+
+        <div class="album-card">
+            <div class="album-cover" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">👶</div>
+            <div class="album-info">
+                <h4>Naissance Lea</h4>
+                <p>28 photos - 12 fevrier 2025</p>
+            </div>
+        </div>
+
+        <div class="album-card">
+            <div class="album-cover" style="background: linear-gradient(135deg, #ffecd2, #fcb69f);">📷</div>
+            <div class="album-info">
+                <h4>Photos anciennes</h4>
+                <p>89 photos - Archives</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE: Forum -->
+<div id="forum" class="page">
+    <div class="page-title">
+        <h1>Page: Forum / Messagerie</h1>
+        <p>Espace de discussion familial</p>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🏠</div>
+            Famille Dupont
+        </div>
+        <div class="nav-links">
+            <a href="#">Accueil</a>
+            <a href="#">Calendrier</a>
+            <a href="#">Jeux</a>
+            <a href="#">Photos</a>
+            <a href="#" class="active">Forum</a>
+        </div>
+        <div class="user-menu">
+            <span>Marie</span>
+            <div class="avatar">M</div>
+        </div>
+    </div>
+
+    <div class="forum-category">
+        <div class="forum-icon">💬</div>
+        <div class="forum-content">
+            <h4>Discussions generales</h4>
+            <p>Partagez vos nouvelles, posez vos questions...</p>
+        </div>
+        <div class="forum-stats">
+            <div><strong>42</strong> sujets</div>
+            <div>128 messages</div>
+        </div>
+    </div>
+
+    <div class="forum-category">
+        <div class="forum-icon" style="background: var(--terracotta);">🍳</div>
+        <div class="forum-content">
+            <h4>Recettes de famille</h4>
+            <p>Partagez les recettes transmises de generation en generation</p>
+        </div>
+        <div class="forum-stats">
+            <div><strong>28</strong> sujets</div>
+            <div>95 messages</div>
+        </div>
+    </div>
+
+    <div class="forum-category">
+        <div class="forum-icon" style="background: #D69E2E;">📖</div>
+        <div class="forum-content">
+            <h4>Souvenirs & Anecdotes</h4>
+            <p>Racontez vos souvenirs de famille, partagez des anecdotes</p>
+        </div>
+        <div class="forum-stats">
+            <div><strong>35</strong> sujets</div>
+            <div>187 messages</div>
+        </div>
+    </div>
+
+    <div class="forum-category">
+        <div class="forum-icon" style="background: #48BB78;">📅</div>
+        <div class="forum-content">
+            <h4>Organisation</h4>
+            <p>Planifiez les reunions, evenements et sorties familiales</p>
+        </div>
+        <div class="forum-stats">
+            <div><strong>15</strong> sujets</div>
+            <div>67 messages</div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <h3>💬 Discussions generales</h3>
+            <button class="btn btn-primary">+ Nouveau sujet</button>
+        </div>
+
+        <div class="topic-row">
+            <div class="topic-title">
+                <h5>📌 Bienvenue sur le forum familial !</h5>
+                <span>Par Admin - 12 reponses</span>
+            </div>
+            <div class="topic-meta">
+                Dernier message<br>Il y a 2 jours
+            </div>
+        </div>
+
+        <div class="topic-row">
+            <div class="topic-title">
+                <h5>Qui vient a la reunion du 22 fevrier ?</h5>
+                <span>Par Papa - 8 reponses</span>
+            </div>
+            <div class="topic-meta">
+                Dernier message<br>Il y a 3 heures
+            </div>
+        </div>
+
+        <div class="topic-row">
+            <div class="topic-title">
+                <h5>Idees cadeaux pour l'anniversaire de Mamie</h5>
+                <span>Par Marie - 5 reponses</span>
+            </div>
+            <div class="topic-meta">
+                Dernier message<br>Hier
+            </div>
+        </div>
+
+        <div class="topic-row">
+            <div class="topic-title">
+                <h5>Photos de vacances a partager ?</h5>
+                <span>Par Tatie Sophie - 3 reponses</span>
+            </div>
+            <div class="topic-meta">
+                Dernier message<br>Il y a 4 jours
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE: Admin -->
+<div id="admin" class="page">
+    <div class="page-title">
+        <h1>Page: Administration</h1>
+        <p>Gestion du site (admin uniquement)</p>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🏠</div>
+            Famille Dupont
+        </div>
+        <div class="nav-links">
+            <a href="#">Accueil</a>
+            <a href="#">Calendrier</a>
+            <a href="#">Jeux</a>
+            <a href="#">Photos</a>
+            <a href="#">Forum</a>
+            <a href="#" class="active">Admin</a>
+        </div>
+        <div class="user-menu">
+            <span>Admin</span>
+            <div class="avatar" style="background: var(--terracotta);">A</div>
+        </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom: 2rem;">
+        <div class="card admin-stat">
+            <div class="number">12</div>
+            <div class="label">Membres</div>
+        </div>
+        <div class="card admin-stat">
+            <div class="number">6</div>
+            <div class="label">Albums</div>
+        </div>
+        <div class="card admin-stat">
+            <div class="number">540</div>
+            <div class="label">Photos</div>
+        </div>
+        <div class="card admin-stat">
+            <div class="number">477</div>
+            <div class="label">Messages</div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-header">
+                <h3>👥 Gestion des membres</h3>
+                <button class="btn btn-primary">+ Inviter</button>
+            </div>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Admin</td>
+                        <td>admin@famille.fr</td>
+                        <td><span class="badge badge-admin">Admin</span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>Marie</td>
+                        <td>marie@email.com</td>
+                        <td><span class="badge badge-member">Membre</span></td>
+                        <td><button class="btn btn-outline">Editer</button></td>
+                    </tr>
+                    <tr>
+                        <td>Lucas</td>
+                        <td>lucas@email.com</td>
+                        <td><span class="badge badge-child">Enfant</span></td>
+                        <td><button class="btn btn-outline">Editer</button></td>
+                    </tr>
+                    <tr>
+                        <td>Papa</td>
+                        <td>papa@email.com</td>
+                        <td><span class="badge badge-member">Membre</span></td>
+                        <td><button class="btn btn-outline">Editer</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>🔐 Questions de securite</h3>
+                <button class="btn btn-primary">+ Ajouter</button>
+            </div>
+            <div style="padding: 0.5rem 0;">
+                <div style="padding: 0.75rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>Question 1</strong><br>
+                        <span style="color: var(--text-light); font-size: 0.9rem;">Quel est le prenom de la grand-mere maternelle ?</span>
+                    </div>
+                    <button class="btn btn-outline">Modifier</button>
+                </div>
+                <div style="padding: 0.75rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>Question 2</strong><br>
+                        <span style="color: var(--text-light); font-size: 0.9rem;">Dans quelle ville Mamie et Papi se sont-ils rencontres ?</span>
+                    </div>
+                    <button class="btn btn-outline">Modifier</button>
+                </div>
+                <div style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>Question 3</strong><br>
+                        <span style="color: var(--text-light); font-size: 0.9rem;">Quel est le plat prefere de Mamie pour Noel ?</span>
+                    </div>
+                    <button class="btn btn-outline">Modifier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>📷 Upload de photos (admin)</h3>
+        </div>
+        <div style="border: 2px dashed var(--border); border-radius: 8px; padding: 3rem; text-align: center; color: var(--text-light);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+            <p>Glissez-deposez vos photos ici ou</p>
+            <button class="btn btn-primary" style="margin-top: 1rem;">Parcourir les fichiers</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>🔑 Reinitialisation de mot de passe</h3>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: end;">
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Selectionner un membre</label>
+                <select style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px;">
+                    <option>Marie</option>
+                    <option>Lucas</option>
+                    <option>Papa</option>
+                    <option>Emma</option>
+                    <option>Tatie Sophie</option>
+                </select>
+            </div>
+            <button class="btn btn-secondary">Generer nouveau mot de passe</button>
+        </div>
+        <p style="margin-top: 1rem; color: var(--text-light); font-size: 0.875rem;">
+            Le nouveau mot de passe temporaire sera affiche ici. L'utilisateur devra le changer a sa prochaine connexion.
+        </p>
+    </div>
+</div>
+
+<script>
+    function showPage(pageId) {
+        // Hide all pages
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        // Show selected page
+        document.getElementById(pageId).classList.add('active');
+        // Update nav buttons
+        document.querySelectorAll('.mockup-nav button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+</script>
+
+</body>
+</html>
