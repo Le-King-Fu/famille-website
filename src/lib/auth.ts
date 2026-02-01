@@ -26,6 +26,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
+        // Reject inactive users
+        if (!user.isActive) {
+          return null
+        }
+
         const isPasswordValid = await bcrypt.compare(
           credentials.password as string,
           user.password

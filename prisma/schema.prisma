@@ -22,6 +22,7 @@ model User {
   firstName             String
   lastName              String
   role                  UserRole  @default(MEMBER)
+  isActive              Boolean   @default(true)
   mustChangePassword    Boolean   @default(false)
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt

@@ -1,6 +1,6 @@
 # Plan Directeur - Site Web Familial
 
-> Document de suivi du projet. Dernière mise à jour: 2026-02-01 (soir)
+> Document de suivi du projet. Dernière mise à jour: 2026-02-01 (nuit)
 
 ---
 
@@ -24,9 +24,11 @@
 - [x] **Phase 2: Album Photos** (fonctionnel)
 - [x] **Phase 3: Forum** (fonctionnel)
 - [x] **Phase 4: Piano Hero v2** (premier jeu complet)
+- [x] **Phase 5: Administration** (utilisateurs, questions, invitations)
 
 ### En Cours
 - [ ] **Phase 4: Jeux** - Autres jeux à venir (Piano Hero v1, Witch Case, Belle Bête Sage)
+- [ ] **Phase 6: Tests** - À démarrer
 
 ---
 
@@ -156,26 +158,30 @@
 
 ---
 
-## Phase 5: Administration
+## Phase 5: Administration ✅
 
 ### 5.1 Gestion Utilisateurs
-- [ ] Page `/admin/utilisateurs` - Liste membres
-- [ ] Voir détails utilisateur
-- [ ] Modifier rôle (Admin/Membre/Enfant)
-- [ ] Réinitialiser mot de passe (génère mot de passe temporaire)
-- [ ] Désactiver/réactiver compte
+- [x] Page `/admin/utilisateurs` - Liste membres
+- [x] Voir détails utilisateur
+- [x] Modifier rôle (Admin/Membre/Enfant)
+- [x] Réinitialiser mot de passe (génère mot de passe temporaire)
+- [x] Désactiver/réactiver compte
+- [x] Champ `isActive` ajouté au modèle User
+- [x] Login rejette les utilisateurs inactifs
 
 ### 5.2 Questions de Sécurité
-- [ ] Page `/admin/questions` - Gérer questions
-- [ ] Ajouter/modifier/supprimer questions
-- [ ] Activer/désactiver questions
-- [ ] Réordonner questions
+- [x] Page `/admin/questions` - Gérer questions
+- [x] Ajouter/modifier/supprimer questions
+- [x] Activer/désactiver questions
+- [x] Réordonner questions (drag & drop)
+- [x] Protection minimum 3 questions actives
 
 ### 5.3 Codes d'Invitation
-- [ ] Page `/admin/invitations` - Gérer codes
-- [ ] Générer nouveau code
-- [ ] Voir codes actifs/utilisés/expirés
-- [ ] Révoquer code non utilisé
+- [x] Page `/admin/invitations` - Gérer codes
+- [x] Générer nouveau code (7/14/30/90 jours)
+- [x] Voir codes actifs/utilisés/expirés (filtres)
+- [x] Révoquer code non utilisé
+- [x] Copier code dans le presse-papier
 
 ---
 
@@ -340,6 +346,7 @@
 
 | Date | Modification |
 |------|--------------|
+| 2026-02-01 | **Phase 5 Administration terminée** - Gestion utilisateurs (rôles, statut, reset password), questions de sécurité (CRUD, reorder, min 3), codes d'invitation (génération, filtres, révocation) |
 | 2026-02-01 | **Piano Hero v2 terminé** - Infrastructure jeux (GameWrapper, overlays, contrôles), composant principal, API scores, page dynamique `/jeux/[gameId]`, support mobile |
 | 2026-02-01 | Début Phase 4 Jeux - Intégration Piano Hero v2 (friendly cyberpunk) |
 | 2026-02-01 | Phase 2 Album Photos implémentée (albums, upload, lightbox, commentaires) |
