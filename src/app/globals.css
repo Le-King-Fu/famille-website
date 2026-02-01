@@ -7,6 +7,17 @@
     --color-bleu: 74 144 164;
     --color-creme: 255 248 240;
     --color-terracotta: 193 119 103;
+
+    /* Friendly Cyberpunk palette for games */
+    --game-bg: #2C3E50;
+    --game-bg-secondary: #34495E;
+    --game-bg-dark: #1A252F;
+    --game-primary: #C17767;
+    --game-primary-dark: #A85B4A;
+    --game-secondary: #4A90A4;
+    --game-accent: #E57373;
+    --game-gold: #F7931A;
+    --game-text: #FFF8F0;
   }
 
   body {

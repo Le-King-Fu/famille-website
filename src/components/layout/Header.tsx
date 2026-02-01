@@ -18,11 +18,11 @@ import {
 } from 'lucide-react'
 
 const navigation = [
-  { name: 'Accueil', href: '/', icon: Home },
-  { name: 'Calendrier', href: '/calendrier', icon: Calendar },
-  { name: 'Jeux', href: '/jeux', icon: Gamepad2 },
-  { name: 'Photos', href: '/photos', icon: Image },
-  { name: 'Forum', href: '/forum', icon: MessageSquare },
+  { name: 'Accueil', href: '/', icon: Home, hideForChild: false },
+  { name: 'Calendrier', href: '/calendrier', icon: Calendar, hideForChild: false },
+  { name: 'Jeux', href: '/jeux', icon: Gamepad2, hideForChild: false },
+  { name: 'Photos', href: '/photos', icon: Image, hideForChild: false },
+  { name: 'Forum', href: '/forum', icon: MessageSquare, hideForChild: true },
 ]
 
 export function Header() {
@@ -31,6 +31,10 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const isAdmin = session?.user?.role === 'ADMIN'
+  const isChild = session?.user?.role === 'CHILD'
+
+  // Filter navigation based on user role
+  const filteredNav = navigation.filter((item) => !(item.hideForChild && isChild))
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm dark:bg-gray-900/80">
@@ -46,7 +50,7 @@ export function Header() {
 
           {/* Desktop navigation */}
           <div className="hidden md:flex md:items-center md:gap-1">
-            {navigation.map((item) => {
+            {filteredNav.map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link
@@ -117,7 +121,7 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex flex-col gap-1">
-              {navigation.map((item) => {
+              {filteredNav.map((item) => {
                 const isActive = pathname === item.href
                 return (
                   <Link

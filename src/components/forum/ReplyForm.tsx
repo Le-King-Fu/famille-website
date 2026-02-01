@@ -1,0 +1,127 @@
+'use client'
+
+import { useState, useEffect, useRef } from 'react'
+import { Loader2, X } from 'lucide-react'
+import { Reply } from './types'
+import { FormatToolbar } from './FormatContent'
+
+interface ReplyFormProps {
+  topicId: string
+  quotedReply?: Reply | null
+  onClearQuote?: () => void
+  onSuccess?: (reply: Reply) => void
+}
+
+export function ReplyForm({
+  topicId,
+  quotedReply,
+  onClearQuote,
+  onSuccess,
+}: ReplyFormProps) {
+  const [content, setContent] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Focus textarea when quoting
+  useEffect(() => {
+    if (quotedReply && textareaRef.current) {
+      textareaRef.current.focus()
+      textareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [quotedReply])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch(`/api/forum/topics/${topicId}/replies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: content.trim(),
+          quotedReplyId: quotedReply?.id || null,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erreur lors de la réponse')
+      }
+
+      setContent('')
+      onClearQuote?.()
+      onSuccess?.(data.reply)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="card">
+      <h3 className="font-semibold mb-4">Répondre</h3>
+
+      {/* Quoted reply preview */}
+      {quotedReply && (
+        <div className="mb-4 p-3 bg-gray-50 border-l-4 border-bleu rounded relative">
+          <button
+            onClick={onClearQuote}
+            className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="text-sm text-gray-500 mb-1">
+            En réponse à {quotedReply.author.firstName}:
+          </div>
+          <div className="text-sm text-gray-600 line-clamp-2 pr-6">
+            {quotedReply.content}
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <textarea
+            ref={textareaRef}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="input min-h-[120px]"
+            placeholder="Écrivez votre réponse..."
+            required
+            maxLength={10000}
+            disabled={isSubmitting}
+          />
+          <FormatToolbar />
+        </div>
+
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={isSubmitting || !content.trim()}
+            className="btn-primary"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Envoi...
+              </>
+            ) : (
+              'Répondre'
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}

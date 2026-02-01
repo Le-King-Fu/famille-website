@@ -37,6 +37,11 @@ export default auth((req) => {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
+  // Bloquer l'accès au forum pour les enfants
+  if (pathname.startsWith('/forum') && req.auth?.user?.role === 'CHILD') {
+    return NextResponse.redirect(new URL('/', req.url))
+  }
+
   // Vérifier si l'utilisateur doit changer son mot de passe
   if (
     isLoggedIn &&

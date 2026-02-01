@@ -18,9 +18,11 @@ import {
   subMonths,
 } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { EventCategory } from '@prisma/client'
 import { CalendarEvent, categoryConfig } from './types'
 import { EventModal } from './EventModal'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { CategoryFilter } from './CategoryFilter'
+import { ChevronLeft, ChevronRight, Plus, Download } from 'lucide-react'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
@@ -77,16 +79,21 @@ export function Calendar({
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null)
+  const [selectedCategories, setSelectedCategories] = useState<Set<EventCategory>>(
+    () => new Set(Object.keys(categoryConfig) as EventCategory[])
+  )
 
-  // Convert events for react-big-calendar
+  // Convert and filter events for react-big-calendar
   const calendarEvents = useMemo(
     () =>
-      events.map((event) => ({
-        ...event,
-        start: new Date(event.startDate),
-        end: event.endDate ? new Date(event.endDate) : new Date(event.startDate),
-      })),
-    [events]
+      events
+        .filter((event) => selectedCategories.has(event.category))
+        .map((event) => ({
+          ...event,
+          start: new Date(event.startDate),
+          end: event.endDate ? new Date(event.endDate) : new Date(event.startDate),
+        })),
+    [events, selectedCategories]
   )
 
   // Handle date navigation
@@ -182,6 +189,19 @@ export function Calendar({
     []
   )
 
+  // Handle iCal export
+  const handleExport = useCallback(() => {
+    const start = startOfMonth(date)
+    const end = endOfMonth(date)
+    const params = new URLSearchParams({
+      start: start.toISOString(),
+      end: end.toISOString(),
+    })
+
+    // Trigger download
+    window.location.href = `/api/events/export?${params}`
+  }, [date])
+
   // Custom toolbar
   const CustomToolbar = useCallback(
     () => (
@@ -227,6 +247,14 @@ export function Calendar({
             ))}
           </div>
 
+          <button
+            onClick={handleExport}
+            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            title="Exporter en iCal"
+          >
+            <Download className="h-4 w-4" />
+          </button>
+
           {canCreateEvent && (
             <button
               onClick={() => {
@@ -243,12 +271,19 @@ export function Calendar({
         </div>
       </div>
     ),
-    [date, view, canCreateEvent, handleNavigate, handleViewChange]
+    [date, view, canCreateEvent, handleNavigate, handleViewChange, handleExport]
   )
 
   return (
     <div className="calendar-container">
       <CustomToolbar />
+
+      <div className="mb-4">
+        <CategoryFilter
+          selectedCategories={selectedCategories}
+          onChange={setSelectedCategories}
+        />
+      </div>
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <BigCalendar

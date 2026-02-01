@@ -1,6 +1,6 @@
 # Plan Directeur - Site Web Familial
 
-> Document de suivi du projet. Dernière mise à jour: 2026-02-01
+> Document de suivi du projet. Dernière mise à jour: 2026-02-01 (soir)
 
 ---
 
@@ -23,9 +23,10 @@
 - [x] **Phase 1: Calendrier** (complet)
 - [x] **Phase 2: Album Photos** (fonctionnel)
 - [x] **Phase 3: Forum** (fonctionnel)
+- [x] **Phase 4: Piano Hero v2** (premier jeu complet)
 
 ### En Cours
-- [ ] Aucun
+- [ ] **Phase 4: Jeux** - Autres jeux à venir (Piano Hero v1, Witch Case, Belle Bête Sage)
 
 ---
 
@@ -115,22 +116,40 @@
 
 ---
 
-## Phase 4: Jeux
+## Phase 4: Jeux 🎮
 
-### 4.1 Infrastructure
-- [ ] API POST `/api/games/scores` - Soumettre score
-- [ ] API GET `/api/games/scores/[game]` - Classement par jeu
-- [ ] Créer layout `/jeux/[gameId]/page.tsx`
+> Style: **Friendly Cyberpunk** - Neons chaleureux (terracotta, bleu famille) sur fond sombre
 
-### 4.2 Intégration des Jeux
-- [ ] Récupérer jeux depuis Site_Perso
-- [ ] Adapter Piano Hero pour intégration
-- [ ] Adapter Piano Hero v2
-- [ ] Adapter Witch Case
-- [ ] Adapter Belle Bête Sage
-- [ ] Ajouter soumission de score à chaque jeu
+### 4.1 Infrastructure Commune ✅
+- [x] API POST `/api/games/scores` - Soumettre score
+- [x] API GET `/api/games/scores` - Classement (query param `game`)
+- [x] Variables CSS cyberpunk dans `globals.css`
+- [x] `GameWrapper.tsx` - Wrapper réutilisable (auth, score submit)
+- [x] `GameOverlay.tsx` - Menu/Pause/GameOver overlays
+- [x] `GameControls.tsx` - Boutons start/pause/mute
+- [x] `MobileControls.tsx` - Contrôles tactiles
 
-### 4.3 Classements
+### 4.2 Piano Hero v2 (Premier jeu) ✅
+- [x] Cloner repo `Le-King-Fu/piano_hero_v2`
+- [x] Porter `config.ts` avec palette friendly cyberpunk
+- [x] Porter `Note.ts` (entité note qui tombe)
+- [x] Porter `Renderer.ts` (canvas, effets visuels)
+- [x] Porter `Audio.ts` (Web Audio API, sons 8-bit)
+- [x] Créer hooks React:
+  - [x] `useGameLoop.ts` (requestAnimationFrame)
+  - [x] Input intégré dans composant principal
+  - [x] Audio class avec wrapper
+- [x] Créer `PianoHeroGame.tsx` (composant principal)
+- [x] Créer page `/jeux/[gameId]` dynamique
+- [x] Intégrer soumission score via API
+- [x] Support mobile (touches piano tactiles)
+
+### 4.3 Autres Jeux (À venir)
+- [ ] Piano Hero (v1)
+- [ ] Witch Case
+- [ ] Belle Bête Sage
+
+### 4.4 Classements (Amélioration future)
 - [ ] Filtres: tout le temps / ce mois / cette semaine
 - [ ] Classement personnel (historique)
 - [ ] Badges/achievements (optionnel)
@@ -321,6 +340,8 @@
 
 | Date | Modification |
 |------|--------------|
+| 2026-02-01 | **Piano Hero v2 terminé** - Infrastructure jeux (GameWrapper, overlays, contrôles), composant principal, API scores, page dynamique `/jeux/[gameId]`, support mobile |
+| 2026-02-01 | Début Phase 4 Jeux - Intégration Piano Hero v2 (friendly cyberpunk) |
 | 2026-02-01 | Phase 2 Album Photos implémentée (albums, upload, lightbox, commentaires) |
 | 2026-02-01 | Phase 3 Forum implémentée (sujets, réponses, citations, modération) |
 | 2026-02-01 | Phase 1 Calendrier terminée (filtres catégorie + export iCal) |
