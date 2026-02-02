@@ -7,6 +7,12 @@
     --color-bleu: 74 144 164;
     --color-creme: 255 248 240;
     --color-terracotta: 193 119 103;
+    --color-background: 255 248 240;
+    --color-foreground: 17 24 39;
+    --color-card: 255 255 255;
+    --color-card-foreground: 17 24 39;
+    --color-border: 209 213 219;
+    --color-muted: 107 114 128;
 
     /* Friendly Cyberpunk palette for games */
     --game-bg: #2C3E50;
@@ -20,8 +26,20 @@
     --game-text: #FFF8F0;
   }
 
+  .dark {
+    --color-bleu: 94 164 184;
+    --color-creme: 30 30 35;
+    --color-terracotta: 213 139 123;
+    --color-background: 17 24 39;
+    --color-foreground: 243 244 246;
+    --color-card: 31 41 55;
+    --color-card-foreground: 243 244 246;
+    --color-border: 55 65 81;
+    --color-muted: 156 163 175;
+  }
+
   body {
-    @apply bg-creme text-gray-900 antialiased;
+    @apply bg-creme text-gray-900 antialiased transition-colors duration-200;
   }
 
   .dark body {
@@ -35,23 +53,28 @@
   }
 
   .btn-primary {
-    @apply btn bg-bleu text-white hover:bg-bleu-600 focus:ring-bleu;
+    @apply btn bg-bleu text-white hover:bg-bleu-600 focus:ring-bleu dark:hover:bg-bleu-400;
   }
 
   .btn-secondary {
-    @apply btn bg-terracotta text-white hover:bg-terracotta-600 focus:ring-terracotta;
+    @apply btn bg-terracotta text-white hover:bg-terracotta-600 focus:ring-terracotta dark:hover:bg-terracotta-400;
   }
 
   .btn-outline {
-    @apply btn border-2 border-bleu text-bleu hover:bg-bleu hover:text-white focus:ring-bleu;
+    @apply btn border-2 border-bleu text-bleu hover:bg-bleu hover:text-white focus:ring-bleu dark:border-bleu-400 dark:text-bleu-400;
   }
 
   .input {
-    @apply w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-bleu focus:outline-none focus:ring-2 focus:ring-bleu/20 dark:border-gray-600 dark:bg-gray-800;
+    @apply w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-bleu focus:outline-none focus:ring-2 focus:ring-bleu/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400;
   }
 
   .card {
-    @apply rounded-xl bg-white p-6 shadow-md dark:bg-gray-800;
+    @apply rounded-xl bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/50;
+  }
+
+  /* Links in dark mode */
+  .dark a:not(.btn):not([class*="bg-"]) {
+    @apply hover:text-bleu-400;
   }
 }
 

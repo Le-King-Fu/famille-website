@@ -92,7 +92,7 @@ export default async function HomePage() {
                   className="flex items-start gap-3 text-sm"
                 >
                   <div className="flex-shrink-0 w-12 text-center">
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(event.startDate).toLocaleDateString('fr-FR', {
                         month: 'short',
                       })}
@@ -102,8 +102,8 @@ export default async function HomePage() {
                     </div>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{event.title}</p>
-                    <p className="text-gray-500 text-xs">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{event.title}</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">
                       par {event.createdBy.firstName}
                     </p>
                   </div>
@@ -111,7 +111,7 @@ export default async function HomePage() {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500 text-sm">Aucun événement à venir</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Aucun événement à venir</p>
           )}
         </div>
 
@@ -132,11 +132,11 @@ export default async function HomePage() {
                 <li key={topic.id} className="text-sm">
                   <Link
                     href={`/forum/${topic.category.name.toLowerCase()}/${topic.id}`}
-                    className="font-medium text-gray-900 hover:text-bleu line-clamp-1"
+                    className="font-medium text-gray-900 dark:text-gray-100 hover:text-bleu line-clamp-1"
                   >
                     {topic.title}
                   </Link>
-                  <p className="text-gray-500 text-xs flex items-center gap-2">
+                  <p className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-2">
                     <span>{topic.author.firstName}</span>
                     <span>•</span>
                     <span>{topic._count.replies} réponses</span>
@@ -145,7 +145,7 @@ export default async function HomePage() {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500 text-sm">Aucune discussion récente</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Aucune discussion récente</p>
           )}
         </div>
 
@@ -171,16 +171,16 @@ export default async function HomePage() {
                   className="flex items-center justify-between text-sm"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
                       {score.user.firstName}
                     </p>
-                    <p className="text-gray-500 text-xs">
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">
                       {gameNames[score.game]}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-terracotta">{score.score}</p>
-                    <p className="text-gray-400 text-xs flex items-center gap-1">
+                    <p className="text-gray-400 dark:text-gray-500 text-xs flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {new Date(score.playedAt).toLocaleDateString('fr-FR')}
                     </p>
@@ -189,7 +189,7 @@ export default async function HomePage() {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500 text-sm">Aucun score enregistré</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Aucun score enregistré</p>
           )}
         </div>
       </div>
@@ -243,9 +243,9 @@ function QuickAccessCard({
   color: 'bleu' | 'terracotta'
 }) {
   const colorClasses = {
-    bleu: 'bg-bleu/10 text-bleu hover:bg-bleu hover:text-white',
+    bleu: 'bg-bleu/10 text-bleu hover:bg-bleu hover:text-white dark:bg-bleu/20',
     terracotta:
-      'bg-terracotta/10 text-terracotta hover:bg-terracotta hover:text-white',
+      'bg-terracotta/10 text-terracotta hover:bg-terracotta hover:text-white dark:bg-terracotta/20',
   }
 
   return (

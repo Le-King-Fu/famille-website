@@ -76,7 +76,7 @@ export default function PortailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-creme">
+      <div className="min-h-screen flex items-center justify-center bg-creme dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-bleu border-t-transparent" />
       </div>
     )
@@ -87,13 +87,13 @@ export default function PortailPage() {
       (blockedUntil.getTime() - Date.now()) / 1000 / 60
     )
     return (
-      <div className="min-h-screen flex items-center justify-center bg-creme px-4">
+      <div className="min-h-screen flex items-center justify-center bg-creme dark:bg-gray-900 px-4">
         <div className="card max-w-md w-full text-center">
           <AlertCircle className="h-16 w-16 text-terracotta mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Accès temporairement bloqué
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Trop de tentatives incorrectes. Veuillez réessayer dans{' '}
             <strong>{minutesLeft} minute{minutesLeft > 1 ? 's' : ''}</strong>.
           </p>
@@ -103,31 +103,31 @@ export default function PortailPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-creme px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-creme dark:bg-gray-900 px-4 py-12">
       <div className="card max-w-lg w-full">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-bleu/10 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-bleu/10 dark:bg-bleu/20 rounded-full mb-4">
             <Lock className="h-8 w-8 text-bleu" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Bienvenue chez les Landry
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Répondez à cette question pour accéder au site familial.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-red-700 text-sm">{error}</p>
+            <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {questions.map((q) => (
             <div key={q.id}>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {q.question}
               </label>
               <input
@@ -144,7 +144,7 @@ export default function PortailPage() {
           ))}
 
           <div className="flex items-center justify-between pt-4">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               {attemptsLeft} tentative{attemptsLeft > 1 ? 's' : ''} restante
               {attemptsLeft > 1 ? 's' : ''}
             </span>

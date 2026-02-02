@@ -15,7 +15,10 @@ import {
   X,
   LogOut,
   User,
+  Sun,
+  Moon,
 } from 'lucide-react'
+import { useTheme } from '@/components/providers/ThemeProvider'
 
 const navigation = [
   { name: 'Accueil', href: '/', icon: Home, hideForChild: false },
@@ -29,9 +32,14 @@ export function Header() {
   const pathname = usePathname()
   const { data: session } = useSession()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { theme, setTheme, resolvedTheme } = useTheme()
 
   const isAdmin = session?.user?.role === 'ADMIN'
   const isChild = session?.user?.role === 'CHILD'
+
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+  }
 
   // Filter navigation based on user role
   const filteredNav = navigation.filter((item) => !(item.hideForChild && isChild))
@@ -84,6 +92,19 @@ export function Header() {
 
           {/* User menu */}
           <div className="flex items-center gap-2">
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+              title={resolvedTheme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+            >
+              {resolvedTheme === 'dark' ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </button>
+
             {session?.user && (
               <>
                 <Link
