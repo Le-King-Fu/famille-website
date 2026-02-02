@@ -23,16 +23,18 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Récupérer 3 questions aléatoires actives
-    const questions = await db.securityQuestion.findMany({
+    // Récupérer toutes les questions actives
+    const allQuestions = await db.securityQuestion.findMany({
       where: { isActive: true },
-      orderBy: { order: 'asc' },
-      take: 3,
       select: {
         id: true,
         question: true,
       },
     })
+
+    // Sélectionner UNE question aléatoire
+    const randomIndex = Math.floor(Math.random() * allQuestions.length)
+    const questions = allQuestions.length > 0 ? [allQuestions[randomIndex]] : []
 
     const attemptsLeft = attempt ? 3 - attempt.attempts : 3
 

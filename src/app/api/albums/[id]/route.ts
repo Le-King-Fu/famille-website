@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase'
 
 // GET /api/albums/[id] - Get album with photos
 export async function GET(
@@ -186,7 +186,7 @@ export async function DELETE(
         return paths
       })
 
-      if (filePaths.length > 0) {
+      if (filePaths.length > 0 && supabaseAdmin) {
         await supabaseAdmin.storage.from('photos').remove(filePaths)
       }
     }

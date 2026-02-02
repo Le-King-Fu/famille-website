@@ -113,7 +113,7 @@ export default function PortailPage() {
             Bienvenue chez les Landry
           </h1>
           <p className="text-gray-600">
-            Répondez à ces questions pour accéder au site familial.
+            Répondez à cette question pour accéder au site familial.
           </p>
         </div>
 
@@ -125,10 +125,10 @@ export default function PortailPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {questions.map((q, index) => (
+          {questions.map((q) => (
             <div key={q.id}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {index + 1}. {q.question}
+                {q.question}
               </label>
               <input
                 type="text"

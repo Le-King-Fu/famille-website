@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase'
 
 // POST /api/photos/upload - Upload photo(s) to an album (admin only)
 export async function POST(request: NextRequest) {
@@ -13,6 +13,15 @@ export async function POST(request: NextRequest) {
 
   if (session.user.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 })
+  }
+
+  // Check Supabase configuration
+  if (!isSupabaseConfigured() || !supabaseAdmin) {
+    console.error('Supabase is not configured. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.')
+    return NextResponse.json(
+      { error: 'Le stockage de fichiers n\'est pas configuré. Contactez l\'administrateur.' },
+      { status: 503 }
+    )
   }
 
   try {
@@ -77,6 +86,7 @@ export async function POST(request: NextRequest) {
           })
 
         if (uploadError) {
+          console.error(`Supabase upload error for ${file.name}:`, uploadError)
           errors.push(`${file.name}: Erreur upload - ${uploadError.message}`)
           continue
         }
