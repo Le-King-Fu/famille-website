@@ -1,71 +1,71 @@
-19:45:34.988 Running build in Washington, D.C., USA (East) – iad1
-19:45:34.989 Build machine configuration: 2 cores, 8 GB
-19:45:35.110 Cloning github.com/Le-King-Fu/famille-website-vercel (Branch: main, Commit: 62cf5ab)
-19:45:35.111 Previous build caches not available.
-19:45:35.402 Cloning completed: 291.000ms
-19:45:35.776 Running "vercel build"
-19:45:36.849 Vercel CLI 50.9.6
-19:45:37.390 Installing dependencies...
-19:45:39.814 npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
-19:45:40.280 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-19:45:41.029 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-19:45:42.645 npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
-19:45:42.794 npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-19:45:42.960 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
-19:45:47.121 npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
-19:45:58.303 
-19:45:58.304 added 609 packages in 21s
-19:45:58.304 
-19:45:58.304 189 packages are looking for funding
-19:45:58.304   run `npm fund` for details
-19:45:58.386 Detected Next.js version: 15.5.11
-19:45:58.394 Running "npm run build"
-19:45:58.495 
-19:45:58.495 > famille-website@0.1.0 build
-19:45:58.496 > next build
-19:45:58.496 
-19:45:59.067 Attention: Next.js now collects completely anonymous telemetry regarding usage.
-19:45:59.068 This information is used to shape Next.js' roadmap and prioritize features.
-19:45:59.068 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
-19:45:59.068 https://nextjs.org/telemetry
-19:45:59.068 
-19:45:59.151    ▲ Next.js 15.5.11
-19:45:59.152 
-19:45:59.196    Creating an optimized production build ...
-19:45:59.695  ⚠ Mismatching @next/swc version, detected: 15.5.7 while Next.js is on 15.5.11. Please ensure these match
-19:46:12.110  ⚠ Mismatching @next/swc version, detected: 15.5.7 while Next.js is on 15.5.11. Please ensure these match
-19:46:15.183  ⚠ Mismatching @next/swc version, detected: 15.5.7 while Next.js is on 15.5.11. Please ensure these match
-19:46:22.914  ✓ Compiled successfully in 21.2s
-19:46:22.917    Linting and checking validity of types ...
-19:46:28.208 
-19:46:28.208 ./src/components/games/piano-hero-v2/PianoHeroGame.tsx
-19:46:28.208 139:6  Warning: React Hook useEffect has missing dependencies: 'goToMenu', 'handleNotePress', 'pause', 'resume', and 'start'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
-19:46:28.208 172:6  Warning: React Hook useCallback has a missing dependency: 'checkLevelUp'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
-19:46:28.208 202:6  Warning: React Hook useCallback has a missing dependency: 'triggerGameOver'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
-19:46:28.208 
-19:46:28.208 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
-19:46:32.484    Collecting page data ...
-19:46:32.677  ⚠ Mismatching @next/swc version, detected: 15.5.7 while Next.js is on 15.5.11. Please ensure these match
-19:46:32.946 Prisma has detected that this project was built on Vercel, which caches dependencies. This leads to an outdated Prisma Client because Prisma's auto-generation isn't triggered. To fix this, make sure to run the `prisma generate` command during the build process.
-19:46:32.946 
-19:46:32.947 Learn how: https://pris.ly/d/vercel-build
-19:46:32.950 Error [PrismaClientInitializationError]: Prisma has detected that this project was built on Vercel, which caches dependencies. This leads to an outdated Prisma Client because Prisma's auto-generation isn't triggered. To fix this, make sure to run the `prisma generate` command during the build process.
-19:46:32.953 
-19:46:32.953 Learn how: https://pris.ly/d/vercel-build
-19:46:32.953     at 35552 (.next/server/app/api/admin/invitations/[id]/route.js:1:8778)
-19:46:32.954     at c (.next/server/webpack-runtime.js:1:143)
-19:46:32.954     at 2404 (.next/server/app/api/admin/invitations/[id]/route.js:1:230)
-19:46:32.954     at c (.next/server/webpack-runtime.js:1:143)
-19:46:32.954     at 3888 (.next/server/app/api/admin/invitations/[id]/route.js:1:2328)
-19:46:32.954     at c (.next/server/webpack-runtime.js:1:143)
-19:46:32.955     at <unknown> (.next/server/app/api/admin/invitations/[id]/route.js:1:9390)
-19:46:32.955     at c.X (.next/server/webpack-runtime.js:1:1285) {
-19:46:32.956   clientVersion: '5.22.0',
-19:46:32.956   errorCode: undefined
-19:46:32.956 }
-19:46:32.958 
-19:46:32.959 > Build error occurred
-19:46:32.963 [Error: Failed to collect page data for /api/admin/invitations/[id]] {
-19:46:32.963   type: 'Error'
-19:46:32.963 }
-19:46:32.987 Error: Command "npm run build" exited with 1
+20:00:08.353 Running build in Washington, D.C., USA (East) – iad1
+20:00:08.362 Build machine configuration: 2 cores, 8 GB
+20:00:08.612 Cloning github.com/Le-King-Fu/famille-website (Branch: main, Commit: 29e76c7)
+20:00:08.613 Previous build caches not available.
+20:00:08.954 Cloning completed: 342.000ms
+20:00:10.303 Running "vercel build"
+20:00:11.348 Vercel CLI 50.9.6
+20:00:11.655 Installing dependencies...
+20:00:13.939 npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+20:00:14.446 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+20:00:15.157 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+20:00:16.809 npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+20:00:16.878 npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+20:00:17.116 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+20:00:20.964 npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+20:00:31.347 
+20:00:31.348 added 609 packages in 19s
+20:00:31.349 
+20:00:31.349 189 packages are looking for funding
+20:00:31.353   run `npm fund` for details
+20:00:31.435 Detected Next.js version: 15.5.11
+20:00:31.436 Running "npm run build"
+20:00:31.905 
+20:00:31.906 > famille-website@0.1.0 build
+20:00:31.906 > next build
+20:00:31.906 
+20:00:32.522 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+20:00:32.522 This information is used to shape Next.js' roadmap and prioritize features.
+20:00:32.523 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+20:00:32.523 https://nextjs.org/telemetry
+20:00:32.523 
+20:00:32.625    ▲ Next.js 15.5.11
+20:00:32.625 
+20:00:32.680    Creating an optimized production build ...
+20:00:33.173  ⚠ Mismatching @next/swc version, detected: 15.5.7 while Next.js is on 15.5.11. Please ensure these match
+20:00:45.480  ⚠ Mismatching @next/swc version, detected: 15.5.7 while Next.js is on 15.5.11. Please ensure these match
+20:00:48.605  ⚠ Mismatching @next/swc version, detected: 15.5.7 while Next.js is on 15.5.11. Please ensure these match
+20:00:56.745  ✓ Compiled successfully in 21.5s
+20:00:56.749    Linting and checking validity of types ...
+20:01:02.487 
+20:01:02.488 ./src/components/games/piano-hero-v2/PianoHeroGame.tsx
+20:01:02.488 139:6  Warning: React Hook useEffect has missing dependencies: 'goToMenu', 'handleNotePress', 'pause', 'resume', and 'start'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+20:01:02.488 172:6  Warning: React Hook useCallback has a missing dependency: 'checkLevelUp'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+20:01:02.488 202:6  Warning: React Hook useCallback has a missing dependency: 'triggerGameOver'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+20:01:02.489 
+20:01:02.489 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+20:01:06.791    Collecting page data ...
+20:01:07.036  ⚠ Mismatching @next/swc version, detected: 15.5.7 while Next.js is on 15.5.11. Please ensure these match
+20:01:07.262 Prisma has detected that this project was built on Vercel, which caches dependencies. This leads to an outdated Prisma Client because Prisma's auto-generation isn't triggered. To fix this, make sure to run the `prisma generate` command during the build process.
+20:01:07.263 
+20:01:07.263 Learn how: https://pris.ly/d/vercel-build
+20:01:07.267 Error [PrismaClientInitializationError]: Prisma has detected that this project was built on Vercel, which caches dependencies. This leads to an outdated Prisma Client because Prisma's auto-generation isn't triggered. To fix this, make sure to run the `prisma generate` command during the build process.
+20:01:07.267 
+20:01:07.267 Learn how: https://pris.ly/d/vercel-build
+20:01:07.267     at 35552 (.next/server/app/api/admin/invitations/[id]/route.js:1:8778)
+20:01:07.268     at c (.next/server/webpack-runtime.js:1:143)
+20:01:07.268     at 2404 (.next/server/app/api/admin/invitations/[id]/route.js:1:230)
+20:01:07.268     at c (.next/server/webpack-runtime.js:1:143)
+20:01:07.268     at 3888 (.next/server/app/api/admin/invitations/[id]/route.js:1:2328)
+20:01:07.268     at c (.next/server/webpack-runtime.js:1:143)
+20:01:07.269     at <unknown> (.next/server/app/api/admin/invitations/[id]/route.js:1:9390)
+20:01:07.269     at c.X (.next/server/webpack-runtime.js:1:1285) {
+20:01:07.269   clientVersion: '5.22.0',
+20:01:07.269   errorCode: undefined
+20:01:07.269 }
+20:01:07.271 
+20:01:07.271 > Build error occurred
+20:01:07.274 [Error: Failed to collect page data for /api/admin/invitations/[id]] {
+20:01:07.275   type: 'Error'
+20:01:07.275 }
+20:01:07.299 Error: Command "npm run build" exited with 1
