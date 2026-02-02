@@ -134,6 +134,32 @@ export default function TopicPage() {
     }, 100)
   }
 
+  const handleEditReply = async (replyId: string, newContent: string) => {
+    const response = await fetch(`/api/forum/topics/${topicId}/replies/${replyId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: newContent }),
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.error || 'Erreur lors de la modification')
+    }
+
+    const updatedReply = await response.json()
+
+    setTopic((prev) =>
+      prev
+        ? {
+            ...prev,
+            replies: prev.replies?.map((r) =>
+              r.id === replyId ? { ...r, ...updatedReply } : r
+            ),
+          }
+        : null
+    )
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -241,7 +267,9 @@ export default function TopicPage() {
               reply={reply}
               onQuote={setQuotedReply}
               onDelete={handleDeleteReply}
+              onEdit={handleEditReply}
               canDelete={isAdmin || reply.authorId === session?.user?.id}
+              canEdit={reply.authorId === session?.user?.id}
             />
           ))}
         </div>

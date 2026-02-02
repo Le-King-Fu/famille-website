@@ -1,19 +1,80 @@
 'use client'
 
+import { useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { Quote, Trash2 } from 'lucide-react'
-import { Reply } from './types'
+import { Quote, Trash2, Pencil, History, X, Loader2 } from 'lucide-react'
+import { Reply, ReplyHistory } from './types'
 import { FormatContent } from './FormatContent'
 
 interface ReplyCardProps {
   reply: Reply
   onQuote?: (reply: Reply) => void
   onDelete?: (replyId: string) => void
+  onEdit?: (replyId: string, newContent: string) => Promise<void>
   canDelete?: boolean
+  canEdit?: boolean
 }
 
-export function ReplyCard({ reply, onQuote, onDelete, canDelete }: ReplyCardProps) {
+export function ReplyCard({ reply, onQuote, onDelete, onEdit, canDelete, canEdit }: ReplyCardProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editContent, setEditContent] = useState(reply.content)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [showHistory, setShowHistory] = useState(false)
+  const [history, setHistory] = useState<ReplyHistory[]>([])
+  const [loadingHistory, setLoadingHistory] = useState(false)
+
+  const handleEdit = async () => {
+    if (!editContent.trim() || editContent === reply.content) {
+      setIsEditing(false)
+      setEditContent(reply.content)
+      return
+    }
+
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      if (onEdit) {
+        await onEdit(reply.id, editContent.trim())
+      }
+      setIsEditing(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la modification')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    setEditContent(reply.content)
+    setError('')
+  }
+
+  const fetchHistory = async () => {
+    setLoadingHistory(true)
+    try {
+      const response = await fetch(`/api/forum/topics/${reply.topicId}/replies/${reply.id}/history`)
+      if (response.ok) {
+        const data = await response.json()
+        setHistory(data)
+      }
+    } catch (err) {
+      console.error('Error fetching history:', err)
+    } finally {
+      setLoadingHistory(false)
+    }
+  }
+
+  const handleShowHistory = async () => {
+    if (!showHistory && history.length === 0) {
+      await fetchHistory()
+    }
+    setShowHistory(!showHistory)
+  }
+
   return (
     <div className="card" id={`reply-${reply.id}`}>
       {/* Quoted reply */}
@@ -28,8 +89,40 @@ export function ReplyCard({ reply, onQuote, onDelete, canDelete }: ReplyCardProp
         </div>
       )}
 
-      {/* Reply content */}
-      <FormatContent content={reply.content} className="text-gray-700" />
+      {/* Reply content or edit form */}
+      {isEditing ? (
+        <div className="space-y-3">
+          <textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-bleu focus:border-transparent resize-y min-h-[100px]"
+            maxLength={10000}
+            disabled={isSubmitting}
+          />
+          {error && (
+            <p className="text-red-500 text-sm">{error}</p>
+          )}
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={handleCancelEdit}
+              disabled={isSubmitting}
+              className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              onClick={handleEdit}
+              disabled={isSubmitting || !editContent.trim()}
+              className="px-3 py-1.5 text-sm bg-bleu text-white rounded-md hover:bg-bleu/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {isSubmitting && <Loader2 className="h-3 w-3 animate-spin" />}
+              Enregistrer
+            </button>
+          </div>
+        </div>
+      ) : (
+        <FormatContent content={reply.content} className="text-gray-700" />
+      )}
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
@@ -44,10 +137,30 @@ export function ReplyCard({ reply, onQuote, onDelete, canDelete }: ReplyCardProp
               locale: fr,
             })}
           </span>
+          {reply.isEdited && reply.editedAt && (
+            <>
+              <span className="mx-2">•</span>
+              <span className="text-gray-400 italic">
+                (modifié {formatDistanceToNow(new Date(reply.editedAt), {
+                  addSuffix: true,
+                  locale: fr,
+                })})
+              </span>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
-          {onQuote && (
+          {reply.isEdited && (
+            <button
+              onClick={handleShowHistory}
+              className="p-1.5 text-gray-400 hover:text-bleu hover:bg-gray-100 rounded transition-colors"
+              title="Voir l'historique"
+            >
+              <History className="h-4 w-4" />
+            </button>
+          )}
+          {onQuote && !isEditing && (
             <button
               onClick={() => onQuote(reply)}
               className="p-1.5 text-gray-400 hover:text-bleu hover:bg-gray-100 rounded transition-colors"
@@ -56,7 +169,16 @@ export function ReplyCard({ reply, onQuote, onDelete, canDelete }: ReplyCardProp
               <Quote className="h-4 w-4" />
             </button>
           )}
-          {canDelete && onDelete && (
+          {canEdit && onEdit && !isEditing && (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="p-1.5 text-gray-400 hover:text-bleu hover:bg-gray-100 rounded transition-colors"
+              title="Modifier"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          )}
+          {canDelete && onDelete && !isEditing && (
             <button
               onClick={() => {
                 if (confirm('Supprimer cette réponse ?')) {
@@ -71,6 +193,42 @@ export function ReplyCard({ reply, onQuote, onDelete, canDelete }: ReplyCardProp
           )}
         </div>
       </div>
+
+      {/* History panel */}
+      {showHistory && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-medium text-gray-700">Historique des modifications</h4>
+            <button
+              onClick={() => setShowHistory(false)}
+              className="p-1 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {loadingHistory ? (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+            </div>
+          ) : history.length === 0 ? (
+            <p className="text-sm text-gray-500 italic">Aucun historique disponible</p>
+          ) : (
+            <div className="space-y-3">
+              {history.map((item, index) => (
+                <div key={item.id} className="p-3 bg-gray-50 rounded-lg text-sm">
+                  <div className="text-xs text-gray-400 mb-2">
+                    Version {history.length - index} - {formatDistanceToNow(new Date(item.editedAt), {
+                      addSuffix: true,
+                      locale: fr,
+                    })}
+                  </div>
+                  <div className="text-gray-600 whitespace-pre-wrap">{item.content}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

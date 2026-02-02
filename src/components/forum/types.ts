@@ -31,6 +31,8 @@ export interface Topic {
 export interface Reply {
   id: string
   content: string
+  isEdited?: boolean
+  editedAt?: string | null
   createdAt: string
   topicId: string
   authorId: string
@@ -44,6 +46,13 @@ export interface Reply {
       firstName: string
     }
   } | null
+}
+
+export interface ReplyHistory {
+  id: string
+  content: string
+  editedAt: string
+  replyId: string
 }
 
 export interface TopicFormData {
