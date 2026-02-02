@@ -209,7 +209,7 @@ export function Calendar({
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleNavigate(subMonths(date, 1))}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -218,20 +218,20 @@ export function Calendar({
           </h2>
           <button
             onClick={() => handleNavigate(addMonths(date, 1))}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
           <button
             onClick={() => handleNavigate(new Date())}
-            className="ml-2 px-3 py-1.5 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="ml-2 px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             Aujourd&apos;hui
           </button>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex border border-gray-200 rounded-lg overflow-hidden">
+          <div className="flex border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
             {(['month', 'week', 'day'] as View[]).map((v) => (
               <button
                 key={v}
@@ -239,7 +239,7 @@ export function Calendar({
                 className={`px-3 py-1.5 text-sm transition-colors ${
                   view === v
                     ? 'bg-bleu text-white'
-                    : 'hover:bg-gray-50'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
                 {v === 'month' ? 'Mois' : v === 'week' ? 'Semaine' : 'Jour'}
@@ -249,7 +249,7 @@ export function Calendar({
 
           <button
             onClick={handleExport}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="Exporter en iCal"
           >
             <Download className="h-4 w-4" />
@@ -285,7 +285,7 @@ export function Calendar({
         />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <BigCalendar
           localizer={localizer}
           events={calendarEvents}
@@ -385,6 +385,56 @@ export function Calendar({
         }
         .calendar-container .rbc-current-time-indicator {
           background-color: #C17767;
+        }
+
+        /* Dark mode styles */
+        .dark .calendar-container .rbc-header {
+          color: #e5e7eb;
+          border-bottom-color: #374151;
+          background-color: #1f2937;
+        }
+        .dark .calendar-container .rbc-month-row {
+          border-color: #374151;
+        }
+        .dark .calendar-container .rbc-day-bg {
+          border-color: #374151;
+        }
+        .dark .calendar-container .rbc-off-range-bg {
+          background-color: #111827;
+        }
+        .dark .calendar-container .rbc-today {
+          background-color: rgba(74, 144, 164, 0.2);
+        }
+        .dark .calendar-container .rbc-date-cell {
+          color: #e5e7eb;
+        }
+        .dark .calendar-container .rbc-off-range {
+          color: #6b7280;
+        }
+        .dark .calendar-container .rbc-time-header {
+          border-color: #374151;
+        }
+        .dark .calendar-container .rbc-time-content {
+          border-color: #374151;
+          background-color: #1f2937;
+        }
+        .dark .calendar-container .rbc-timeslot-group {
+          border-color: #374151;
+        }
+        .dark .calendar-container .rbc-time-slot {
+          border-color: #1f2937;
+        }
+        .dark .calendar-container .rbc-time-gutter {
+          color: #9ca3af;
+        }
+        .dark .calendar-container .rbc-label {
+          color: #9ca3af;
+        }
+        .dark .calendar-container .rbc-agenda-view table {
+          color: #e5e7eb;
+        }
+        .dark .calendar-container .rbc-agenda-table {
+          border-color: #374151;
         }
       `}</style>
     </div>

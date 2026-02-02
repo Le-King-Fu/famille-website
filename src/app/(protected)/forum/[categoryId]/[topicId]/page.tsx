@@ -191,7 +191,7 @@ export default function TopicPage() {
   return (
     <div className="space-y-6">
       {/* Navigation */}
-      <div className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
         <Link href="/forum" className="hover:text-bleu transition-colors">
           Forum
         </Link>
@@ -220,7 +220,7 @@ export default function TopicPage() {
                 className={`p-2 rounded-lg transition-colors ${
                   topic.isPinned
                     ? 'bg-terracotta/10 text-terracotta hover:bg-terracotta/20'
-                    : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'
+                    : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300'
                 }`}
                 title={topic.isPinned ? 'Désépingler' : 'Épingler'}
               >
@@ -231,7 +231,7 @@ export default function TopicPage() {
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                 title="Supprimer"
               >
                 <Trash2 className="h-4 w-4" />
@@ -240,11 +240,11 @@ export default function TopicPage() {
           </div>
         </div>
 
-        <FormatContent content={topic.content} className="text-gray-700" />
+        <FormatContent content={topic.content} className="text-gray-700 dark:text-gray-300" />
 
-        <div className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-500">
+        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
           Par{' '}
-          <span className="font-medium text-gray-700">
+          <span className="font-medium text-gray-700 dark:text-gray-300">
             {topic.author.firstName} {topic.author.lastName}
           </span>
           <span className="mx-2">•</span>
