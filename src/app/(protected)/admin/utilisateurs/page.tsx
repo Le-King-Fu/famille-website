@@ -73,7 +73,7 @@ function AdminUsersContent() {
     setEditingUser(user)
   }
 
-  const handleSave = async (data: { firstName: string; lastName: string; role: Role }) => {
+  const handleSave = async (data: { firstName: string; lastName: string; email: string; role: Role }) => {
     if (!editingUser) return
 
     try {

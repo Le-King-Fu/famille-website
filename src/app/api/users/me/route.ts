@@ -2,43 +2,29 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 
-// GET /api/admin/users/[id] - Get user details
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+// GET /api/users/me - Get current user profile
+export async function GET() {
   const session = await auth()
 
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
   }
 
-  if (session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 })
-  }
-
-  const { id } = await params
-
   try {
     const user = await db.user.findUnique({
-      where: { id },
+      where: { id: session.user.id },
       select: {
         id: true,
         email: true,
         firstName: true,
         lastName: true,
         role: true,
-        isActive: true,
         createdAt: true,
-        lastLoginAt: true,
         _count: {
           select: {
-            photos: true,
+            gameScores: true,
             topics: true,
             replies: true,
-            albums: true,
-            events: true,
-            gameScores: true,
           },
         },
       },
@@ -50,40 +36,20 @@ export async function GET(
 
     return NextResponse.json({ user })
   } catch (error) {
-    console.error('Error fetching user:', error)
+    console.error('Error fetching user profile:', error)
     return NextResponse.json(
-      { error: 'Erreur lors de la récupération de l\'utilisateur' },
+      { error: 'Erreur lors de la récupération du profil' },
       { status: 500 }
     )
   }
 }
 
-// PUT /api/admin/users/[id] - Update user role/name/status
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+// PUT /api/users/me - Update current user profile
+export async function PUT(request: NextRequest) {
   const session = await auth()
 
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
-  }
-
-  if (session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 })
-  }
-
-  const { id } = await params
-
-  // Prevent self-modification for role and isActive
-  if (id === session.user.id) {
-    const body = await request.json()
-    if ('role' in body || 'isActive' in body) {
-      return NextResponse.json(
-        { error: 'Vous ne pouvez pas modifier votre propre rôle ou statut' },
-        { status: 400 }
-      )
-    }
   }
 
   try {
@@ -92,8 +58,6 @@ export async function PUT(
       email?: string
       firstName?: string
       lastName?: string
-      role?: 'ADMIN' | 'MEMBER' | 'CHILD'
-      isActive?: boolean
     } = {}
 
     // Handle email update with uniqueness check
@@ -115,7 +79,7 @@ export async function PUT(
         select: { id: true },
       })
 
-      if (existingUser && existingUser.id !== id) {
+      if (existingUser && existingUser.id !== session.user.id) {
         return NextResponse.json(
           { error: 'Cet email est déjà utilisé par un autre compte' },
           { status: 400 }
@@ -126,19 +90,25 @@ export async function PUT(
     }
 
     if (body.firstName && typeof body.firstName === 'string') {
-      updateData.firstName = body.firstName.trim()
+      const firstName = body.firstName.trim()
+      if (firstName.length < 1) {
+        return NextResponse.json(
+          { error: 'Le prénom est requis' },
+          { status: 400 }
+        )
+      }
+      updateData.firstName = firstName
     }
 
     if (body.lastName && typeof body.lastName === 'string') {
-      updateData.lastName = body.lastName.trim()
-    }
-
-    if (body.role && ['ADMIN', 'MEMBER', 'CHILD'].includes(body.role)) {
-      updateData.role = body.role
-    }
-
-    if (typeof body.isActive === 'boolean') {
-      updateData.isActive = body.isActive
+      const lastName = body.lastName.trim()
+      if (lastName.length < 1) {
+        return NextResponse.json(
+          { error: 'Le nom est requis' },
+          { status: 400 }
+        )
+      }
+      updateData.lastName = lastName
     }
 
     if (Object.keys(updateData).length === 0) {
@@ -149,7 +119,7 @@ export async function PUT(
     }
 
     const user = await db.user.update({
-      where: { id },
+      where: { id: session.user.id },
       data: updateData,
       select: {
         id: true,
@@ -157,17 +127,15 @@ export async function PUT(
         firstName: true,
         lastName: true,
         role: true,
-        isActive: true,
         createdAt: true,
-        lastLoginAt: true,
       },
     })
 
     return NextResponse.json({ user })
   } catch (error) {
-    console.error('Error updating user:', error)
+    console.error('Error updating user profile:', error)
     return NextResponse.json(
-      { error: 'Erreur lors de la mise à jour de l\'utilisateur' },
+      { error: 'Erreur lors de la mise à jour du profil' },
       { status: 500 }
     )
   }
