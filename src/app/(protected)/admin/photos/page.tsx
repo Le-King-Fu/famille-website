@@ -141,39 +141,108 @@ function AdminPhotosContent() {
     setIsUploading(true)
     setUploadProgress([])
 
-    const formData = new FormData()
-    formData.append('albumId', selectedAlbum.id)
+    const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime']
+
+    let successCount = 0
+    let errorCount = 0
 
     for (let i = 0; i < files.length; i++) {
-      formData.append('photos', files[i])
-      setUploadProgress((prev) => [...prev, `Préparation: ${files[i].name}`])
+      const file = files[i]
+      const isImage = allowedImageTypes.includes(file.type)
+      const isVideo = allowedVideoTypes.includes(file.type)
+
+      if (!isImage && !isVideo) {
+        setUploadProgress((prev) => [...prev, `${file.name}: Type non supporté`])
+        errorCount++
+        continue
+      }
+
+      // Check file size (100MB for videos, 10MB for images)
+      const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024
+      if (file.size > maxSize) {
+        setUploadProgress((prev) => [...prev, `${file.name}: Trop volumineux (max ${isVideo ? '100MB' : '10MB'})`])
+        errorCount++
+        continue
+      }
+
+      try {
+        setUploadProgress((prev) => [...prev, `Upload: ${file.name}...`])
+
+        // 1. Get signed upload URL
+        const urlResponse = await fetch('/api/photos/upload-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            albumId: selectedAlbum.id,
+            filename: file.name,
+            contentType: file.type,
+          }),
+        })
+
+        if (!urlResponse.ok) {
+          const error = await urlResponse.json()
+          throw new Error(error.error || 'Erreur URL')
+        }
+
+        const { signedUrl, publicUrl } = await urlResponse.json()
+
+        // 2. Upload directly to Supabase
+        const uploadResponse = await fetch(signedUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file,
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error('Erreur upload Supabase')
+        }
+
+        // 3. Create database record
+        const createResponse = await fetch('/api/photos/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            albumId: selectedAlbum.id,
+            url: publicUrl,
+          }),
+        })
+
+        if (!createResponse.ok) {
+          const error = await createResponse.json()
+          throw new Error(error.error || 'Erreur création')
+        }
+
+        successCount++
+        setUploadProgress((prev) =>
+          prev.map((msg, idx) =>
+            idx === prev.length - 1 ? `✓ ${file.name}` : msg
+          )
+        )
+      } catch (error) {
+        errorCount++
+        setUploadProgress((prev) =>
+          prev.map((msg, idx) =>
+            idx === prev.length - 1 ? `✗ ${file.name}: ${error instanceof Error ? error.message : 'Erreur'}` : msg
+          )
+        )
+        console.error(`Error uploading ${file.name}:`, error)
+      }
     }
 
-    try {
-      setUploadProgress(['Upload en cours...'])
+    setUploadProgress((prev) => [
+      ...prev,
+      `Terminé: ${successCount} uploadé(s)${errorCount > 0 ? `, ${errorCount} erreur(s)` : ''}`
+    ])
 
-      const response = await fetch('/api/photos/upload', {
-        method: 'POST',
-        body: formData,
-      })
+    // Refresh album to show new photos
+    if (successCount > 0) {
+      await fetchAlbumDetails(selectedAlbum.id)
+    }
 
-      const data = await response.json()
-
-      if (response.ok) {
-        setUploadProgress([data.message])
-        // Refresh album to show new photos
-        await fetchAlbumDetails(selectedAlbum.id)
-      } else {
-        setUploadProgress([`Erreur: ${data.error}`])
-      }
-    } catch (error) {
-      setUploadProgress(['Erreur lors de l\'upload'])
-      console.error('Error uploading:', error)
-    } finally {
-      setIsUploading(false)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+    setIsUploading(false)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
     }
   }
 
