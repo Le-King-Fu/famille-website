@@ -39,6 +39,7 @@
 - [x] **#6** Upload images - config Next.js pour Supabase Storage ✅
 - [x] **#7** Upload vidéos (MP4, WebM, MOV jusqu'à 100MB) ✅
 - [x] **#9** Limite connexions DB - config pgbouncer Supabase ✅
+- [x] **#11** Page `/admin/forum` manquante - gestion catégories forum ✅
 
 ---
 
@@ -125,8 +126,8 @@
 ### 3.3 Admin Forum
 - [x] Épingler/désépingler sujets (dans la page sujet)
 - [x] Supprimer sujets/réponses (dans la page sujet)
-- [ ] Page `/admin/forum` - Modération dédiée
-- [ ] Gérer catégories (CRUD)
+- [x] Page `/admin/forum` - Gestion catégories
+- [x] Gérer catégories (CRUD + reorder)
 
 ---
 
@@ -359,6 +360,7 @@
 
 | Date | Modification |
 |------|--------------|
+| 2026-02-03 | **Admin Forum (#11)** - Page `/admin/forum` pour gérer les catégories du forum (CRUD, drag-and-drop reorder, cascade delete avec avertissement). |
 | 2026-02-03 | **Support vidéos (#7)** - Upload vidéos MP4/WebM/MOV jusqu'à 100MB. Upload direct vers Supabase via signed URLs (contourne limite Vercel 4.5MB). Lecteur vidéo dans lightbox. Icône play sur miniatures vidéo. |
 | 2026-02-03 | **Corrections GitHub Issues** - #1: Domaine configuré. #4: Édition profil utilisateur (email, nom, prénom) + fix menu dropdown admin. #6: Config Next.js images pour Supabase Storage. #9: Fix connexions DB (pgbouncer port 6543 + connection_limit=1). |
 | 2026-02-03 | **Tests API** - Ajout 16 tests pour `/api/users/me`. Fix config vitest pour ESM. Total: 47 tests passants. |
