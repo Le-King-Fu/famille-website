@@ -5,6 +5,7 @@ import { useParams, notFound } from 'next/navigation'
 import { GameWrapper } from '@/components/games/common'
 import { PianoHeroGame } from '@/components/games/piano-hero-v2'
 import { BelleBeteSageGame } from '@/components/games/belle-bete-sage'
+import { WitchCaseGame } from '@/components/games/witch-case'
 import { GameType } from '@prisma/client'
 import type { GameMetadata } from '@/components/games/common/types'
 
@@ -20,9 +21,13 @@ const GAMES = {
     gameType: 'BELLE_BETE_SAGE' as GameType,
     component: BelleBeteSageGame,
   },
+  'witch-case': {
+    name: 'Witch Case',
+    gameType: 'WITCH_CASE' as GameType,
+    component: WitchCaseGame,
+  },
   // Future games:
   // 'piano-hero': { ... },
-  // 'witch-case': { ... },
 } as const
 
 type GameId = keyof typeof GAMES

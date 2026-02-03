@@ -16,19 +16,19 @@ const games = [
     icon: Dog,
     color: 'bleu',
   },
+  {
+    id: 'witch-case',
+    name: 'Witch Case',
+    description: 'Collectez les lettres pour épeler "LANDRY"',
+    icon: Bug,
+    color: 'terracotta',
+  },
   // Coming soon:
   // {
   //   id: 'piano-hero',
   //   name: 'Piano Hero',
   //   description: 'Notes qui tombent, appuyez sur les bonnes touches au bon moment',
   //   icon: Music,
-  //   color: 'bleu',
-  // },
-  // {
-  //   id: 'witch-case',
-  //   name: 'Witch Case',
-  //   description: 'Collectez les lettres pour épeler "PASCAL"',
-  //   icon: Bug,
   //   color: 'bleu',
   // },
 ]
