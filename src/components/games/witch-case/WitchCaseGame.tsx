@@ -270,6 +270,9 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
           audioRef.current?.playBonusSound()
           setGameState('bonus')
 
+          // Draw the bonus overlay immediately
+          rendererRef.current?.drawBonusOverlay(landryCountRef.current)
+
           // Auto-resume after bonus duration
           bonusTimerRef.current = setTimeout(() => {
             setGameState('playing')

@@ -42,7 +42,7 @@ export class Snake {
       ],
       direction: INITIAL_SNAKE.DIRECTION,
       nextDirection: INITIAL_SNAKE.DIRECTION,
-      patternIndex: 1, // We start with L, so next letter is at index 1 (A)
+      patternIndex: 0, // Start collecting from L
     }
   }
 
@@ -155,9 +155,10 @@ export class Snake {
   }
 
   /**
-   * Collect wrong letter - reset to just "L"
+   * Collect wrong letter - reset snake to single segment, restart from L
    */
   collectWrongLetter(): void {
+    // Reset to single segment at current head position
     this.state.segments = [
       {
         x: this.state.segments[0].x,
@@ -165,7 +166,8 @@ export class Snake {
         letter: 'L',
       },
     ]
-    this.state.patternIndex = 1 // Next letter is A
+    // Reset pattern to start - next target is L (index 0)
+    this.state.patternIndex = 0
   }
 
   /**
