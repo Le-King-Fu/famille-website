@@ -8,6 +8,7 @@ export interface NoteRenderData {
   type: NoteType
   lane: number
   isBonus: boolean
+  bonusImageIndex: number
   hit: boolean
   missed: boolean
   alpha: number
@@ -18,6 +19,7 @@ export class Note {
   type: NoteType
   lane: number
   isBonus: boolean
+  bonusImageIndex: number
   hit: boolean
   missed: boolean
   y: number
@@ -27,10 +29,11 @@ export class Note {
   animationFrame: number
   hitAnimationTimer: number
 
-  constructor(noteType: NoteType, isBonus = false) {
+  constructor(noteType: NoteType, isBonus = false, bonusImageIndex = 0) {
     this.type = noteType
     this.lane = NOTES.indexOf(noteType)
     this.isBonus = isBonus
+    this.bonusImageIndex = bonusImageIndex
     this.hit = false
     this.missed = false
 
@@ -132,6 +135,7 @@ export class Note {
       type: this.type,
       lane: this.lane,
       isBonus: this.isBonus,
+      bonusImageIndex: this.bonusImageIndex,
       hit: this.hit,
       missed: this.missed,
       alpha,
@@ -142,10 +146,11 @@ export class Note {
   /**
    * Create a random note
    */
-  static createRandom(bonusChance = BONUS.CHANCE): Note {
+  static createRandom(bonusChance = BONUS.CHANCE, numBonusImages = 6): Note {
     const randomIndex = Math.floor(Math.random() * NOTES.length)
     const noteType = NOTES[randomIndex]
     const isBonus = Math.random() < bonusChance
-    return new Note(noteType, isBonus)
+    const bonusImageIndex = isBonus ? Math.floor(Math.random() * numBonusImages) : 0
+    return new Note(noteType, isBonus, bonusImageIndex)
   }
 }

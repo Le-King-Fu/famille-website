@@ -50,7 +50,7 @@ export function MobileControls({
   }, [onKeyRelease])
 
   return (
-    <div className="mobile-piano flex justify-center gap-1 mt-4 md:hidden">
+    <div className="mobile-piano flex justify-center gap-1 mt-4 md:hidden w-full px-2">
       {keys.map(({ note, label }) => (
         <button
           key={note}
@@ -62,7 +62,7 @@ export function MobileControls({
           onMouseDown={handleMouseDown(note)}
           onMouseUp={handleMouseUp(note)}
           onMouseLeave={handleMouseLeave(note)}
-          className="touch-key w-10 h-14 sm:w-12 sm:h-16 rounded-lg font-bold text-sm
+          className="touch-key flex-1 max-w-[50px] h-16 sm:h-20 rounded-lg font-bold text-base sm:text-lg
             bg-[var(--game-bg-secondary)] text-[var(--game-text)]
             border-2 border-[var(--game-primary)]/50
             active:bg-[var(--game-primary)] active:border-[var(--game-primary)]

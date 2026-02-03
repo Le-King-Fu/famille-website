@@ -125,6 +125,14 @@ export const MELODY: NoteType[] = [
 export const BONUS = {
   CHANCE: 0.15,
   MULTIPLIER: 3,
+  IMAGES: [
+    '/games/piano-hero-v2/bonus/extracted_face_1.png',
+    '/games/piano-hero-v2/bonus/extracted_face_2.png',
+    '/games/piano-hero-v2/bonus/extracted_face_k1.png',
+    '/games/piano-hero-v2/bonus/extracted_face_k2.png',
+    '/games/piano-hero-v2/bonus/extracted_face_k3.png',
+    '/games/piano-hero-v2/bonus/bonus_piano.png',
+  ],
 }
 
 // Scoring

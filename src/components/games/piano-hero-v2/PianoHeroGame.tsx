@@ -452,9 +452,9 @@ export function PianoHeroGame({ onScoreSubmit, onGameOver }: PianoHeroGameProps)
   }, [gameState, start])
 
   return (
-    <div className="piano-hero-game flex flex-col items-center">
+    <div className="piano-hero-game flex flex-col items-center w-full max-w-[640px] mx-auto px-2">
       {/* Level selector */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-4 flex-wrap justify-center">
         <span className="text-sm text-gray-600 dark:text-gray-400">Niveau:</span>
         <div className="flex gap-1">
           {LEVELS.map((level, index) => (
@@ -481,24 +481,24 @@ export function PianoHeroGame({ onScoreSubmit, onGameOver }: PianoHeroGameProps)
       </div>
 
       {/* Game canvas */}
-      <div className="relative">
+      <div className="relative w-full flex justify-center">
         <canvas
           ref={canvasRef}
           onClick={handleCanvasClick}
-          className="rounded-lg border-4 border-[var(--game-primary)] shadow-lg cursor-pointer max-w-full"
+          className="rounded-lg border-4 border-[var(--game-primary)] shadow-lg cursor-pointer
+            w-full max-w-[640px] h-auto md:w-[640px] md:h-[480px]"
           style={{
-            width: `${CANVAS.WIDTH}px`,
-            height: `${CANVAS.HEIGHT}px`,
+            aspectRatio: `${CANVAS.WIDTH} / ${CANVAS.HEIGHT}`,
             boxShadow: '0 0 20px rgba(193, 119, 103, 0.3)',
           }}
         />
       </div>
 
       {/* Controls */}
-      <div className="flex items-center gap-2 mt-4">
+      <div className="flex items-center justify-center gap-2 mt-4 w-full">
         <button
           onClick={gameState === 'playing' ? pause : gameState === 'paused' ? resume : start}
-          className="px-4 py-2 rounded-lg font-medium transition-colors
+          className="px-3 py-2 sm:px-4 rounded-lg font-medium transition-colors text-sm sm:text-base
             bg-[var(--game-bg-secondary)] text-[var(--game-text)]
             hover:bg-[var(--game-bg)] border border-[var(--game-primary)]/30"
         >
@@ -506,7 +506,7 @@ export function PianoHeroGame({ onScoreSubmit, onGameOver }: PianoHeroGameProps)
         </button>
         <button
           onClick={toggleMute}
-          className="px-4 py-2 rounded-lg font-medium transition-colors
+          className="px-3 py-2 sm:px-4 rounded-lg font-medium transition-colors text-sm sm:text-base
             bg-[var(--game-bg-secondary)] text-[var(--game-text)]
             hover:bg-[var(--game-bg)] border border-[var(--game-primary)]/30"
         >

@@ -1,4 +1,4 @@
-import { CANVAS, COLORS, NOTES, HIT_ZONE, NOTE_TO_KEY, LIVES, type NoteType } from '../config'
+import { CANVAS, COLORS, NOTES, HIT_ZONE, NOTE_TO_KEY, BONUS, type NoteType } from '../config'
 import type { NoteRenderData } from '../entities/Note'
 
 export interface UIData {
@@ -14,6 +14,8 @@ export class Renderer {
   private canvas: HTMLCanvasElement
   private ctx: CanvasRenderingContext2D
   private laneWidth: number
+  private bonusImages: HTMLImageElement[] = []
+  private bonusImagesLoaded = false
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -23,6 +25,31 @@ export class Renderer {
 
     this.setupCanvas()
     this.laneWidth = CANVAS.WIDTH / NOTES.length
+    this.loadBonusImages()
+  }
+
+  /**
+   * Load bonus images
+   */
+  private loadBonusImages(): void {
+    let loadedCount = 0
+    const totalImages = BONUS.IMAGES.length
+
+    BONUS.IMAGES.forEach((src, index) => {
+      const img = new Image()
+      img.onload = () => {
+        loadedCount++
+        if (loadedCount === totalImages) {
+          this.bonusImagesLoaded = true
+        }
+      }
+      img.onerror = () => {
+        console.warn(`Failed to load bonus image: ${src}`)
+        loadedCount++
+      }
+      img.src = src
+      this.bonusImages[index] = img
+    })
   }
 
   /**
@@ -97,7 +124,7 @@ export class Renderer {
    * Draw a note
    */
   drawNote(noteData: NoteRenderData): void {
-    const { x, y, width, height, type, isBonus, hit, alpha, scale } = noteData
+    const { x, y, width, height, type, isBonus, bonusImageIndex, hit, alpha, scale } = noteData
 
     this.ctx.globalAlpha = alpha
 
@@ -108,21 +135,42 @@ export class Renderer {
     const drawY = centerY - height / 2
 
     if (isBonus) {
-      // Bonus note (gold/bitcoin orange)
-      this.ctx.fillStyle = hit ? COLORS.SECONDARY : COLORS.GOLD
-      this.ctx.fillRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height))
+      // Try to draw bonus image
+      const bonusImg = this.bonusImages[bonusImageIndex]
+      if (bonusImg && bonusImg.complete && bonusImg.naturalWidth > 0 && !hit) {
+        // Draw image centered and scaled to fit
+        const imgSize = Math.min(width, height) * 0.9
+        const imgX = centerX - imgSize / 2
+        const imgY = centerY - imgSize / 2
 
-      // Border
-      this.ctx.strokeStyle = COLORS.BG_DARK
-      this.ctx.lineWidth = 2
-      this.ctx.strokeRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height))
+        // Gold background
+        this.ctx.fillStyle = COLORS.GOLD
+        this.ctx.fillRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height))
 
-      // Bonus indicator
-      if (!hit) {
-        this.ctx.fillStyle = COLORS.BG_DARK
-        this.ctx.font = '10px monospace'
-        this.ctx.textAlign = 'center'
-        this.ctx.fillText('x3', Math.floor(centerX), Math.floor(centerY + 4))
+        // Draw the bonus image
+        this.ctx.drawImage(bonusImg, Math.floor(imgX), Math.floor(imgY), Math.floor(imgSize), Math.floor(imgSize))
+
+        // Border
+        this.ctx.strokeStyle = COLORS.GOLD
+        this.ctx.lineWidth = 3
+        this.ctx.strokeRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height))
+      } else {
+        // Fallback: Gold background with x3 text
+        this.ctx.fillStyle = hit ? COLORS.SECONDARY : COLORS.GOLD
+        this.ctx.fillRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height))
+
+        // Border
+        this.ctx.strokeStyle = COLORS.BG_DARK
+        this.ctx.lineWidth = 2
+        this.ctx.strokeRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height))
+
+        // Bonus indicator
+        if (!hit) {
+          this.ctx.fillStyle = COLORS.BG_DARK
+          this.ctx.font = '10px monospace'
+          this.ctx.textAlign = 'center'
+          this.ctx.fillText('x3', Math.floor(centerX), Math.floor(centerY + 4))
+        }
       }
     } else {
       // Normal note (terracotta)
