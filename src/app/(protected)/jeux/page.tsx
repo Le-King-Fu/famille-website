@@ -3,33 +3,34 @@ import { Gamepad2, Music, Bug, Dog, Trophy } from 'lucide-react'
 
 const games = [
   {
-    id: 'piano-hero',
-    name: 'Piano Hero',
-    description: 'Notes qui tombent, appuyez sur les bonnes touches au bon moment',
-    icon: Music,
-    color: 'bleu',
-  },
-  {
     id: 'piano-hero-v2',
-    name: 'Piano Hero v2',
-    description: 'Version modernisée avec système de vies et niveaux',
+    name: 'Héro du Piano',
+    description: 'Notes qui tombent, appuyez sur les bonnes touches au bon moment. Système de vies et niveaux!',
     icon: Music,
     color: 'terracotta',
   },
-  {
-    id: 'witch-case',
-    name: 'Witch Case',
-    description: 'Collectez les lettres pour épeler "PASCAL"',
-    icon: Bug,
-    color: 'bleu',
-  },
-  {
-    id: 'belle-bete-sage',
-    name: 'Belle Bête Sage',
-    description: 'Choisissez un chien, évitez les obstacles, collectez les pièces',
-    icon: Dog,
-    color: 'terracotta',
-  },
+  // Coming soon:
+  // {
+  //   id: 'piano-hero',
+  //   name: 'Piano Hero',
+  //   description: 'Notes qui tombent, appuyez sur les bonnes touches au bon moment',
+  //   icon: Music,
+  //   color: 'bleu',
+  // },
+  // {
+  //   id: 'witch-case',
+  //   name: 'Witch Case',
+  //   description: 'Collectez les lettres pour épeler "PASCAL"',
+  //   icon: Bug,
+  //   color: 'bleu',
+  // },
+  // {
+  //   id: 'belle-bete-sage',
+  //   name: 'Belle Bête Sage',
+  //   description: 'Choisissez un chien, évitez les obstacles, collectez les pièces',
+  //   icon: Dog,
+  //   color: 'terracotta',
+  // },
 ]
 
 export default function JeuxPage() {
