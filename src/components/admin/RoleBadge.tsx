@@ -17,7 +17,7 @@ const roleConfig: Record<Role, { label: string; className: string }> = {
   },
   CHILD: {
     label: 'Enfant',
-    className: 'bg-gray-100 text-gray-600',
+    className: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
   },
 }
 

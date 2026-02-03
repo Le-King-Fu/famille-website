@@ -10,7 +10,7 @@ interface StatusBadgeProps {
 const statusConfig: Record<Status, { label: string; className: string }> = {
   active: {
     label: 'Actif',
-    className: 'bg-green-100 text-green-700',
+    className: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
   },
   used: {
     label: 'Utilisé',
@@ -18,11 +18,11 @@ const statusConfig: Record<Status, { label: string; className: string }> = {
   },
   expired: {
     label: 'Expiré',
-    className: 'bg-gray-100 text-gray-500',
+    className: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
   },
   inactive: {
     label: 'Inactif',
-    className: 'bg-gray-100 text-gray-500',
+    className: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
   },
 }
 

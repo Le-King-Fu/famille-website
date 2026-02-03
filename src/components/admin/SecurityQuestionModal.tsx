@@ -47,8 +47,8 @@ export function SecurityQuestionModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-4 border-b">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
           <h2 className="text-lg font-semibold">
             {isEditing ? 'Modifier la question' : 'Nouvelle question'}
           </h2>
@@ -83,7 +83,7 @@ export function SecurityQuestionModal({
               placeholder="dupont"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               La réponse sera stockée en minuscules pour une comparaison insensible à la casse.
             </p>
           </div>
@@ -94,7 +94,7 @@ export function SecurityQuestionModal({
               id="isActive"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="rounded border-gray-300"
+              className="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
             />
             <label htmlFor="isActive" className="text-sm">
               Question active (visible lors de l&apos;inscription)

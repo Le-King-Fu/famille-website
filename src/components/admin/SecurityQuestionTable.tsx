@@ -63,17 +63,17 @@ export function SecurityQuestionTable({
           onDragStart={(e) => handleDragStart(e, index)}
           onDragOver={handleDragOver}
           onDrop={(e) => handleDrop(e, index)}
-          className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-            question.isActive ? 'bg-white' : 'bg-gray-50 text-gray-500'
+          className={`flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 transition-colors ${
+            question.isActive ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400'
           }`}
         >
-          <button className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+          <button className="cursor-grab active:cursor-grabbing text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
             <GripVertical className="h-5 w-5" />
           </button>
 
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate">{question.question}</p>
-            <p className="text-sm text-gray-500 truncate">
+            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
               Réponse : {question.answer}
             </p>
           </div>
@@ -84,8 +84,8 @@ export function SecurityQuestionTable({
               disabled={question.isActive && activeCount <= 3}
               className={`p-2 rounded transition-colors ${
                 question.isActive && activeCount <= 3
-                  ? 'text-gray-300 cursor-not-allowed'
-                  : 'hover:bg-gray-100'
+                  ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
               title={
                 question.isActive && activeCount <= 3
@@ -104,7 +104,7 @@ export function SecurityQuestionTable({
 
             <button
               onClick={() => onEdit(question)}
-              className="p-2 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
             >
               <Edit2 className="h-4 w-4" />
             </button>
@@ -114,8 +114,8 @@ export function SecurityQuestionTable({
               disabled={question.isActive && activeCount <= 3}
               className={`p-2 rounded transition-colors ${
                 question.isActive && activeCount <= 3
-                  ? 'text-gray-300 cursor-not-allowed'
-                  : 'hover:bg-red-50 text-red-500'
+                  ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                  : 'hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500'
               }`}
               title={
                 question.isActive && activeCount <= 3

@@ -51,7 +51,7 @@ export function InvitationTable({ invitations, onRevoke }: InvitationTableProps)
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b text-left text-sm text-gray-500">
+          <tr className="border-b dark:border-gray-700 text-left text-sm text-gray-500 dark:text-gray-400">
             <th className="pb-3 font-medium">Code</th>
             <th className="pb-3 font-medium">Statut</th>
             <th className="pb-3 font-medium">Créé par</th>
@@ -60,18 +60,18 @@ export function InvitationTable({ invitations, onRevoke }: InvitationTableProps)
             <th className="pb-3 font-medium sr-only">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y">
+        <tbody className="divide-y dark:divide-gray-700">
           {invitations.map((invitation) => (
             <tr key={invitation.id} className="text-sm">
               <td className="py-3">
                 <div className="flex items-center gap-2">
-                  <code className="font-mono bg-gray-100 px-2 py-1 rounded text-sm">
+                  <code className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm">
                     {invitation.code}
                   </code>
                   {invitation.status === 'active' && (
                     <button
                       onClick={() => handleCopy(invitation.code, invitation.id)}
-                      className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                       title="Copier le code"
                     >
                       {copiedId === invitation.id ? (
@@ -89,29 +89,29 @@ export function InvitationTable({ invitations, onRevoke }: InvitationTableProps)
                   labels={{ used: 'Utilisé', expired: 'Expiré', active: 'Actif' }}
                 />
               </td>
-              <td className="py-3 text-gray-600">
+              <td className="py-3 text-gray-600 dark:text-gray-400">
                 {invitation.createdBy.firstName} {invitation.createdBy.lastName}
               </td>
-              <td className="py-3 text-gray-600">{formatDate(invitation.expiresAt)}</td>
+              <td className="py-3 text-gray-600 dark:text-gray-400">{formatDate(invitation.expiresAt)}</td>
               <td className="py-3">
                 {invitation.usedBy ? (
                   <div>
                     <span className="font-medium">
                       {invitation.usedBy.firstName} {invitation.usedBy.lastName}
                     </span>
-                    <span className="text-gray-500 text-xs block">
+                    <span className="text-gray-500 dark:text-gray-400 text-xs block">
                       {invitation.usedBy.email}
                     </span>
                   </div>
                 ) : (
-                  <span className="text-gray-400">-</span>
+                  <span className="text-gray-400 dark:text-gray-500">-</span>
                 )}
               </td>
               <td className="py-3">
                 {invitation.status === 'active' && (
                   <button
                     onClick={() => onRevoke(invitation)}
-                    className="p-2 hover:bg-red-50 text-red-500 rounded transition-colors"
+                    className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 rounded transition-colors"
                     title="Révoquer"
                   >
                     <Trash2 className="h-4 w-4" />

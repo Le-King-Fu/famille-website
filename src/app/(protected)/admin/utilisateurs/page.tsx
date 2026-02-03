@@ -177,7 +177,7 @@ function AdminUsersContent() {
       <div className="flex items-center gap-4">
         <Link
           href="/admin"
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
@@ -207,7 +207,7 @@ function AdminUsersContent() {
             onToggleActive={handleToggleActive}
           />
         ) : (
-          <p className="text-center text-gray-500 py-8">
+          <p className="text-center text-gray-500 dark:text-gray-400 py-8">
             {search ? 'Aucun utilisateur trouvé' : 'Aucun utilisateur'}
           </p>
         )}
@@ -226,17 +226,17 @@ function AdminUsersContent() {
       {/* Temp password modal */}
       {tempPassword && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">
             <h2 className="text-lg font-semibold mb-4">Mot de passe temporaire</h2>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Mot de passe temporaire pour {tempPassword.user.firstName} {tempPassword.user.lastName}.
               Ce mot de passe ne sera plus affiché.
             </p>
-            <div className="flex items-center gap-2 bg-gray-100 p-3 rounded-lg font-mono">
+            <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg font-mono">
               <span className="flex-1">{tempPassword.password}</span>
               <button
                 onClick={handleCopyPassword}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-green-500" />

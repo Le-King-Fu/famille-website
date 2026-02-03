@@ -162,7 +162,7 @@ function AdminInvitationsContent() {
         <div className="flex items-center gap-4">
           <Link
             href="/admin"
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -189,11 +189,11 @@ function AdminInvitationsContent() {
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               filter === tab.key
                 ? 'border-bleu text-bleu'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
             {tab.label}
-            <span className="ml-1 text-xs text-gray-400">({counts[tab.key]})</span>
+            <span className="ml-1 text-xs text-gray-400 dark:text-gray-500">({counts[tab.key]})</span>
           </button>
         ))}
       </div>
@@ -203,7 +203,7 @@ function AdminInvitationsContent() {
         {invitations.length > 0 ? (
           <InvitationTable invitations={invitations} onRevoke={handleRevoke} />
         ) : (
-          <p className="text-center text-gray-500 py-8">
+          <p className="text-center text-gray-500 dark:text-gray-400 py-8">
             Aucun code d&apos;invitation
           </p>
         )}
@@ -212,19 +212,19 @@ function AdminInvitationsContent() {
       {/* Create modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">
             {newCode ? (
               <>
                 <h2 className="text-lg font-semibold mb-4">Code créé</h2>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   Partagez ce code avec la personne que vous souhaitez inviter.
                   Ce code ne sera plus affiché.
                 </p>
-                <div className="flex items-center gap-2 bg-gray-100 p-3 rounded-lg font-mono text-lg">
+                <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg font-mono text-lg">
                   <span className="flex-1 text-center">{newCode}</span>
                   <button
                     onClick={handleCopyNewCode}
-                    className="p-2 hover:bg-gray-200 rounded transition-colors"
+                    className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
                   >
                     {copied ? (
                       <Check className="h-5 w-5 text-green-500" />
