@@ -4,6 +4,7 @@ import { useCallback } from 'react'
 import { useParams, notFound } from 'next/navigation'
 import { GameWrapper } from '@/components/games/common'
 import { PianoHeroGame } from '@/components/games/piano-hero-v2'
+import { BelleBeteSageGame } from '@/components/games/belle-bete-sage'
 import { GameType } from '@prisma/client'
 import type { GameMetadata } from '@/components/games/common/types'
 
@@ -14,10 +15,14 @@ const GAMES = {
     gameType: 'PIANO_HERO_V2' as GameType,
     component: PianoHeroGame,
   },
+  'belle-bete-sage': {
+    name: 'La Belle, la Bête et la Sage',
+    gameType: 'BELLE_BETE_SAGE' as GameType,
+    component: BelleBeteSageGame,
+  },
   // Future games:
   // 'piano-hero': { ... },
   // 'witch-case': { ... },
-  // 'belle-bete-sage': { ... },
 } as const
 
 type GameId = keyof typeof GAMES

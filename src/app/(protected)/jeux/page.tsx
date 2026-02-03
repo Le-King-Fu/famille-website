@@ -9,6 +9,13 @@ const games = [
     icon: Music,
     color: 'terracotta',
   },
+  {
+    id: 'belle-bete-sage',
+    name: 'La Belle, la Bête et la Sage',
+    description: 'Endless runner cyberpunk avec nos chiens ! Évitez les obstacles et collectez les pièces.',
+    icon: Dog,
+    color: 'bleu',
+  },
   // Coming soon:
   // {
   //   id: 'piano-hero',
@@ -23,13 +30,6 @@ const games = [
   //   description: 'Collectez les lettres pour épeler "PASCAL"',
   //   icon: Bug,
   //   color: 'bleu',
-  // },
-  // {
-  //   id: 'belle-bete-sage',
-  //   name: 'Belle Bête Sage',
-  //   description: 'Choisissez un chien, évitez les obstacles, collectez les pièces',
-  //   icon: Dog,
-  //   color: 'terracotta',
   // },
 ]
 

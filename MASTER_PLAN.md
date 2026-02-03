@@ -160,12 +160,25 @@
 - [x] Intégrer soumission score via API
 - [x] Support mobile (touches piano tactiles)
 
-### 4.3 Autres Jeux (À venir)
+### 4.3 La Belle, la Bête et la Sage ✅
+- [x] Porter `config.ts` avec palette friendly cyberpunk
+- [x] Porter `entities/Player.ts` (chien avec stats, animation, saut)
+- [x] Porter `entities/Obstacle.ts` (6 types: chat, rat, voiture, moto, vache, cône)
+- [x] Porter `entities/Collectible.ts` (pièces, bonus)
+- [x] Créer `systems/Renderer.ts` (canvas, fond cyberpunk, personnages procéduraux)
+- [x] Créer `systems/Audio.ts` (Web Audio API, sons 8-bit)
+- [x] Créer `BelleBeteSageGame.tsx` (composant principal)
+- [x] Sélection personnage (Flora, Nouki, Laska)
+- [x] 3 couloirs + saut
+- [x] Contrôles mobile (swipe + boutons tactiles)
+- [x] 5 niveaux de difficulté
+- [x] Intégrer dans registre et hub des jeux
+
+### 4.4 Autres Jeux (À venir)
 - [ ] Piano Hero (v1)
 - [ ] Witch Case
-- [ ] Belle Bête Sage
 
-### 4.4 Classements (Amélioration future)
+### 4.5 Classements (Amélioration future)
 - [ ] Filtres: tout le temps / ce mois / cette semaine
 - [ ] Classement personnel (historique)
 - [ ] Badges/achievements (optionnel)
@@ -361,6 +374,7 @@
 
 | Date | Modification |
 |------|--------------|
+| 2026-02-03 | **La Belle, la Bête et la Sage** - Nouveau jeu endless runner cyberpunk avec les chiens de la famille (Flora, Nouki, Laska). Sélection personnage, 3 couloirs, saut, 6 types d'obstacles, pièces/bonus, 5 niveaux difficulté, support mobile. |
 | 2026-02-03 | **Dark Mode Admin (#12)** - Correction visibilité en mode sombre pour toutes les pages admin (tables, badges, modals). |
 | 2026-02-03 | **Admin Forum (#11)** - Page `/admin/forum` pour gérer les catégories du forum (CRUD, drag-and-drop reorder, cascade delete avec avertissement). |
 | 2026-02-03 | **Support vidéos (#7)** - Upload vidéos MP4/WebM/MOV jusqu'à 100MB. Upload direct vers Supabase via signed URLs (contourne limite Vercel 4.5MB). Lecteur vidéo dans lightbox. Icône play sur miniatures vidéo. |
