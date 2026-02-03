@@ -1,6 +1,6 @@
 # Plan Directeur - Site Web Familial
 
-> Document de suivi du projet. Dernière mise à jour: 2026-02-02
+> Document de suivi du projet. Dernière mise à jour: 2026-02-03
 
 ---
 
@@ -31,12 +31,14 @@
 - [ ] **Phase 6: Tests** - À démarrer
 
 ### Bugs Résolus (GitHub Issues)
-- [x] **#2** Question sécurité unique aléatoire (au lieu de 3)
-- [x] **#6** Upload images - meilleure gestion erreurs Supabase
-- [ ] **#1** Configuration domaine www.lafamillelandry.ca (config Vercel/DNS requise)
-- [ ] **#3** Mode sombre
-- [ ] **#4** Édition profil utilisateur
-- [ ] **#5** Édition messages forum avec historique
+- [x] **#1** Configuration domaine www.lafamillelandry.ca ✅
+- [x] **#2** Question sécurité unique aléatoire (au lieu de 3) ✅
+- [x] **#3** Mode sombre ✅
+- [x] **#4** Édition profil utilisateur (email, nom, prénom) ✅
+- [x] **#5** Édition messages forum avec historique ✅
+- [x] **#6** Upload images - config Next.js pour Supabase Storage ✅
+- [x] **#7** Upload vidéos (MP4, WebM, MOV jusqu'à 100MB) ✅
+- [x] **#9** Limite connexions DB - config pgbouncer Supabase ✅
 
 ---
 
@@ -89,7 +91,9 @@
 ### 2.3 Admin Photos
 - [x] Page `/admin/photos` - Gestion albums
 - [x] Création album avec titre/description
-- [x] Upload multiple
+- [x] Upload multiple (images et vidéos)
+- [x] Support vidéos (MP4, WebM, MOV) jusqu'à 100MB
+- [x] Upload direct vers Supabase (contourne limite Vercel 4.5MB)
 - [ ] Compression automatique côté client
 - [ ] Définir photo de couverture
 - [ ] Tags de personnes
@@ -195,11 +199,11 @@
 
 ## Phase 6: Tests
 
-### 6.1 Setup
-- [ ] Installer Vitest + Testing Library
-- [ ] Configurer `vitest.config.ts`
+### 6.1 Setup ✅
+- [x] Installer Vitest + Testing Library
+- [x] Configurer `vitest.config.ts`
 - [ ] Installer Playwright pour E2E
-- [ ] Créer structure `__tests__/`
+- [x] Créer structure `__tests__/`
 
 ### 6.2 Tests Unitaires
 - [ ] Tests utilitaires (formatage dates, validation)
@@ -209,7 +213,8 @@
 ### 6.3 Tests Intégration (API Routes)
 - [ ] Tests `/api/security/verify` (portail)
 - [ ] Tests `/api/auth/register`
-- [ ] Tests `/api/events` CRUD
+- [x] Tests `/api/events` CRUD (26 tests)
+- [x] Tests `/api/users/me` (16 tests)
 - [ ] Tests `/api/games/scores`
 
 ### 6.4 Tests E2E (Playwright)
@@ -289,7 +294,7 @@
 ## Phase 9: Finitions & Production
 
 ### 9.1 UX/UI
-- [ ] Mode sombre (toggle dans header)
+- [x] Mode sombre (toggle dans header)
 - [ ] Animations et transitions
 - [ ] États de chargement (skeletons)
 - [ ] Messages d'erreur conviviaux
@@ -354,6 +359,9 @@
 
 | Date | Modification |
 |------|--------------|
+| 2026-02-03 | **Support vidéos (#7)** - Upload vidéos MP4/WebM/MOV jusqu'à 100MB. Upload direct vers Supabase via signed URLs (contourne limite Vercel 4.5MB). Lecteur vidéo dans lightbox. Icône play sur miniatures vidéo. |
+| 2026-02-03 | **Corrections GitHub Issues** - #1: Domaine configuré. #4: Édition profil utilisateur (email, nom, prénom) + fix menu dropdown admin. #6: Config Next.js images pour Supabase Storage. #9: Fix connexions DB (pgbouncer port 6543 + connection_limit=1). |
+| 2026-02-03 | **Tests API** - Ajout 16 tests pour `/api/users/me`. Fix config vitest pour ESM. Total: 47 tests passants. |
 | 2026-02-02 | **Corrections GitHub Issues Phase 1** - #2: Portail affiche maintenant UNE question aléatoire (au lieu de 3). #6: Meilleure gestion erreurs upload photos (vérification config Supabase, logs détaillés). Null safety ajoutée aux clients Supabase. |
 | 2026-02-01 | **Phase 5 Administration terminée** - Gestion utilisateurs (rôles, statut, reset password), questions de sécurité (CRUD, reorder, min 3), codes d'invitation (génération, filtres, révocation) |
 | 2026-02-01 | **Piano Hero v2 terminé** - Infrastructure jeux (GameWrapper, overlays, contrôles), composant principal, API scores, page dynamique `/jeux/[gameId]`, support mobile |
