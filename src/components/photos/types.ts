@@ -50,3 +50,12 @@ export interface PhotoComment {
     lastName: string
   }
 }
+
+// Video file extensions
+const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.avi', '.mkv']
+
+// Helper to check if a media URL is a video
+export function isVideo(url: string): boolean {
+  const lowercaseUrl = url.toLowerCase()
+  return VIDEO_EXTENSIONS.some(ext => lowercaseUrl.includes(ext))
+}

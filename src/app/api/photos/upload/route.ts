@@ -57,15 +57,20 @@ export async function POST(request: NextRequest) {
 
     for (const file of files) {
       // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-      if (!allowedTypes.includes(file.type)) {
+      const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+      const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
+      const isImage = allowedImageTypes.includes(file.type)
+      const isVideo = allowedVideoTypes.includes(file.type)
+
+      if (!isImage && !isVideo) {
         errors.push(`${file.name}: Type de fichier non supporté`)
         continue
       }
 
-      // Validate file size (10MB max)
-      if (file.size > 10 * 1024 * 1024) {
-        errors.push(`${file.name}: Fichier trop volumineux (max 10MB)`)
+      // Validate file size (10MB for images, 100MB for videos)
+      const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024
+      if (file.size > maxSize) {
+        errors.push(`${file.name}: Fichier trop volumineux (max ${isVideo ? '100MB' : '10MB'})`)
         continue
       }
 

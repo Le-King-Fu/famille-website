@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { MessageSquare } from 'lucide-react'
-import { Photo } from './types'
+import { MessageSquare, Play } from 'lucide-react'
+import { Photo, isVideo } from './types'
 import { Lightbox } from './Lightbox'
 
 interface PhotoGridProps {
@@ -39,16 +39,33 @@ export function PhotoGrid({ photos, albumTitle, onPhotoDeleted, isAdmin }: Photo
             className="relative aspect-square group cursor-pointer overflow-hidden rounded-lg bg-gray-100"
             onClick={() => openLightbox(index)}
           >
-            <Image
-              src={photo.thumbnailUrl}
-              alt={photo.caption || `Photo ${index + 1}`}
-              fill
-              className="object-cover transition-transform group-hover:scale-105"
-              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-            />
+            {isVideo(photo.url) ? (
+              <>
+                <video
+                  src={photo.url}
+                  className="w-full h-full object-cover"
+                  muted
+                  preload="metadata"
+                />
+                {/* Play icon overlay for videos */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center group-hover:bg-black/80 transition-colors">
+                    <Play className="h-6 w-6 text-white ml-1" fill="white" />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <Image
+                src={photo.thumbnailUrl}
+                alt={photo.caption || `Photo ${index + 1}`}
+                fill
+                className="object-cover transition-transform group-hover:scale-105"
+                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+              />
+            )}
 
             {/* Overlay on hover */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none" />
 
             {/* Comment count badge */}
             {photo._count && photo._count.comments > 0 && (

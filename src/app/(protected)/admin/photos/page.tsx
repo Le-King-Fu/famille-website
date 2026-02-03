@@ -14,7 +14,7 @@ import {
   FolderPlus,
   Image as ImageIcon,
 } from 'lucide-react'
-import { Album, Photo } from '@/components/photos'
+import { Album, Photo, isVideo } from '@/components/photos'
 
 export default function AdminPhotosPage() {
   return (
@@ -342,7 +342,7 @@ function AdminPhotosContent() {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
                     multiple
                     onChange={handleFileSelect}
                     className="hidden"
@@ -359,7 +359,7 @@ function AdminPhotosContent() {
                     ) : (
                       <Upload className="h-4 w-4" />
                     )}
-                    Ajouter des photos
+                    Ajouter des médias
                   </label>
                 </div>
               </div>
@@ -381,13 +381,29 @@ function AdminPhotosContent() {
                       key={photo.id}
                       className="relative aspect-square group rounded-lg overflow-hidden bg-gray-100"
                     >
-                      <Image
-                        src={photo.thumbnailUrl}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes="150px"
-                      />
+                      {isVideo(photo.url) ? (
+                        <>
+                          <video
+                            src={photo.url}
+                            className="w-full h-full object-cover"
+                            muted
+                            preload="metadata"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="w-8 h-8 bg-black/60 rounded-full flex items-center justify-center">
+                              <div className="w-0 h-0 border-l-[8px] border-l-white border-y-[5px] border-y-transparent ml-0.5" />
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <Image
+                          src={photo.thumbnailUrl}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="150px"
+                        />
+                      )}
                       <button
                         onClick={() => handleDeletePhoto(photo.id)}
                         className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"

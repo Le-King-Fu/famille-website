@@ -11,7 +11,7 @@ import {
   MessageSquare,
   Loader2,
 } from 'lucide-react'
-import { Photo, PhotoComment } from './types'
+import { Photo, PhotoComment, isVideo } from './types'
 import { PhotoComments } from './PhotoComments'
 
 interface LightboxProps {
@@ -104,7 +104,8 @@ export function Lightbox({
     if (!currentPhoto) return
     const link = document.createElement('a')
     link.href = currentPhoto.url
-    link.download = `photo-${currentPhoto.id}.jpg`
+    const extension = isVideo(currentPhoto.url) ? 'mp4' : 'jpg'
+    link.download = `media-${currentPhoto.id}.${extension}`
     link.target = '_blank'
     document.body.appendChild(link)
     link.click()
@@ -213,16 +214,27 @@ export function Lightbox({
             </>
           )}
 
-          {/* Photo */}
+          {/* Photo or Video */}
           <div className="relative flex-1 flex items-center justify-center p-4">
-            <Image
-              src={currentPhoto.url}
-              alt={currentPhoto.caption || 'Photo'}
-              fill
-              className="object-contain"
-              sizes="100vw"
-              priority
-            />
+            {isVideo(currentPhoto.url) ? (
+              <video
+                key={currentPhoto.id}
+                src={currentPhoto.url}
+                controls
+                autoPlay
+                className="max-w-full max-h-full"
+                style={{ maxHeight: 'calc(100vh - 120px)' }}
+              />
+            ) : (
+              <Image
+                src={currentPhoto.url}
+                alt={currentPhoto.caption || 'Photo'}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                priority
+              />
+            )}
           </div>
 
           {/* Caption */}
