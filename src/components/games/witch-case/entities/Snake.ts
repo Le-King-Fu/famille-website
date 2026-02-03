@@ -88,9 +88,9 @@ export class Snake {
 
   /**
    * Move the snake forward
-   * Returns the new head position
+   * Returns the new head position and whether a wall was hit
    */
-  move(): { x: number; y: number } {
+  move(): { x: number; y: number; hitWall: boolean } {
     // Apply the queued direction
     this.state.direction = this.state.nextDirection
 
@@ -101,17 +101,25 @@ export class Snake {
 
     switch (this.state.direction) {
       case 'up':
-        newY = (newY - 1 + GRID.SIZE) % GRID.SIZE
+        newY = newY - 1
         break
       case 'down':
-        newY = (newY + 1) % GRID.SIZE
+        newY = newY + 1
         break
       case 'left':
-        newX = (newX - 1 + GRID.SIZE) % GRID.SIZE
+        newX = newX - 1
         break
       case 'right':
-        newX = (newX + 1) % GRID.SIZE
+        newX = newX + 1
         break
+    }
+
+    // Check wall collision
+    const hitWall = newX < 0 || newX >= GRID.SIZE || newY < 0 || newY >= GRID.SIZE
+
+    if (hitWall) {
+      // Don't actually move if hit wall
+      return { x: head.x, y: head.y, hitWall: true }
     }
 
     // Move body: each segment takes the position of the one ahead
@@ -124,7 +132,7 @@ export class Snake {
     this.state.segments[0].x = newX
     this.state.segments[0].y = newY
 
-    return { x: newX, y: newY }
+    return { x: newX, y: newY, hitWall: false }
   }
 
   /**

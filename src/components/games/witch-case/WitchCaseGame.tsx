@@ -72,7 +72,7 @@ function generateLetters(
   }
 
   // Spawn other LANDRY letters (decoys that reset progress if wrong)
-  const landryLetters = PATTERN.slice(0, -1).toUpperCase().split('') // 'LANDRY'
+  const landryLetters = PATTERN.toUpperCase().split('') // 'LANDRY'
   const nonTargetLetters = landryLetters.filter((l) => l !== targetLetter)
 
   // Spawn 2-4 non-target LANDRY letters
@@ -227,7 +227,15 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
     if (!snake || gameState !== 'playing') return
 
     // Move snake
-    const newHead = snake.move()
+    const { x: newX, y: newY, hitWall } = snake.move()
+
+    // Check wall collision
+    if (hitWall) {
+      triggerGameOver()
+      return
+    }
+
+    const newHead = { x: newX, y: newY }
 
     // Check self-collision
     if (snake.checkSelfCollision()) {

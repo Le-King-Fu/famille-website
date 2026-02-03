@@ -292,7 +292,7 @@ export class Renderer {
     this.ctx.fillRect(OFFSET_X, y - 12, SIZE * CELL_SIZE, 24)
 
     // Pattern letters
-    const patternDisplay = PATTERN.slice(0, -1).toUpperCase() // Remove underscore, show "LANDRY"
+    const patternDisplay = PATTERN.toUpperCase() // 'LANDRY'
     const letterWidth = 24
     const startX = CANVAS.WIDTH / 2 - (patternDisplay.length * letterWidth) / 2
 
