@@ -37,14 +37,17 @@ export class Note {
     this.hit = false
     this.missed = false
 
+    // Use bigger height for bonus notes
+    const noteHeight = isBonus ? NOTE.BONUS_HEIGHT : NOTE.HEIGHT
+
     // Initial position (above canvas)
-    this.y = -NOTE.HEIGHT
+    this.y = -noteHeight
 
     // Calculate X position based on lane
     const laneWidth = CANVAS.WIDTH / NOTES.length
     this.x = this.lane * laneWidth + NOTE.PADDING
     this.width = laneWidth - NOTE.PADDING * 2
-    this.height = NOTE.HEIGHT
+    this.height = noteHeight
 
     // Animation
     this.animationFrame = 0

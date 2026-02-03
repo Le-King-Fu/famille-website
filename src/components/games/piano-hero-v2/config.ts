@@ -53,6 +53,7 @@ export const NOTE_TO_KEY: Record<NoteType, string> = {
 export const NOTE = {
   WIDTH: Math.floor(CANVAS.WIDTH / NOTES.length) - 8,
   HEIGHT: 40,
+  BONUS_HEIGHT: 80, // Bigger for bonus tiles with images
   PADDING: 4,
 }
 

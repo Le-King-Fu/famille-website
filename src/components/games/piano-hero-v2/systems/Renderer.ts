@@ -138,22 +138,19 @@ export class Renderer {
       // Try to draw bonus image
       const bonusImg = this.bonusImages[bonusImageIndex]
       if (bonusImg && bonusImg.complete && bonusImg.naturalWidth > 0 && !hit) {
-        // Draw image centered and scaled to fit
-        const imgSize = Math.min(width, height) * 0.9
-        const imgX = centerX - imgSize / 2
-        const imgY = centerY - imgSize / 2
+        // Draw image filling the entire note area
+        this.ctx.drawImage(bonusImg, Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height))
 
-        // Gold background
-        this.ctx.fillStyle = COLORS.GOLD
-        this.ctx.fillRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height))
-
-        // Draw the bonus image
-        this.ctx.drawImage(bonusImg, Math.floor(imgX), Math.floor(imgY), Math.floor(imgSize), Math.floor(imgSize))
-
-        // Border
+        // Gold border
         this.ctx.strokeStyle = COLORS.GOLD
         this.ctx.lineWidth = 3
         this.ctx.strokeRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height))
+
+        // Key label at bottom
+        this.ctx.fillStyle = COLORS.GOLD
+        this.ctx.font = 'bold 14px monospace'
+        this.ctx.textAlign = 'center'
+        this.ctx.fillText(NOTE_TO_KEY[type], Math.floor(centerX), Math.floor(drawY + height - 6))
       } else {
         // Fallback: Gold background with x3 text
         this.ctx.fillStyle = hit ? COLORS.SECONDARY : COLORS.GOLD
@@ -167,7 +164,7 @@ export class Renderer {
         // Bonus indicator
         if (!hit) {
           this.ctx.fillStyle = COLORS.BG_DARK
-          this.ctx.font = '10px monospace'
+          this.ctx.font = 'bold 16px monospace'
           this.ctx.textAlign = 'center'
           this.ctx.fillText('x3', Math.floor(centerX), Math.floor(centerY + 4))
         }
