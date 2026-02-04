@@ -28,6 +28,12 @@ model User {
   updatedAt             DateTime  @updatedAt
   lastLoginAt           DateTime?
 
+  // Contact fields
+  phone                 String?   // Format: +1-XXX-XXX-XXXX
+  address               String?   // Adresse libre
+  avatarUrl             String?   // Placeholder pour photo future
+  privacyConsentAt      DateTime? // Date consentement Loi 25
+
   // Relations
   events                Event[]
   albums                Album[]

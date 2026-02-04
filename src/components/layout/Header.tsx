@@ -17,6 +17,7 @@ import {
   User,
   Sun,
   Moon,
+  Users,
 } from 'lucide-react'
 import { useTheme } from '@/components/providers/ThemeProvider'
 
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'Calendrier', href: '/calendrier', icon: Calendar, hideForChild: false },
   { name: 'Jeux', href: '/jeux', icon: Gamepad2, hideForChild: false },
   { name: 'Photos', href: '/photos', icon: Image, hideForChild: false },
+  { name: 'Contacts', href: '/contacts', icon: Users, hideForChild: false },
   { name: 'Forum', href: '/forum', icon: MessageSquare, hideForChild: true },
 ]
 

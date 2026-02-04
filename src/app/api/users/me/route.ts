@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 
+// Phone format validation: +1-XXX-XXX-XXXX
+const PHONE_REGEX = /^\+1-\d{3}-\d{3}-\d{4}$/
+
 // GET /api/users/me - Get current user profile
 export async function GET() {
   const session = await auth()
@@ -20,6 +23,10 @@ export async function GET() {
         lastName: true,
         role: true,
         createdAt: true,
+        phone: true,
+        address: true,
+        avatarUrl: true,
+        privacyConsentAt: true,
         _count: {
           select: {
             gameScores: true,
@@ -58,7 +65,16 @@ export async function PUT(request: NextRequest) {
       email?: string
       firstName?: string
       lastName?: string
+      phone?: string | null
+      address?: string | null
+      privacyConsentAt?: Date
     } = {}
+
+    // Get current user to check privacy consent
+    const currentUser = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { privacyConsentAt: true },
+    })
 
     // Handle email update with uniqueness check
     if (body.email && typeof body.email === 'string') {
@@ -111,6 +127,57 @@ export async function PUT(request: NextRequest) {
       updateData.lastName = lastName
     }
 
+    // Handle privacy consent
+    if (body.privacyConsent === true) {
+      updateData.privacyConsentAt = new Date()
+    }
+
+    // Handle phone update
+    if (body.phone !== undefined) {
+      if (body.phone === null || body.phone === '') {
+        updateData.phone = null
+      } else if (typeof body.phone === 'string') {
+        const phone = body.phone.trim()
+        if (!PHONE_REGEX.test(phone)) {
+          return NextResponse.json(
+            { error: 'Format de téléphone invalide. Utilisez +1-XXX-XXX-XXXX' },
+            { status: 400 }
+          )
+        }
+        // Check privacy consent for phone
+        if (!currentUser?.privacyConsentAt && !body.privacyConsent) {
+          return NextResponse.json(
+            { error: 'Vous devez accepter la politique de confidentialité pour ajouter vos coordonnées' },
+            { status: 400 }
+          )
+        }
+        updateData.phone = phone
+      }
+    }
+
+    // Handle address update
+    if (body.address !== undefined) {
+      if (body.address === null || body.address === '') {
+        updateData.address = null
+      } else if (typeof body.address === 'string') {
+        const address = body.address.trim()
+        if (address.length > 500) {
+          return NextResponse.json(
+            { error: 'L\'adresse ne peut pas dépasser 500 caractères' },
+            { status: 400 }
+          )
+        }
+        // Check privacy consent for address
+        if (!currentUser?.privacyConsentAt && !body.privacyConsent) {
+          return NextResponse.json(
+            { error: 'Vous devez accepter la politique de confidentialité pour ajouter vos coordonnées' },
+            { status: 400 }
+          )
+        }
+        updateData.address = address
+      }
+    }
+
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
         { error: 'Aucune donnée valide à mettre à jour' },
@@ -128,6 +195,10 @@ export async function PUT(request: NextRequest) {
         lastName: true,
         role: true,
         createdAt: true,
+        phone: true,
+        address: true,
+        avatarUrl: true,
+        privacyConsentAt: true,
       },
     })
 
