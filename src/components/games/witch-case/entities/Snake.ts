@@ -17,7 +17,7 @@ export interface SnakeState {
   segments: SnakeSegment[]
   direction: Direction
   nextDirection: Direction
-  patternIndex: number // Current position in LANDRY_ pattern (0-6)
+  patternIndex: number // Current position in LANDRY pattern (0-5)
 }
 
 // =============================================================================
@@ -42,7 +42,7 @@ export class Snake {
       ],
       direction: INITIAL_SNAKE.DIRECTION,
       nextDirection: INITIAL_SNAKE.DIRECTION,
-      patternIndex: 0, // Start collecting from L
+      patternIndex: 1, // We start with L, so next letter is at index 1 (A)
     }
   }
 
@@ -126,6 +126,7 @@ export class Snake {
     for (let i = this.state.segments.length - 1; i > 0; i--) {
       this.state.segments[i].x = this.state.segments[i - 1].x
       this.state.segments[i].y = this.state.segments[i - 1].y
+      // Letters stay with their segments!
     }
 
     // Move head
@@ -136,48 +137,40 @@ export class Snake {
   }
 
   /**
-   * Collect the correct letter - grow the snake
+   * Add a new segment to the snake (when collecting any letter)
    */
-  collectCorrectLetter(letter: string): boolean {
-    // Add new segment at the tail (it will follow on next move)
-    const tail = this.state.segments[this.state.segments.length - 1]
+  addSegment(x: number, y: number, letter: string): void {
     this.state.segments.push({
-      x: tail.x,
-      y: tail.y,
+      x,
+      y,
       letter: letter.toUpperCase(),
     })
-
-    // Advance pattern index
-    this.state.patternIndex = (this.state.patternIndex + 1) % PATTERN.length
-
-    // Return true if we just completed LANDRY (wrapped back to 0, which means next is L again)
-    return this.state.patternIndex === 0
   }
 
   /**
-   * Collect wrong letter - reset snake to single segment, restart from L
+   * Advance to the next letter in the pattern
    */
-  collectWrongLetter(): void {
-    // Reset to single segment at current head position
-    this.state.segments = [
-      {
-        x: this.state.segments[0].x,
-        y: this.state.segments[0].y,
-        letter: 'L',
-      },
-    ]
-    // Reset pattern to start - next target is L (index 0)
+  advancePattern(): void {
+    this.state.patternIndex = (this.state.patternIndex + 1) % PATTERN.length
+  }
+
+  /**
+   * Reset pattern to start (next target is L)
+   * Snake length is preserved!
+   */
+  resetPattern(): void {
     this.state.patternIndex = 0
   }
 
   /**
    * Check if the snake collides with itself
+   * Excludes the tail segment since it moves away
    */
   checkSelfCollision(): boolean {
     const head = this.state.segments[0]
 
-    // Check if head collides with any body segment
-    for (let i = 1; i < this.state.segments.length; i++) {
+    // Check if head collides with any body segment (excluding tail)
+    for (let i = 1; i < this.state.segments.length - 1; i++) {
       if (
         this.state.segments[i].x === head.x &&
         this.state.segments[i].y === head.y
@@ -215,5 +208,12 @@ export class Snake {
    */
   getLength(): number {
     return this.state.segments.length
+  }
+
+  /**
+   * Get the snake body as a string of letters
+   */
+  getBodyString(): string {
+    return this.state.segments.map(s => s.letter).join('')
   }
 }

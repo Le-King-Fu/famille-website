@@ -11,7 +11,6 @@ import {
   DIFFICULTY_LEVELS,
   BONUS,
   SCORING,
-  type DifficultyId,
   type DifficultyLevel,
   type Direction,
 } from './config'
@@ -21,7 +20,7 @@ import type { GameMetadata } from '../common/types'
 // TYPES
 // =============================================================================
 
-type GameState = 'menu' | 'playing' | 'paused' | 'gameover' | 'bonus'
+type GameState = 'menu' | 'playing' | 'paused' | 'gameover'
 
 interface WitchCaseGameProps {
   onScoreSubmit?: (score: number, metadata: GameMetadata) => Promise<boolean>
@@ -113,6 +112,33 @@ function generateLetters(
   return letters
 }
 
+/**
+ * Count how many complete "LANDRY" patterns are in the snake body
+ * Patterns are consecutive: "LANDRY", "LANDRYLANDRY", etc.
+ */
+function countLandryPatterns(snakeString: string): number {
+  const str = snakeString.toUpperCase()
+  if (str.length < 6) return 0
+
+  // Check if starts with "LANDRY"
+  if (str.substring(0, 6) !== 'LANDRY') return 0
+
+  let count = 1
+  let pos = 6
+
+  // Check for additional "LANDRY" patterns (no separator)
+  while (pos + 6 <= str.length) {
+    if (str.substring(pos, pos + 6) === 'LANDRY') {
+      count++
+      pos += 6
+    } else {
+      break
+    }
+  }
+
+  return count
+}
+
 // =============================================================================
 // MAIN COMPONENT
 // =============================================================================
@@ -131,6 +157,10 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
   const [landryCount, setLandryCount] = useState(0)
   const [selectedDifficulty, setSelectedDifficulty] = useState(0)
   const [isMuted, setIsMuted] = useState(false)
+
+  // Bonus overlay state (shows while game continues)
+  const [showBonus, setShowBonus] = useState(false)
+  const [bonusText, setBonusText] = useState('')
 
   // Game data refs
   const scoreRef = useRef(0)
@@ -199,11 +229,6 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
       return
     }
 
-    if (gameState === 'bonus') {
-      renderer.drawBonusOverlay(landryCountRef.current)
-      return
-    }
-
     // Playing or paused - render game state
     renderer.render({
       snake: snake.state.segments,
@@ -221,10 +246,53 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState, highScore, selectedDifficulty])
 
+  // Show bonus overlay (game continues running)
+  const triggerBonus = useCallback((isFirst: boolean) => {
+    const text = isFirst ? BONUS.TEXT_FIRST : BONUS.TEXT_SUBSEQUENT
+    setBonusText(text)
+    setShowBonus(true)
+    audioRef.current?.playBonusSound()
+
+    // Clear any existing timer
+    if (bonusTimerRef.current) {
+      clearTimeout(bonusTimerRef.current)
+    }
+
+    // Hide after duration
+    bonusTimerRef.current = setTimeout(() => {
+      setShowBonus(false)
+    }, BONUS.DURATION)
+  }, [])
+
+  // Check for LANDRY bonus in snake body
+  const checkForBonus = useCallback((snake: Snake) => {
+    const snakeString = snake.state.segments.map(s => s.letter).join('')
+    const newCount = countLandryPatterns(snakeString)
+
+    if (newCount > landryCountRef.current) {
+      const isFirst = newCount === 1
+      // Add bonus points
+      const bonusPoints = isFirst ? SCORING.COMPLETE_LANDRY : SCORING.COMPLETE_LANDRY * 2
+      scoreRef.current += bonusPoints
+      setScore(scoreRef.current)
+
+      landryCountRef.current = newCount
+      setLandryCount(newCount)
+
+      triggerBonus(isFirst)
+    }
+  }, [triggerBonus])
+
   // Game tick function
   const gameTick = useCallback(() => {
     const snake = snakeRef.current
     if (!snake || gameState !== 'playing') return
+
+    // Store old tail position before moving (needed for growing)
+    const oldTailPos = {
+      x: snake.state.segments[snake.state.segments.length - 1].x,
+      y: snake.state.segments[snake.state.segments.length - 1].y,
+    }
 
     // Move snake
     const { x: newX, y: newY, hitWall } = snake.move()
@@ -237,7 +305,7 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
 
     const newHead = { x: newX, y: newY }
 
-    // Check self-collision
+    // Check self-collision (exclude tail as it will move away)
     if (snake.checkSelfCollision()) {
       triggerGameOver()
       return
@@ -252,40 +320,23 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
     if (collectedLetterIndex !== -1) {
       const collectedLetter = lettersRef.current[collectedLetterIndex]
 
+      // Always add points for collecting any letter
+      scoreRef.current += SCORING.CORRECT_LETTER
+      setScore(scoreRef.current)
+
+      // Always grow the snake with the collected letter
+      snake.addSegment(oldTailPos.x, oldTailPos.y, collectedLetter.letter)
+
       if (snake.isCorrectLetter(collectedLetter.letter)) {
-        // Correct letter!
-        const completedLandry = snake.collectCorrectLetter(collectedLetter.letter)
-        scoreRef.current += SCORING.CORRECT_LETTER
-        setScore(scoreRef.current)
+        // Correct letter - advance pattern
+        snake.advancePattern()
         audioRef.current?.playCollectSound()
 
-        if (completedLandry) {
-          // Completed LANDRY!
-          landryCountRef.current++
-          setLandryCount(landryCountRef.current)
-          scoreRef.current += SCORING.COMPLETE_LANDRY
-          setScore(scoreRef.current)
-
-          // Show bonus overlay
-          audioRef.current?.playBonusSound()
-          setGameState('bonus')
-
-          // Draw the bonus overlay immediately
-          rendererRef.current?.drawBonusOverlay(landryCountRef.current)
-
-          // Auto-resume after bonus duration
-          bonusTimerRef.current = setTimeout(() => {
-            setGameState('playing')
-            // Regenerate letters for next sequence
-            lettersRef.current = generateLetters(snake, difficultyRef.current)
-            render()
-          }, BONUS.DURATION)
-
-          return
-        }
+        // Check if we completed a LANDRY pattern
+        checkForBonus(snake)
       } else {
-        // Wrong letter - reset snake
-        snake.collectWrongLetter()
+        // Wrong letter - reset pattern to L (but keep snake length!)
+        snake.resetPattern()
         audioRef.current?.playErrorSound()
       }
 
@@ -294,7 +345,7 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
     }
 
     render()
-  }, [gameState, render])
+  }, [gameState, render, checkForBonus])
 
   // Start game loop when playing
   useEffect(() => {
@@ -332,6 +383,7 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
     landryCountRef.current = 0
     setScore(0)
     setLandryCount(0)
+    setShowBonus(false)
 
     // Generate initial letters
     if (snakeRef.current) {
@@ -361,6 +413,7 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
     if (bonusTimerRef.current) {
       clearTimeout(bonusTimerRef.current)
     }
+    setShowBonus(false)
     setGameState('menu')
   }, [])
 
@@ -375,6 +428,7 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
     if (bonusTimerRef.current) {
       clearTimeout(bonusTimerRef.current)
     }
+    setShowBonus(false)
 
     audioRef.current?.playGameOverSound()
 
@@ -454,21 +508,6 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
         return
       }
 
-      // Bonus (skip on any key)
-      if (gameState === 'bonus') {
-        if (KEYS.CONFIRM.includes(code)) {
-          e.preventDefault()
-          if (bonusTimerRef.current) {
-            clearTimeout(bonusTimerRef.current)
-          }
-          setGameState('playing')
-          if (snakeRef.current) {
-            lettersRef.current = generateLetters(snakeRef.current, difficultyRef.current)
-          }
-        }
-        return
-      }
-
       // Playing - direction controls
       if (gameState === 'playing' && snakeRef.current) {
         let newDirection: Direction | null = null
@@ -508,14 +547,6 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
       start()
     } else if (gameState === 'gameover') {
       start()
-    } else if (gameState === 'bonus') {
-      if (bonusTimerRef.current) {
-        clearTimeout(bonusTimerRef.current)
-      }
-      setGameState('playing')
-      if (snakeRef.current) {
-        lettersRef.current = generateLetters(snakeRef.current, difficultyRef.current)
-      }
     }
   }, [gameState, start])
 
@@ -542,7 +573,7 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
 
   return (
     <div className="witch-case-game flex flex-col items-center w-full max-w-[640px] mx-auto px-2">
-      {/* Game canvas */}
+      {/* Game canvas with bonus overlay */}
       <div className="relative w-full flex justify-center">
         <canvas
           ref={canvasRef}
@@ -554,6 +585,40 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
             boxShadow: '0 0 20px rgba(74, 144, 164, 0.3)',
           }}
         />
+
+        {/* Bonus overlay - shows while game continues */}
+        {showBonus && (
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center rounded-lg pointer-events-none animate-pulse"
+            style={{
+              background: 'rgba(0, 0, 0, 0.8)',
+            }}
+          >
+            {landryCount === 1 && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={BONUS.IMAGE}
+                alt="Bonus"
+                className="max-w-[300px] max-h-[200px] mb-4 object-contain"
+                style={{
+                  filter: 'drop-shadow(0 0 20px rgba(247, 147, 26, 0.8))',
+                }}
+              />
+            )}
+            <span
+              className="text-2xl md:text-3xl font-bold text-center px-4"
+              style={{
+                color: '#F7931A',
+                textShadow: '0 0 20px #F7931A, 0 0 40px #F7931A',
+              }}
+            >
+              {bonusText}
+            </span>
+            <span className="text-lg mt-2" style={{ color: '#FFF8F0' }}>
+              ×{landryCount}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Controls */}
