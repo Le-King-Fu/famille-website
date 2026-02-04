@@ -44,6 +44,7 @@ model User {
   photoComments         PhotoComment[]
   invitationCodesUsed   InvitationCode? @relation("UsedBy")
   invitationCodesCreated InvitationCode[] @relation("CreatedBy")
+  eventRsvps            EventRsvp[]
 }
 
 model SecurityQuestion {
@@ -90,6 +91,12 @@ enum EventCategory {
   OTHER
 }
 
+enum RsvpStatus {
+  ATTENDING
+  MAYBE
+  NOT_ATTENDING
+}
+
 model Event {
   id          String        @id @default(cuid())
   title       String
@@ -101,12 +108,31 @@ model Event {
   color       String?
   imageUrl    String?       // URL image (Supabase Storage) - ADMIN ONLY
   recurrence  Json?         // RecurrenceRule stored as JSON
+  location    String?       // Venue/address
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
   // Relations
   createdById String
   createdBy   User          @relation(fields: [createdById], references: [id])
+  topicId     String?       @unique
+  topic       Topic?        @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  rsvps       EventRsvp[]
+}
+
+model EventRsvp {
+  id        String     @id @default(cuid())
+  status    RsvpStatus
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  eventId   String
+  event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+
+  @@unique([eventId, userId])
 }
 
 // ==================== PHOTOS ====================
@@ -192,6 +218,7 @@ model Topic {
   authorId    String
   author      User          @relation(fields: [authorId], references: [id])
   replies     Reply[]
+  event       Event?
 }
 
 model Reply {

@@ -65,6 +65,17 @@ export async function GET(request: NextRequest) {
             lastName: true,
           },
         },
+        rsvps: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { startDate: 'asc' },
     })
@@ -194,6 +205,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate location length
+    if (body.location && body.location.length > 200) {
+      return NextResponse.json(
+        { error: 'Le lieu ne peut pas dépasser 200 caractères' },
+        { status: 400 }
+      )
+    }
+
+    // Create forum topic if requested (MEMBER and ADMIN only, not CHILD)
+    let topicId: string | null = null
+    if (body.createForumTopic) {
+      const topic = await db.topic.create({
+        data: {
+          title: `Discussion: ${body.title.trim()}`,
+          content: `Discussion associée à l'événement "${body.title.trim()}".\n\n${body.description?.trim() || 'Aucune description.'}`,
+          categoryId: 'cml7vw67400009qxso9ccq098', // Forum category for events
+          authorId: session.user.id,
+        },
+      })
+      topicId = topic.id
+    }
+
     const event = await db.event.create({
       data: {
         title: body.title.trim(),
@@ -205,6 +238,8 @@ export async function POST(request: NextRequest) {
         color: body.color || null,
         imageUrl: body.imageUrl || null,
         recurrence: body.recurrence || null,
+        location: body.location?.trim() || null,
+        topicId,
         createdById: session.user.id,
       },
       include: {
@@ -213,6 +248,18 @@ export async function POST(request: NextRequest) {
             id: true,
             firstName: true,
             lastName: true,
+          },
+        },
+        topic: true,
+        rsvps: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         },
       },

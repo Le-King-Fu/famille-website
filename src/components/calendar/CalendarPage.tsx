@@ -5,10 +5,11 @@ import { startOfMonth, endOfMonth } from 'date-fns'
 import { Calendar } from './Calendar'
 import { CalendarEvent } from './types'
 import { Loader2 } from 'lucide-react'
+import { UserRole } from '@prisma/client'
 
 interface CalendarPageProps {
   userId: string
-  userRole: string
+  userRole: UserRole
 }
 
 export function CalendarPage({ userId, userRole }: CalendarPageProps) {
@@ -169,6 +170,7 @@ export function CalendarPage({ userId, userRole }: CalendarPageProps) {
       isAdmin={isAdmin}
       canCreateEvent={canCreateEvent}
       currentUserId={userId}
+      userRole={userRole}
     />
   )
 }

@@ -20,6 +20,8 @@ const mockEvents: CalendarEvent[] = [
     color: '#4A90A4',
     imageUrl: null,
     recurrence: null,
+    location: null,
+    topicId: null,
     createdById: 'user1',
     createdBy: {
       id: 'user1',

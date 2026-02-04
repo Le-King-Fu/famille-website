@@ -1,6 +1,19 @@
 import { EventCategory } from '@prisma/client'
 import { RecurrenceRule } from '@/lib/recurrence'
 
+export type RsvpStatusType = 'ATTENDING' | 'MAYBE' | 'NOT_ATTENDING'
+
+export interface EventRsvp {
+  id: string
+  status: RsvpStatusType
+  userId: string
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+  }
+}
+
 export interface CalendarEvent {
   id: string
   title: string
@@ -12,12 +25,15 @@ export interface CalendarEvent {
   color: string | null
   imageUrl: string | null
   recurrence: RecurrenceRule | null
+  location: string | null
+  topicId: string | null
   createdById: string
   createdBy: {
     id: string
     firstName: string
     lastName: string
   }
+  rsvps?: EventRsvp[]
   // Added by expansion
   originalDate?: Date
   isRecurring?: boolean
@@ -35,6 +51,8 @@ export interface EventFormData {
   color: string
   imageUrl: string
   recurrence: RecurrenceRule | null
+  location: string
+  createForumTopic: boolean
 }
 
 export const categoryConfig: Record<
@@ -60,4 +78,6 @@ export const defaultEventFormData: EventFormData = {
   color: '',
   imageUrl: '',
   recurrence: null,
+  location: '',
+  createForumTopic: false,
 }

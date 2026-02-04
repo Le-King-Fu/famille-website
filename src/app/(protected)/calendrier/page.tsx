@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import { CalendarPage } from '@/components/calendar/CalendarPage'
+import { UserRole } from '@prisma/client'
 
 export default async function CalendrierPage() {
   const session = await auth()
@@ -18,7 +19,7 @@ export default async function CalendrierPage() {
 
       <CalendarPage
         userId={session.user.id}
-        userRole={session.user.role}
+        userRole={session.user.role as UserRole}
       />
     </div>
   )

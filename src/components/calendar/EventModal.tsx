@@ -1,24 +1,26 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Loader2 } from 'lucide-react'
-import { EventCategory } from '@prisma/client'
+import { X, Loader2, MapPin, ExternalLink, MessageSquare } from 'lucide-react'
+import { EventCategory, UserRole } from '@prisma/client'
 import { RecurrenceRule } from '@/lib/recurrence'
 import { CalendarEvent, EventFormData, defaultEventFormData, categoryConfig } from './types'
 import { CategorySelect } from './CategorySelect'
 import { RecurrenceSelect } from './RecurrenceSelect'
 import { EventImage } from './EventImage'
 import { format } from 'date-fns'
+import Link from 'next/link'
 
 interface EventModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (data: Partial<CalendarEvent>) => Promise<void>
+  onSave: (data: Partial<CalendarEvent> & { createForumTopic?: boolean }) => Promise<void>
   onDelete?: () => Promise<void>
   event?: CalendarEvent | null
   selectedDate?: Date | null
   isAdmin: boolean
   canEdit: boolean
+  userRole?: UserRole
 }
 
 export function EventModal({
@@ -30,6 +32,7 @@ export function EventModal({
   selectedDate,
   isAdmin,
   canEdit,
+  userRole,
 }: EventModalProps) {
   const [formData, setFormData] = useState<EventFormData>(defaultEventFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -60,6 +63,8 @@ export function EventModal({
         color: event.color || '',
         imageUrl: event.imageUrl || '',
         recurrence: event.recurrence,
+        location: event.location || '',
+        createForumTopic: false,
       })
     } else if (selectedDate) {
       // New event with selected date
@@ -96,7 +101,7 @@ export function EventModal({
         }
       }
 
-      const eventData: Partial<CalendarEvent> = {
+      const eventData: Partial<CalendarEvent> & { createForumTopic?: boolean } = {
         title: formData.title,
         description: formData.description || null,
         startDate,
@@ -105,11 +110,17 @@ export function EventModal({
         category: formData.category,
         color: formData.color || null,
         recurrence: formData.recurrence,
+        location: formData.location || null,
       }
 
       // Only include imageUrl if admin
       if (isAdmin) {
         eventData.imageUrl = formData.imageUrl || null
+      }
+
+      // Include createForumTopic only for new events (not editing)
+      if (!isEditing && formData.createForumTopic) {
+        eventData.createForumTopic = true
       }
 
       await onSave(eventData)
@@ -149,18 +160,18 @@ export function EventModal({
         />
 
         {/* Modal */}
-        <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-lg font-semibold">
+          <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
+            <h2 className="text-lg font-semibold dark:text-white">
               {isEditing ? 'Modifier l\'événement' : 'Nouvel événement'}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5 dark:text-gray-300" />
             </button>
           </div>
 
@@ -179,7 +190,7 @@ export function EventModal({
 
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Titre <span className="text-red-500">*</span>
               </label>
               <input
@@ -216,7 +227,7 @@ export function EventModal({
                 className="rounded border-gray-300 text-bleu focus:ring-bleu"
                 disabled={!canEdit}
               />
-              <label htmlFor="allDay" className="text-sm text-gray-700">
+              <label htmlFor="allDay" className="text-sm text-gray-700 dark:text-gray-300">
                 Journée entière
               </label>
             </div>
@@ -224,7 +235,7 @@ export function EventModal({
             {/* Date & Time */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Date début <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -244,7 +255,7 @@ export function EventModal({
               </div>
               {!formData.allDay && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Heure début
                   </label>
                   <input
@@ -262,7 +273,7 @@ export function EventModal({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Date fin
                 </label>
                 <input
@@ -278,7 +289,7 @@ export function EventModal({
               </div>
               {!formData.allDay && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Heure fin
                   </label>
                   <input
@@ -304,7 +315,7 @@ export function EventModal({
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Description
               </label>
               <textarea
@@ -319,6 +330,56 @@ export function EventModal({
               />
             </div>
 
+            {/* Location */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <MapPin className="h-4 w-4 inline mr-1" />
+                Lieu
+              </label>
+              <input
+                type="text"
+                value={formData.location}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, location: e.target.value }))
+                }
+                className="input"
+                placeholder="Adresse ou nom du lieu"
+                maxLength={200}
+                disabled={!canEdit}
+              />
+            </div>
+
+            {/* Create forum topic - only for new events and non-CHILD users */}
+            {!isEditing && userRole && userRole !== 'CHILD' && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="createForumTopic"
+                  checked={formData.createForumTopic}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, createForumTopic: e.target.checked }))
+                  }
+                  className="rounded border-gray-300 text-bleu focus:ring-bleu"
+                  disabled={!canEdit}
+                />
+                <label htmlFor="createForumTopic" className="text-sm text-gray-700 dark:text-gray-300">
+                  <MessageSquare className="h-4 w-4 inline mr-1" />
+                  Créer une discussion dans le forum
+                </label>
+              </div>
+            )}
+
+            {/* Link to event detail page (when editing) */}
+            {isEditing && event && (
+              <Link
+                href={`/calendrier/${event.id}`}
+                className="flex items-center gap-2 text-sm text-bleu hover:text-bleu/80 transition-colors"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Voir les détails de l&apos;événement
+              </Link>
+            )}
+
             {/* Error message */}
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -327,7 +388,7 @@ export function EventModal({
             )}
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-4 border-t">
+            <div className="flex items-center justify-between pt-4 border-t dark:border-gray-700">
               <div>
                 {isEditing && canEdit && onDelete && (
                   <button

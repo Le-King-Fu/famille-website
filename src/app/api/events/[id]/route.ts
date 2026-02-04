@@ -28,6 +28,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             lastName: true,
           },
         },
+        topic: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        rsvps: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
       },
     })
 
@@ -193,6 +210,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       updateData.recurrence = body.recurrence
     }
 
+    // Validate and set location
+    if (body.location !== undefined) {
+      if (body.location === null) {
+        updateData.location = null
+      } else {
+        if (body.location.length > 200) {
+          return NextResponse.json(
+            { error: 'Le lieu ne peut pas dépasser 200 caractères' },
+            { status: 400 }
+          )
+        }
+        updateData.location = body.location.trim() || null
+      }
+    }
+
     const event = await db.event.update({
       where: { id },
       data: updateData,
@@ -202,6 +234,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             id: true,
             firstName: true,
             lastName: true,
+          },
+        },
+        topic: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        rsvps: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         },
       },

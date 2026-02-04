@@ -18,7 +18,7 @@ import {
   subMonths,
 } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { EventCategory } from '@prisma/client'
+import { EventCategory, UserRole } from '@prisma/client'
 import { CalendarEvent, categoryConfig } from './types'
 import { EventModal } from './EventModal'
 import { CategoryFilter } from './CategoryFilter'
@@ -55,13 +55,14 @@ const messages = {
 
 interface CalendarProps {
   events: CalendarEvent[]
-  onEventCreate: (event: Partial<CalendarEvent>) => Promise<void>
+  onEventCreate: (event: Partial<CalendarEvent> & { createForumTopic?: boolean }) => Promise<void>
   onEventUpdate: (id: string, event: Partial<CalendarEvent>) => Promise<void>
   onEventDelete: (id: string) => Promise<void>
   onRangeChange: (start: Date, end: Date) => void
   isAdmin: boolean
   canCreateEvent: boolean
   currentUserId: string
+  userRole?: UserRole
 }
 
 export function Calendar({
@@ -73,6 +74,7 @@ export function Calendar({
   isAdmin,
   canCreateEvent,
   currentUserId,
+  userRole,
 }: CalendarProps) {
   const [view, setView] = useState<View>('month')
   const [date, setDate] = useState(new Date())
@@ -324,6 +326,7 @@ export function Calendar({
         selectedDate={selectedSlot}
         isAdmin={isAdmin}
         canEdit={canEditEvent}
+        userRole={userRole}
       />
 
       <style jsx global>{`
