@@ -50,10 +50,10 @@ export function MentionAutocomplete({
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
 
-    // Highlight mentions
+    // Highlight mentions (inline styles for dark mode compatibility)
     html = html.replace(
       MENTION_REGEX,
-      '<mark class="bg-bleu/20 text-bleu rounded px-0.5">@$1</mark>'
+      '<mark style="background-color: rgba(37, 99, 235, 0.3); color: #3b82f6; border-radius: 3px; padding: 0 2px;">@$1</mark>'
     )
 
     // Preserve line breaks and add extra line for proper scrolling

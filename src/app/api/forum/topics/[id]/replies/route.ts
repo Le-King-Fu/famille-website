@@ -103,6 +103,24 @@ export async function POST(
       }),
     ])
 
+    // Mark topic as read for the reply author
+    await db.topicRead.upsert({
+      where: {
+        userId_topicId: {
+          userId: session.user.id,
+          topicId,
+        },
+      },
+      create: {
+        userId: session.user.id,
+        topicId,
+        lastReadAt: new Date(),
+      },
+      update: {
+        lastReadAt: new Date(),
+      },
+    })
+
     // Create notifications (async, don't block response)
     const topicLink = `/forum/${topic.category.id}/${topicId}`
     const notificationsToCreate: {

@@ -87,6 +87,15 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // Mark topic as read for the author
+    await db.topicRead.create({
+      data: {
+        userId: session.user.id,
+        topicId: topic.id,
+        lastReadAt: new Date(),
+      },
+    })
+
     // Create notifications for mentioned users
     const topicLink = `/forum/${body.categoryId}/${topic.id}`
     const mentionedUsers = await parseMentions(body.content.trim())
