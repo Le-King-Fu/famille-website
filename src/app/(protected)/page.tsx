@@ -22,7 +22,8 @@ export default async function HomePage() {
     },
   })
 
-  // Récupérer les derniers sujets du forum
+  // Récupérer les derniers sujets du forum avec statut lu/non-lu
+  const userId = session?.user?.id
   const recentTopics = await db.topic.findMany({
     orderBy: { lastReplyAt: 'desc' },
     take: 5,
@@ -31,12 +32,37 @@ export default async function HomePage() {
         select: { firstName: true, lastName: true },
       },
       category: {
-        select: { name: true },
+        select: { id: true, name: true },
       },
       _count: {
         select: { replies: true },
       },
+      replies: {
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+        include: {
+          author: {
+            select: { firstName: true },
+          },
+        },
+      },
+      reads: userId ? {
+        where: { userId },
+        select: { lastReadAt: true },
+      } : false,
     },
+  })
+
+  // Calculate unread status for each topic
+  const topicsWithReadStatus = recentTopics.map((topic) => {
+    const userRead = topic.reads?.[0]
+    const isUnread = !userRead || new Date(topic.lastReplyAt) > new Date(userRead.lastReadAt)
+    const lastReply = topic.replies?.[0]
+    return {
+      ...topic,
+      isUnread,
+      lastReply,
+    }
   })
 
   // Récupérer les meilleurs scores récents
@@ -126,21 +152,41 @@ export default async function HomePage() {
               Voir tout
             </Link>
           </div>
-          {recentTopics.length > 0 ? (
+          {topicsWithReadStatus.length > 0 ? (
             <ul className="space-y-3">
-              {recentTopics.map((topic) => (
+              {topicsWithReadStatus.map((topic) => (
                 <li key={topic.id} className="text-sm">
                   <Link
-                    href={`/forum/${topic.category.name.toLowerCase()}/${topic.id}`}
-                    className="font-medium text-gray-900 dark:text-gray-100 hover:text-bleu line-clamp-1"
+                    href={`/forum/${topic.category.id}/${topic.id}`}
+                    className="group flex items-start gap-2"
                   >
-                    {topic.title}
+                    {topic.isUnread && (
+                      <span className="flex-shrink-0 mt-1.5 w-2 h-2 rounded-full bg-bleu" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <span className={`font-medium group-hover:text-bleu line-clamp-1 ${
+                        topic.isUnread
+                          ? 'text-gray-900 dark:text-white'
+                          : 'text-gray-700 dark:text-gray-300'
+                      }`}>
+                        {topic.title}
+                      </span>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-2 mt-0.5">
+                        {topic.lastReply ? (
+                          <>
+                            <span>Réponse de {topic.lastReply.author.firstName}</span>
+                            <span>•</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Par {topic.author.firstName}</span>
+                            <span>•</span>
+                          </>
+                        )}
+                        <span>{topic._count.replies} réponse{topic._count.replies !== 1 ? 's' : ''}</span>
+                      </p>
+                    </div>
                   </Link>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-2">
-                    <span>{topic.author.firstName}</span>
-                    <span>•</span>
-                    <span>{topic._count.replies} réponses</span>
-                  </p>
                 </li>
               ))}
             </ul>

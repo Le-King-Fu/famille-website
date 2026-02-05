@@ -45,6 +45,7 @@ model User {
   invitationCodesUsed   InvitationCode? @relation("UsedBy")
   invitationCodesCreated InvitationCode[] @relation("CreatedBy")
   eventRsvps            EventRsvp[]
+  topicReads            TopicRead[]
 }
 
 model SecurityQuestion {
@@ -219,6 +220,20 @@ model Topic {
   author      User          @relation(fields: [authorId], references: [id])
   replies     Reply[]
   event       Event?
+  reads       TopicRead[]
+}
+
+model TopicRead {
+  id         String   @id @default(cuid())
+  lastReadAt DateTime @default(now())
+
+  // Relations
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId String
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
 }
 
 model Reply {

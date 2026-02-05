@@ -26,6 +26,8 @@ export interface Topic {
     replies: number
   }
   replies?: Reply[]
+  isUnread?: boolean
+  unreadRepliesCount?: number
 }
 
 export interface Reply {

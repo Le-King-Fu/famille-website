@@ -19,6 +19,7 @@ export async function GET(
   }
 
   const { id: categoryId } = await params
+  const userId = session.user.id
 
   try {
     // Verify category exists
@@ -69,14 +70,52 @@ export async function GET(
               },
             },
           },
+          reads: {
+            where: { userId },
+            select: { lastReadAt: true },
+          },
         },
       }),
       db.topic.count({ where: { categoryId } }),
     ])
 
+    // Calculate unread status for each topic
+    const topicsWithReadStatus = await Promise.all(
+      topics.map(async (topic) => {
+        const userRead = topic.reads[0]
+        const lastReadAt = userRead?.lastReadAt
+
+        // Topic is unread if never read or if there's activity since last read
+        const isUnread = !lastReadAt || new Date(topic.lastReplyAt) > new Date(lastReadAt)
+
+        // Count unread replies
+        let unreadRepliesCount = 0
+        if (lastReadAt) {
+          unreadRepliesCount = await db.reply.count({
+            where: {
+              topicId: topic.id,
+              createdAt: { gt: lastReadAt },
+            },
+          })
+        } else {
+          // If never read, all replies + topic itself are unread
+          unreadRepliesCount = topic._count.replies
+        }
+
+        // Remove reads from response (internal use only)
+        const { reads, ...topicWithoutReads } = topic
+
+        return {
+          ...topicWithoutReads,
+          isUnread,
+          unreadRepliesCount,
+        }
+      })
+    )
+
     return NextResponse.json({
       category,
-      topics,
+      topics: topicsWithReadStatus,
       pagination: {
         page,
         limit,

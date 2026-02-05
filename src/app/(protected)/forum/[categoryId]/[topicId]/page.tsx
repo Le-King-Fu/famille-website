@@ -32,6 +32,14 @@ export default function TopicPage() {
   const isAdmin = session?.user?.role === 'ADMIN'
   const isAuthor = topic?.authorId === session?.user?.id
 
+  const markAsRead = useCallback(async () => {
+    try {
+      await fetch(`/api/forum/topics/${topicId}/read`, { method: 'POST' })
+    } catch {
+      // Silently fail - not critical
+    }
+  }, [topicId])
+
   const fetchTopic = useCallback(async () => {
     try {
       const response = await fetch(`/api/forum/topics/${topicId}`)
@@ -43,12 +51,15 @@ export default function TopicPage() {
 
       setTopic(data.topic)
       setError(null)
+
+      // Mark topic as read after successful fetch
+      markAsRead()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue')
     } finally {
       setLoading(false)
     }
-  }, [topicId])
+  }, [topicId, markAsRead])
 
   useEffect(() => {
     fetchTopic()
