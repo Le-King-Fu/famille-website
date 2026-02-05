@@ -16,6 +16,8 @@ export interface Topic {
   title: string
   content: string
   isPinned: boolean
+  isEdited?: boolean
+  editedAt?: string | null
   createdAt: string
   lastReplyAt: string
   categoryId: string

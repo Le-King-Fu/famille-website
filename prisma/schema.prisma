@@ -212,13 +212,15 @@ model ForumCategory {
 }
 
 model Topic {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   content     String
-  isPinned    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  lastReplyAt DateTime @default(now())
+  isPinned    Boolean   @default(false)
+  isEdited    Boolean   @default(false)
+  editedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastReplyAt DateTime  @default(now())
 
   // Relations
   categoryId    String

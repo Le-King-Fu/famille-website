@@ -72,6 +72,97 @@ export async function GET(
   }
 }
 
+// PUT /api/forum/topics/[id] - Edit topic (author only)
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth()
+
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  }
+
+  if (session.user.role === 'CHILD') {
+    return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 })
+  }
+
+  const { id: topicId } = await params
+
+  try {
+    const body = await request.json()
+    const { title, content } = body
+
+    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Le titre est requis' },
+        { status: 400 }
+      )
+    }
+
+    if (title.trim().length > 200) {
+      return NextResponse.json(
+        { error: 'Le titre ne peut pas dépasser 200 caractères' },
+        { status: 400 }
+      )
+    }
+
+    if (!content || typeof content !== 'string' || content.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Le contenu est requis' },
+        { status: 400 }
+      )
+    }
+
+    if (content.length > 10000) {
+      return NextResponse.json(
+        { error: 'Le contenu ne peut pas dépasser 10 000 caractères' },
+        { status: 400 }
+      )
+    }
+
+    const topic = await db.topic.findUnique({
+      where: { id: topicId },
+    })
+
+    if (!topic) {
+      return NextResponse.json({ error: 'Sujet non trouvé' }, { status: 404 })
+    }
+
+    // Only author can edit their own topic
+    if (topic.authorId !== session.user.id) {
+      return NextResponse.json(
+        { error: 'Vous ne pouvez modifier que vos propres sujets' },
+        { status: 403 }
+      )
+    }
+
+    const updatedTopic = await db.topic.update({
+      where: { id: topicId },
+      data: {
+        title: title.trim(),
+        content: content.trim(),
+        isEdited: true,
+        editedAt: new Date(),
+      },
+      include: {
+        author: {
+          select: { id: true, firstName: true, lastName: true },
+        },
+        category: true,
+      },
+    })
+
+    return NextResponse.json({ topic: updatedTopic })
+  } catch (error) {
+    console.error('Error editing topic:', error)
+    return NextResponse.json(
+      { error: 'Erreur lors de la modification du sujet' },
+      { status: 500 }
+    )
+  }
+}
+
 // DELETE /api/forum/topics/[id] - Delete topic (admin or author)
 export async function DELETE(
   request: NextRequest,

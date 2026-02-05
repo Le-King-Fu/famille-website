@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { ArrowLeft, Pin, Trash2, Loader2 } from 'lucide-react'
+import { ArrowLeft, Pin, Trash2, Pencil, Loader2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import {
   ReplyCard,
@@ -28,6 +28,11 @@ export default function TopicPage() {
   const [quotedReply, setQuotedReply] = useState<Reply | null>(null)
   const [isPinning, setIsPinning] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isEditingTopic, setIsEditingTopic] = useState(false)
+  const [editTitle, setEditTitle] = useState('')
+  const [editContent, setEditContent] = useState('')
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false)
+  const [editError, setEditError] = useState('')
 
   const isAdmin = session?.user?.role === 'ADMIN'
   const isAuthor = topic?.authorId === session?.user?.id
@@ -108,6 +113,58 @@ export default function TopicPage() {
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur')
       setIsDeleting(false)
+    }
+  }
+
+  const handleStartEditTopic = () => {
+    if (!topic) return
+    setEditTitle(topic.title)
+    setEditContent(topic.content)
+    setEditError('')
+    setIsEditingTopic(true)
+  }
+
+  const handleCancelEditTopic = () => {
+    setIsEditingTopic(false)
+    setEditTitle('')
+    setEditContent('')
+    setEditError('')
+  }
+
+  const handleSaveEditTopic = async () => {
+    if (!editTitle.trim() || !editContent.trim()) return
+    if (editTitle === topic?.title && editContent === topic?.content) {
+      setIsEditingTopic(false)
+      return
+    }
+
+    setIsSubmittingEdit(true)
+    setEditError('')
+
+    try {
+      const response = await fetch(`/api/forum/topics/${topicId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editTitle.trim(),
+          content: editContent.trim(),
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erreur lors de la modification')
+      }
+
+      setTopic((prev) =>
+        prev ? { ...prev, ...data.topic, replies: prev.replies } : null
+      )
+      setIsEditingTopic(false)
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : 'Erreur lors de la modification')
+    } finally {
+      setIsSubmittingEdit(false)
     }
   }
 
@@ -217,53 +274,121 @@ export default function TopicPage() {
 
       {/* Topic header */}
       <div className="card">
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div className="flex items-center gap-2">
-            {topic.isPinned && <Pin className="h-5 w-5 text-terracotta" />}
-            <h1 className="text-xl font-bold">{topic.title}</h1>
-          </div>
-
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {isAdmin && (
-              <button
-                onClick={handlePin}
-                disabled={isPinning}
-                className={`p-2 rounded-lg transition-colors ${
-                  topic.isPinned
-                    ? 'bg-terracotta/10 text-terracotta hover:bg-terracotta/20'
-                    : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300'
-                }`}
-                title={topic.isPinned ? 'Désépingler' : 'Épingler'}
-              >
-                <Pin className="h-4 w-4" />
-              </button>
+        {isEditingTopic ? (
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium mb-1">Titre</label>
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-bleu focus:border-transparent"
+                maxLength={200}
+                disabled={isSubmittingEdit}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Contenu</label>
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-bleu focus:border-transparent resize-y min-h-[150px]"
+                maxLength={10000}
+                disabled={isSubmittingEdit}
+              />
+            </div>
+            {editError && (
+              <p className="text-red-500 text-sm">{editError}</p>
             )}
-            {(isAdmin || isAuthor) && (
+            <div className="flex justify-end gap-2">
               <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                title="Supprimer"
+                onClick={handleCancelEditTopic}
+                disabled={isSubmittingEdit}
+                className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
               >
-                <Trash2 className="h-4 w-4" />
+                Annuler
               </button>
-            )}
+              <button
+                onClick={handleSaveEditTopic}
+                disabled={isSubmittingEdit || !editTitle.trim() || !editContent.trim()}
+                className="px-3 py-1.5 text-sm bg-bleu text-white rounded-md hover:bg-bleu/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isSubmittingEdit && <Loader2 className="h-3 w-3 animate-spin" />}
+                Enregistrer
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-center gap-2">
+                {topic.isPinned && <Pin className="h-5 w-5 text-terracotta" />}
+                <h1 className="text-xl font-bold">{topic.title}</h1>
+              </div>
 
-        <FormatContent content={topic.content} className="text-gray-700 dark:text-gray-300" />
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {isAdmin && (
+                  <button
+                    onClick={handlePin}
+                    disabled={isPinning}
+                    className={`p-2 rounded-lg transition-colors ${
+                      topic.isPinned
+                        ? 'bg-terracotta/10 text-terracotta hover:bg-terracotta/20'
+                        : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300'
+                    }`}
+                    title={topic.isPinned ? 'Désépingler' : 'Épingler'}
+                  >
+                    <Pin className="h-4 w-4" />
+                  </button>
+                )}
+                {isAuthor && (
+                  <button
+                    onClick={handleStartEditTopic}
+                    className="p-2 text-gray-400 hover:text-bleu hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    title="Modifier"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                )}
+                {(isAdmin || isAuthor) && (
+                  <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                    title="Supprimer"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
-          Par{' '}
-          <span className="font-medium text-gray-700 dark:text-gray-300">
-            {topic.author.firstName} {topic.author.lastName}
-          </span>
-          <span className="mx-2">•</span>
-          {formatDistanceToNow(new Date(topic.createdAt), {
-            addSuffix: true,
-            locale: fr,
-          })}
-        </div>
+            <FormatContent content={topic.content} className="text-gray-700 dark:text-gray-300" />
+
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
+              Par{' '}
+              <span className="font-medium text-gray-700 dark:text-gray-300">
+                {topic.author.firstName} {topic.author.lastName}
+              </span>
+              <span className="mx-2">•</span>
+              {formatDistanceToNow(new Date(topic.createdAt), {
+                addSuffix: true,
+                locale: fr,
+              })}
+              {topic.isEdited && topic.editedAt && (
+                <>
+                  <span className="mx-2">•</span>
+                  <span className="text-gray-400 italic">
+                    (modifié {formatDistanceToNow(new Date(topic.editedAt), {
+                      addSuffix: true,
+                      locale: fr,
+                    })})
+                  </span>
+                </>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Replies */}
