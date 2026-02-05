@@ -127,7 +127,12 @@ export function ReplyForm({
             maxLength={10000}
             disabled={isSubmitting}
           />
-          <FormatToolbar />
+          <FormatToolbar
+            textareaRef={textareaRef}
+            value={content}
+            onChange={setContent}
+            disabled={isSubmitting}
+          />
         </div>
 
         {error && (

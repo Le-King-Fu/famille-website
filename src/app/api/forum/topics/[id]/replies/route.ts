@@ -95,6 +95,13 @@ export async function POST(
               },
             },
           },
+          reactions: {
+            include: {
+              user: {
+                select: { id: true, firstName: true, lastName: true },
+              },
+            },
+          },
         },
       }),
       db.topic.update({

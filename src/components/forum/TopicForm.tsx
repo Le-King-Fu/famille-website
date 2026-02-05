@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, X } from 'lucide-react'
 import { FormatToolbar } from './FormatContent'
@@ -17,6 +17,7 @@ export function TopicForm({ categoryId, onClose }: TopicFormProps) {
   const [content, setContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,6 +84,7 @@ export function TopicForm({ categoryId, onClose }: TopicFormProps) {
             Message <span className="text-red-500">*</span>
           </label>
           <MentionAutocomplete
+            textareaRef={textareaRef}
             value={content}
             onChange={setContent}
             className="input min-h-[150px]"
@@ -90,7 +92,12 @@ export function TopicForm({ categoryId, onClose }: TopicFormProps) {
             maxLength={10000}
             disabled={isSubmitting}
           />
-          <FormatToolbar />
+          <FormatToolbar
+            textareaRef={textareaRef}
+            value={content}
+            onChange={setContent}
+            disabled={isSubmitting}
+          />
         </div>
 
         {error && (

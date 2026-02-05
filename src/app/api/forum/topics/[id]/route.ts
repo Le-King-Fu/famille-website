@@ -32,6 +32,13 @@ export async function GET(
           },
         },
         category: true,
+        reactions: {
+          include: {
+            user: {
+              select: { id: true, firstName: true, lastName: true },
+            },
+          },
+        },
         replies: {
           orderBy: { createdAt: 'asc' },
           include: {
@@ -50,6 +57,13 @@ export async function GET(
                     firstName: true,
                     lastName: true,
                   },
+                },
+              },
+            },
+            reactions: {
+              include: {
+                user: {
+                  select: { id: true, firstName: true, lastName: true },
                 },
               },
             },

@@ -138,6 +138,12 @@ export function Lightbox({
     setComments((prev) => [...prev, comment])
   }
 
+  const handleCommentUpdated = (updatedComment: PhotoComment) => {
+    setComments((prev) =>
+      prev.map((c) => (c.id === updatedComment.id ? updatedComment : c))
+    )
+  }
+
   if (!isOpen || !currentPhoto) return null
 
   return (
@@ -262,6 +268,7 @@ export function Lightbox({
               comments={comments}
               loading={loadingComments}
               onCommentAdded={handleCommentAdded}
+              onCommentUpdated={handleCommentUpdated}
             />
           </div>
         )}

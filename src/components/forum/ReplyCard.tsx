@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Quote, Trash2, Pencil, History, X, Loader2 } from 'lucide-react'
-import { Reply, ReplyHistory } from './types'
-import { FormatContent } from './FormatContent'
+import { Reply, ReplyHistory, Reaction } from './types'
+import { FormatContent, FormatToolbar } from './FormatContent'
+import { ReactionBar } from '@/components/ui/ReactionBar'
 
 interface ReplyCardProps {
   reply: Reply
@@ -14,9 +15,11 @@ interface ReplyCardProps {
   onEdit?: (replyId: string, newContent: string) => Promise<void>
   canDelete?: boolean
   canEdit?: boolean
+  currentUserId?: string
+  onReactionToggle?: (replyId: string, emoji: string) => void
 }
 
-export function ReplyCard({ reply, onQuote, onDelete, onEdit, canDelete, canEdit }: ReplyCardProps) {
+export function ReplyCard({ reply, onQuote, onDelete, onEdit, canDelete, canEdit, currentUserId, onReactionToggle }: ReplyCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(reply.content)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -24,6 +27,7 @@ export function ReplyCard({ reply, onQuote, onDelete, onEdit, canDelete, canEdit
   const [showHistory, setShowHistory] = useState(false)
   const [history, setHistory] = useState<ReplyHistory[]>([])
   const [loadingHistory, setLoadingHistory] = useState(false)
+  const editTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleEdit = async () => {
     if (!editContent.trim() || editContent === reply.content) {
@@ -93,10 +97,17 @@ export function ReplyCard({ reply, onQuote, onDelete, onEdit, canDelete, canEdit
       {isEditing ? (
         <div className="space-y-3">
           <textarea
+            ref={editTextareaRef}
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-bleu focus:border-transparent resize-y min-h-[100px]"
             maxLength={10000}
+            disabled={isSubmitting}
+          />
+          <FormatToolbar
+            textareaRef={editTextareaRef}
+            value={editContent}
+            onChange={setEditContent}
             disabled={isSubmitting}
           />
           {error && (
@@ -121,7 +132,20 @@ export function ReplyCard({ reply, onQuote, onDelete, onEdit, canDelete, canEdit
           </div>
         </div>
       ) : (
-        <FormatContent content={reply.content} className="text-gray-700 dark:text-gray-300" />
+        <>
+          <FormatContent content={reply.content} className="text-gray-700 dark:text-gray-300" />
+          {currentUserId && onReactionToggle && (
+            <div className="mt-3">
+              <ReactionBar
+                reactions={reply.reactions || []}
+                currentUserId={currentUserId}
+                targetType="reply"
+                targetId={reply.id}
+                onReactionToggle={(emoji) => onReactionToggle(reply.id, emoji)}
+              />
+            </div>
+          )}
+        </>
       )}
 
       {/* Footer */}

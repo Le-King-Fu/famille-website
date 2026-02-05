@@ -11,6 +11,18 @@ export interface TopicAuthor {
   lastName: string
 }
 
+export interface Reaction {
+  id: string
+  emoji: string
+  createdAt: string
+  userId: string
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+  }
+}
+
 export interface Topic {
   id: string
   title: string
@@ -28,6 +40,7 @@ export interface Topic {
     replies: number
   }
   replies?: Reply[]
+  reactions?: Reaction[]
   isUnread?: boolean
   unreadRepliesCount?: number
 }
@@ -51,6 +64,7 @@ export interface Reply {
       lastName: string
     }
   } | null
+  reactions?: Reaction[]
 }
 
 export interface ReplyHistory {

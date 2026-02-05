@@ -38,6 +38,18 @@ export interface Photo {
   comments?: PhotoComment[]
 }
 
+export interface Reaction {
+  id: string
+  emoji: string
+  createdAt: string
+  userId: string
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+  }
+}
+
 export interface PhotoComment {
   id: string
   content: string
@@ -49,6 +61,7 @@ export interface PhotoComment {
     firstName: string
     lastName: string
   }
+  reactions?: Reaction[]
 }
 
 // Video file extensions

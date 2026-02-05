@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
@@ -11,9 +11,11 @@ import {
   ReplyCard,
   ReplyForm,
   FormatContent,
+  FormatToolbar,
   Topic,
   Reply,
 } from '@/components/forum'
+import { ReactionBar } from '@/components/ui/ReactionBar'
 
 export default function TopicPage() {
   const params = useParams()
@@ -33,8 +35,10 @@ export default function TopicPage() {
   const [editContent, setEditContent] = useState('')
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false)
   const [editError, setEditError] = useState('')
+  const editTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   const isAdmin = session?.user?.role === 'ADMIN'
+  const currentUserId = session?.user?.id
   const isAuthor = topic?.authorId === session?.user?.id
 
   const markAsRead = useCallback(async () => {
@@ -228,6 +232,62 @@ export default function TopicPage() {
     )
   }
 
+  const handleTopicReactionToggle = async (emoji: string) => {
+    if (!currentUserId) return
+    try {
+      const response = await fetch('/api/reactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emoji, topicId }),
+      })
+      const data = await response.json()
+      if (response.ok) {
+        setTopic((prev) => {
+          if (!prev) return null
+          const reactions = prev.reactions || []
+          if (data.action === 'removed') {
+            return { ...prev, reactions: reactions.filter((r) => r.id !== data.reactionId) }
+          } else {
+            return { ...prev, reactions: [...reactions, data.reaction] }
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Error toggling reaction:', error)
+    }
+  }
+
+  const handleReplyReactionToggle = async (replyId: string, emoji: string) => {
+    if (!currentUserId) return
+    try {
+      const response = await fetch('/api/reactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emoji, replyId }),
+      })
+      const data = await response.json()
+      if (response.ok) {
+        setTopic((prev) => {
+          if (!prev) return null
+          return {
+            ...prev,
+            replies: prev.replies?.map((r) => {
+              if (r.id !== replyId) return r
+              const reactions = r.reactions || []
+              if (data.action === 'removed') {
+                return { ...r, reactions: reactions.filter((rx) => rx.id !== data.reactionId) }
+              } else {
+                return { ...r, reactions: [...reactions, data.reaction] }
+              }
+            }),
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Error toggling reaction:', error)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -290,10 +350,17 @@ export default function TopicPage() {
             <div>
               <label className="block text-sm font-medium mb-1">Contenu</label>
               <textarea
+                ref={editTextareaRef}
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-bleu focus:border-transparent resize-y min-h-[150px]"
                 maxLength={10000}
+                disabled={isSubmittingEdit}
+              />
+              <FormatToolbar
+                textareaRef={editTextareaRef}
+                value={editContent}
+                onChange={setEditContent}
                 disabled={isSubmittingEdit}
               />
             </div>
@@ -365,6 +432,18 @@ export default function TopicPage() {
 
             <FormatContent content={topic.content} className="text-gray-700 dark:text-gray-300" />
 
+            {currentUserId && (
+              <div className="mt-4">
+                <ReactionBar
+                  reactions={topic.reactions || []}
+                  currentUserId={currentUserId}
+                  targetType="topic"
+                  targetId={topic.id}
+                  onReactionToggle={handleTopicReactionToggle}
+                />
+              </div>
+            )}
+
             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
               Par{' '}
               <span className="font-medium text-gray-700 dark:text-gray-300">
@@ -406,6 +485,8 @@ export default function TopicPage() {
               onEdit={handleEditReply}
               canDelete={isAdmin || reply.authorId === session?.user?.id}
               canEdit={reply.authorId === session?.user?.id}
+              currentUserId={currentUserId}
+              onReactionToggle={handleReplyReactionToggle}
             />
           ))}
         </div>

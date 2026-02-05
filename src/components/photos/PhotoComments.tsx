@@ -4,13 +4,16 @@ import { useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Send, Loader2 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { PhotoComment } from './types'
+import { ReactionBar } from '@/components/ui/ReactionBar'
 
 interface PhotoCommentsProps {
   photoId: string
   comments: PhotoComment[]
   loading: boolean
   onCommentAdded: (comment: PhotoComment) => void
+  onCommentUpdated?: (comment: PhotoComment) => void
 }
 
 export function PhotoComments({
@@ -18,9 +21,37 @@ export function PhotoComments({
   comments,
   loading,
   onCommentAdded,
+  onCommentUpdated,
 }: PhotoCommentsProps) {
+  const { data: session } = useSession()
   const [content, setContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const currentUserId = session?.user?.id
+
+  const handleReactionToggle = async (commentId: string, emoji: string) => {
+    if (!currentUserId) return
+    try {
+      const response = await fetch('/api/reactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emoji, photoCommentId: commentId }),
+      })
+      const data = await response.json()
+      if (response.ok && onCommentUpdated) {
+        const comment = comments.find((c) => c.id === commentId)
+        if (comment) {
+          const reactions = comment.reactions || []
+          const updatedReactions =
+            data.action === 'removed'
+              ? reactions.filter((r) => r.id !== data.reactionId)
+              : [...reactions, data.reaction]
+          onCommentUpdated({ ...comment, reactions: updatedReactions })
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling reaction:', error)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,6 +105,17 @@ export function PhotoComments({
                 </span>
               </div>
               <p className="text-sm text-gray-700">{comment.content}</p>
+              {currentUserId && (
+                <div className="mt-1">
+                  <ReactionBar
+                    reactions={comment.reactions || []}
+                    currentUserId={currentUserId}
+                    targetType="photoComment"
+                    targetId={comment.id}
+                    onReactionToggle={(emoji) => handleReactionToggle(comment.id, emoji)}
+                  />
+                </div>
+              )}
             </div>
           ))
         )}

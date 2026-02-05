@@ -27,6 +27,13 @@ export async function GET(
             lastName: true,
           },
         },
+        reactions: {
+          include: {
+            user: {
+              select: { id: true, firstName: true, lastName: true },
+            },
+          },
+        },
       },
     })
 
@@ -91,6 +98,13 @@ export async function POST(
             id: true,
             firstName: true,
             lastName: true,
+          },
+        },
+        reactions: {
+          include: {
+            user: {
+              select: { id: true, firstName: true, lastName: true },
+            },
           },
         },
       },

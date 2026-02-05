@@ -47,6 +47,7 @@ model User {
   replies               Reply[]
   gameScores            GameScore[]
   photoComments         PhotoComment[]
+  reactions             Reaction[]
   invitationCodesUsed   InvitationCode? @relation("UsedBy")
   invitationCodesCreated InvitationCode[] @relation("CreatedBy")
   eventRsvps            EventRsvp[]
@@ -195,6 +196,7 @@ model PhotoComment {
   photo     Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade)
   authorId  String
   author    User     @relation(fields: [authorId], references: [id])
+  reactions Reaction[]
 }
 
 // ==================== FORUM ====================
@@ -228,6 +230,7 @@ model Topic {
   authorId      String
   author        User           @relation(fields: [authorId], references: [id])
   replies       Reply[]
+  reactions     Reaction[]
   event         Event?
   reads         TopicRead[]
   notifications Notification[]
@@ -262,6 +265,7 @@ model Reply {
   quotedReplyId String?
   quotedReply   Reply?  @relation("QuotedReplies", fields: [quotedReplyId], references: [id])
   quotedBy      Reply[] @relation("QuotedReplies")
+  reactions     Reaction[]
   history       ReplyHistory[]
   notifications Notification[]
 }
@@ -324,4 +328,27 @@ model Notification {
   reply       Reply?           @relation(fields: [replyId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
+}
+
+// ==================== REACTIONS ====================
+
+model Reaction {
+  id             String        @id @default(cuid())
+  emoji          String
+  createdAt      DateTime      @default(now())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId        String?
+  topic          Topic?        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  replyId        String?
+  reply          Reply?        @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  photoCommentId String?
+  photoComment   PhotoComment? @relation(fields: [photoCommentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, emoji, topicId])
+  @@unique([userId, emoji, replyId])
+  @@unique([userId, emoji, photoCommentId])
+  @@index([topicId])
+  @@index([replyId])
+  @@index([photoCommentId])
 }

@@ -86,6 +86,13 @@ export async function PUT(
               author: { select: { id: true, firstName: true } },
             },
           },
+          reactions: {
+            include: {
+              user: {
+                select: { id: true, firstName: true, lastName: true },
+              },
+            },
+          },
         },
       })
     })
