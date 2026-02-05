@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import Link from 'next/link'
-import { Calendar, Gamepad2, Image, MessageSquare, Trophy, Clock } from 'lucide-react'
+import { Calendar, Gamepad2, Image, MessageSquare, Trophy, Clock, Reply } from 'lucide-react'
 
 export default async function HomePage() {
   const session = await auth()
@@ -65,6 +65,40 @@ export default async function HomePage() {
     }
   })
 
+  // Récupérer les dernières réponses non lues
+  const recentRepliesRaw = userId ? await db.reply.findMany({
+    where: {
+      authorId: { not: userId },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 20,
+    include: {
+      author: {
+        select: { firstName: true, lastName: true },
+      },
+      topic: {
+        select: {
+          id: true,
+          title: true,
+          categoryId: true,
+          reads: {
+            where: { userId },
+            select: { lastReadAt: true },
+          },
+        },
+      },
+    },
+  }) : []
+
+  // Filter to only unread replies
+  const unreadReplies = recentRepliesRaw
+    .filter((reply) => {
+      const topicRead = reply.topic.reads?.[0]
+      if (!topicRead) return true // Never read
+      return new Date(reply.createdAt) > new Date(topicRead.lastReadAt)
+    })
+    .slice(0, 5)
+
   // Récupérer les meilleurs scores récents
   const recentScores = await db.gameScore.findMany({
     orderBy: { playedAt: 'desc' },
@@ -94,6 +128,62 @@ export default async function HomePage() {
           Ravi de vous revoir dans l&apos;espace familial des Landry.
         </p>
       </div>
+
+      {/* Unread replies section - prominent display */}
+      {unreadReplies.length > 0 && (
+        <div className="card border-l-4 border-l-bleu">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Reply className="h-5 w-5 text-bleu" />
+              Nouvelles réponses non lues
+              <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-bleu text-white rounded-full">
+                {unreadReplies.length}
+              </span>
+            </h2>
+            <Link href="/forum" className="text-sm text-bleu hover:underline">
+              Voir le forum
+            </Link>
+          </div>
+          <ul className="space-y-3">
+            {unreadReplies.map((reply) => (
+              <li key={reply.id}>
+                <Link
+                  href={`/forum/${reply.topic.categoryId}/${reply.topic.id}`}
+                  className="block p-3 -mx-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-bleu/20 flex items-center justify-center text-bleu font-medium text-sm">
+                      {reply.author.firstName[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {reply.author.firstName} {reply.author.lastName}
+                        </span>
+                        <span className="text-gray-400">•</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-xs">
+                          {new Date(reply.createdAt).toLocaleDateString('fr-FR', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                      <p className="text-xs text-bleu mt-0.5">
+                        dans {reply.topic.title}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
+                        {reply.content}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Upcoming events */}
