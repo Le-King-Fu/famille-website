@@ -18,10 +18,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Search all active users (including admins and self), excluding only CHILD role
     const users = await db.user.findMany({
       where: {
         isActive: true,
-        id: { not: session.user.id }, // Exclude self
+        role: { not: 'CHILD' }, // Children can't use forum
         OR: [
           { firstName: { contains: query, mode: 'insensitive' } },
           { lastName: { contains: query, mode: 'insensitive' } },

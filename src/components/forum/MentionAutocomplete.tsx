@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 
 interface User {
   id: string
@@ -18,6 +18,9 @@ interface MentionAutocompleteProps {
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>
 }
 
+// Regex to match @mentions (same as in FormatContent)
+const MENTION_REGEX = /@([A-Za-zÀ-ÿ]+(?:\s+[A-Za-zÀ-ÿ]+)?)/g
+
 export function MentionAutocomplete({
   value,
   onChange,
@@ -34,7 +37,41 @@ export function MentionAutocomplete({
   const [selectedIndex, setSelectedIndex] = useState(0)
   const internalRef = useRef<HTMLTextAreaElement>(null)
   const textareaRefToUse = externalRef || internalRef
+  const backdropRef = useRef<HTMLDivElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
+
+  // Generate highlighted HTML for the backdrop
+  const highlightedHtml = useMemo(() => {
+    if (!value) return ''
+
+    // Escape HTML
+    let html = value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    // Highlight mentions
+    html = html.replace(
+      MENTION_REGEX,
+      '<mark class="bg-bleu/20 text-bleu rounded px-0.5">@$1</mark>'
+    )
+
+    // Preserve line breaks and add extra line for proper scrolling
+    html = html.replace(/\n/g, '<br />')
+
+    // Add a trailing character to match textarea height
+    html += '&nbsp;'
+
+    return html
+  }, [value])
+
+  // Sync scroll between textarea and backdrop
+  const handleScroll = useCallback(() => {
+    if (backdropRef.current && textareaRefToUse.current) {
+      backdropRef.current.scrollTop = textareaRefToUse.current.scrollTop
+      backdropRef.current.scrollLeft = textareaRefToUse.current.scrollLeft
+    }
+  }, [textareaRefToUse])
 
   // Fetch suggestions when query changes
   useEffect(() => {
@@ -76,8 +113,11 @@ export function MentionAutocomplete({
       // Check if there's a space before @ (or it's at the start)
       const charBeforeAt = lastAtIndex > 0 ? newValue[lastAtIndex - 1] : ' '
 
+      // Allow spaces in mention query for "FirstName LastName"
+      const spaceCount = (textAfterAt.match(/ /g) || []).length
+
       if ((charBeforeAt === ' ' || charBeforeAt === '\n' || lastAtIndex === 0) &&
-          !textAfterAt.includes(' ') &&
+          spaceCount <= 1 &&
           !textAfterAt.includes('\n')) {
         setMentionStart(lastAtIndex)
         setMentionQuery(textAfterAt)
@@ -167,16 +207,34 @@ export function MentionAutocomplete({
 
   return (
     <div className="relative">
-      <textarea
-        ref={textareaRefToUse as React.RefObject<HTMLTextAreaElement>}
-        value={value}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        className={className}
-        disabled={disabled}
-        maxLength={maxLength}
-      />
+      {/* Container for backdrop + textarea overlay */}
+      <div className="relative">
+        {/* Backdrop with highlighted mentions */}
+        <div
+          ref={backdropRef}
+          className={`absolute inset-0 pointer-events-none overflow-hidden whitespace-pre-wrap break-words ${className}`}
+          style={{
+            color: 'transparent',
+            background: 'transparent',
+          }}
+          aria-hidden="true"
+          dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+        />
+
+        {/* Actual textarea */}
+        <textarea
+          ref={textareaRefToUse as React.RefObject<HTMLTextAreaElement>}
+          value={value}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          onScroll={handleScroll}
+          placeholder={placeholder}
+          className={`${className} bg-transparent relative z-10`}
+          style={{ caretColor: 'auto' }}
+          disabled={disabled}
+          maxLength={maxLength}
+        />
+      </div>
 
       {/* Suggestions dropdown */}
       {showSuggestions && suggestions.length > 0 && (
