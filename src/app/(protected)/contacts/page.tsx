@@ -10,6 +10,11 @@ interface Contact {
   lastName: string
   email: string
   phone: string | null
+  phoneType: string | null
+  phone2: string | null
+  phone2Type: string | null
+  phone3: string | null
+  phone3Type: string | null
   address: string | null
   avatarUrl: string | null
 }

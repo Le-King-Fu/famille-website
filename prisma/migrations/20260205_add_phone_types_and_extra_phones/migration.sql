@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "phoneType" TEXT;
+ALTER TABLE "User" ADD COLUMN "phone2" TEXT;
+ALTER TABLE "User" ADD COLUMN "phone2Type" TEXT;
+ALTER TABLE "User" ADD COLUMN "phone3" TEXT;
+ALTER TABLE "User" ADD COLUMN "phone3Type" TEXT;

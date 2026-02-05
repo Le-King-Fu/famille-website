@@ -30,6 +30,11 @@ model User {
 
   // Contact fields
   phone                 String?   // Format: +1-XXX-XXX-XXXX
+  phoneType             String?   // "cell" | "home" | "work" | "other"
+  phone2                String?   // Format: +1-XXX-XXX-XXXX
+  phone2Type            String?   // "cell" | "home" | "work" | "other"
+  phone3                String?   // Format: +1-XXX-XXX-XXXX
+  phone3Type            String?   // "cell" | "home" | "work" | "other"
   address               String?   // Adresse libre
   avatarUrl             String?   // Placeholder pour photo future
   privacyConsentAt      DateTime? // Date consentement Loi 25

@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 
 // Phone format validation: +1-XXX-XXX-XXXX
 const PHONE_REGEX = /^\+1-\d{3}-\d{3}-\d{4}$/
+const PHONE_TYPES = ['cell', 'home', 'work', 'other'] as const
 
 // GET /api/users/me - Get current user profile
 export async function GET() {
@@ -24,6 +25,11 @@ export async function GET() {
         role: true,
         createdAt: true,
         phone: true,
+        phoneType: true,
+        phone2: true,
+        phone2Type: true,
+        phone3: true,
+        phone3Type: true,
         address: true,
         avatarUrl: true,
         privacyConsentAt: true,
@@ -66,6 +72,11 @@ export async function PUT(request: NextRequest) {
       firstName?: string
       lastName?: string
       phone?: string | null
+      phoneType?: string | null
+      phone2?: string | null
+      phone2Type?: string | null
+      phone3?: string | null
+      phone3Type?: string | null
       address?: string | null
       privacyConsentAt?: Date
     } = {}
@@ -155,6 +166,79 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Handle phoneType update
+    if (body.phoneType !== undefined) {
+      if (body.phoneType === null || body.phoneType === '') {
+        updateData.phoneType = null
+      } else if (typeof body.phoneType === 'string' && PHONE_TYPES.includes(body.phoneType as typeof PHONE_TYPES[number])) {
+        updateData.phoneType = body.phoneType
+      }
+    }
+
+    // Handle phone2 update
+    if (body.phone2 !== undefined) {
+      if (body.phone2 === null || body.phone2 === '') {
+        updateData.phone2 = null
+        updateData.phone2Type = null
+      } else if (typeof body.phone2 === 'string') {
+        const phone2 = body.phone2.trim()
+        if (!PHONE_REGEX.test(phone2)) {
+          return NextResponse.json(
+            { error: 'Format de téléphone 2 invalide. Utilisez +1-XXX-XXX-XXXX' },
+            { status: 400 }
+          )
+        }
+        if (!currentUser?.privacyConsentAt && !body.privacyConsent) {
+          return NextResponse.json(
+            { error: 'Vous devez accepter la politique de confidentialité pour ajouter vos coordonnées' },
+            { status: 400 }
+          )
+        }
+        updateData.phone2 = phone2
+      }
+    }
+
+    // Handle phone2Type update
+    if (body.phone2Type !== undefined) {
+      if (body.phone2Type === null || body.phone2Type === '') {
+        updateData.phone2Type = null
+      } else if (typeof body.phone2Type === 'string' && PHONE_TYPES.includes(body.phone2Type as typeof PHONE_TYPES[number])) {
+        updateData.phone2Type = body.phone2Type
+      }
+    }
+
+    // Handle phone3 update
+    if (body.phone3 !== undefined) {
+      if (body.phone3 === null || body.phone3 === '') {
+        updateData.phone3 = null
+        updateData.phone3Type = null
+      } else if (typeof body.phone3 === 'string') {
+        const phone3 = body.phone3.trim()
+        if (!PHONE_REGEX.test(phone3)) {
+          return NextResponse.json(
+            { error: 'Format de téléphone 3 invalide. Utilisez +1-XXX-XXX-XXXX' },
+            { status: 400 }
+          )
+        }
+        if (!currentUser?.privacyConsentAt && !body.privacyConsent) {
+          return NextResponse.json(
+            { error: 'Vous devez accepter la politique de confidentialité pour ajouter vos coordonnées' },
+            { status: 400 }
+          )
+        }
+        updateData.phone3 = phone3
+      }
+    }
+
+    // Handle phone3Type update
+    if (body.phone3Type !== undefined) {
+      if (body.phone3Type === null || body.phone3Type === '') {
+        updateData.phone3Type = null
+      } else if (typeof body.phone3Type === 'string' && PHONE_TYPES.includes(body.phone3Type as typeof PHONE_TYPES[number])) {
+        updateData.phone3Type = body.phone3Type
+      }
+    }
+
     // Handle address update
     if (body.address !== undefined) {
       if (body.address === null || body.address === '') {
@@ -196,6 +280,11 @@ export async function PUT(request: NextRequest) {
         role: true,
         createdAt: true,
         phone: true,
+        phoneType: true,
+        phone2: true,
+        phone2Type: true,
+        phone3: true,
+        phone3Type: true,
         address: true,
         avatarUrl: true,
         privacyConsentAt: true,

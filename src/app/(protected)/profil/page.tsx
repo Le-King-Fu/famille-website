@@ -2,8 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { User, Mail, Calendar, Trophy, Pencil, X, Loader2, AlertTriangle, Check, Phone, MapPin } from 'lucide-react'
+import { User, Mail, Calendar, Trophy, Pencil, X, Loader2, AlertTriangle, Check, Phone, MapPin, Plus } from 'lucide-react'
 import { PrivacyConsentModal } from '@/components/contact/PrivacyConsentModal'
+
+type PhoneType = 'cell' | 'home' | 'work' | 'other'
+
+const phoneTypeLabels: Record<PhoneType, string> = {
+  cell: 'Cellulaire',
+  home: 'Maison',
+  work: 'Travail',
+  other: 'Autre',
+}
 
 interface UserProfile {
   id: string
@@ -13,6 +22,11 @@ interface UserProfile {
   role: string
   createdAt: string
   phone: string | null
+  phoneType: string | null
+  phone2: string | null
+  phone2Type: string | null
+  phone3: string | null
+  phone3Type: string | null
   address: string | null
   avatarUrl: string | null
   privacyConsentAt: string | null
@@ -37,6 +51,13 @@ export default function ProfilPage() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [phoneType, setPhoneType] = useState<PhoneType | ''>('')
+  const [phone2, setPhone2] = useState('')
+  const [phone2Type, setPhone2Type] = useState<PhoneType | ''>('')
+  const [phone3, setPhone3] = useState('')
+  const [phone3Type, setPhone3Type] = useState<PhoneType | ''>('')
+  const [showPhone2, setShowPhone2] = useState(false)
+  const [showPhone3, setShowPhone3] = useState(false)
   const [address, setAddress] = useState('')
 
   // Contact editing state
@@ -59,6 +80,13 @@ export default function ProfilPage() {
         setLastName(data.user.lastName)
         setEmail(data.user.email)
         setPhone(data.user.phone || '')
+        setPhoneType((data.user.phoneType as PhoneType) || '')
+        setPhone2(data.user.phone2 || '')
+        setPhone2Type((data.user.phone2Type as PhoneType) || '')
+        setPhone3(data.user.phone3 || '')
+        setPhone3Type((data.user.phone3Type as PhoneType) || '')
+        setShowPhone2(!!data.user.phone2)
+        setShowPhone3(!!data.user.phone3)
         setAddress(data.user.address || '')
       }
     } catch (err) {
@@ -117,6 +145,13 @@ export default function ProfilPage() {
   const handleCancelContact = () => {
     if (user) {
       setPhone(user.phone || '')
+      setPhoneType((user.phoneType as PhoneType) || '')
+      setPhone2(user.phone2 || '')
+      setPhone2Type((user.phone2Type as PhoneType) || '')
+      setPhone3(user.phone3 || '')
+      setPhone3Type((user.phone3Type as PhoneType) || '')
+      setShowPhone2(!!user.phone2)
+      setShowPhone3(!!user.phone3)
       setAddress(user.address || '')
     }
     setEditingContact(false)
@@ -141,6 +176,16 @@ export default function ProfilPage() {
     setPhone(formatted)
   }
 
+  const handlePhone2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhone(e.target.value)
+    setPhone2(formatted)
+  }
+
+  const handlePhone3Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhone(e.target.value)
+    setPhone3(formatted)
+  }
+
   const handleSaveContact = async (withConsent: boolean = false) => {
     setSavingContact(true)
     setError('')
@@ -149,6 +194,11 @@ export default function ProfilPage() {
     try {
       const body: {
         phone?: string | null
+        phoneType?: string | null
+        phone2?: string | null
+        phone2Type?: string | null
+        phone3?: string | null
+        phone3Type?: string | null
         address?: string | null
         privacyConsent?: boolean
       } = {}
@@ -156,6 +206,31 @@ export default function ProfilPage() {
       // Only send phone if it changed
       if (phone !== (user?.phone || '')) {
         body.phone = phone || null
+      }
+
+      // Only send phoneType if it changed
+      if (phoneType !== (user?.phoneType || '')) {
+        body.phoneType = phoneType || null
+      }
+
+      // Only send phone2 if it changed
+      if (phone2 !== (user?.phone2 || '')) {
+        body.phone2 = phone2 || null
+      }
+
+      // Only send phone2Type if it changed
+      if (phone2Type !== (user?.phone2Type || '')) {
+        body.phone2Type = phone2Type || null
+      }
+
+      // Only send phone3 if it changed
+      if (phone3 !== (user?.phone3 || '')) {
+        body.phone3 = phone3 || null
+      }
+
+      // Only send phone3Type if it changed
+      if (phone3Type !== (user?.phone3Type || '')) {
+        body.phone3Type = phone3Type || null
       }
 
       // Only send address if it changed
@@ -201,8 +276,8 @@ export default function ProfilPage() {
     e.preventDefault()
 
     // Check if adding contact info without prior consent
-    const hasContactInfo = phone || address
-    const hadContactInfo = user?.phone || user?.address
+    const hasContactInfo = phone || phone2 || phone3 || address
+    const hadContactInfo = user?.phone || user?.phone2 || user?.phone3 || user?.address
     const needsConsent = hasContactInfo && !hadContactInfo && !user?.privacyConsentAt
 
     if (needsConsent) {
@@ -418,17 +493,96 @@ export default function ProfilPage() {
 
             <div>
               <label className="block text-sm font-medium mb-1">Téléphone</label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={handlePhoneChange}
-                placeholder="+1-514-555-1234"
-                className="input"
-              />
+              <div className="flex gap-2">
+                <select
+                  value={phoneType}
+                  onChange={(e) => setPhoneType(e.target.value as PhoneType | '')}
+                  className="input w-32 flex-shrink-0"
+                >
+                  <option value="">Type</option>
+                  <option value="cell">Cellulaire</option>
+                  <option value="home">Maison</option>
+                  <option value="work">Travail</option>
+                  <option value="other">Autre</option>
+                </select>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  placeholder="+1-514-555-1234"
+                  className="input flex-1"
+                />
+              </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Format: +1-XXX-XXX-XXXX
               </p>
             </div>
+
+            {showPhone2 && (
+              <div>
+                <label className="block text-sm font-medium mb-1">Téléphone 2</label>
+                <div className="flex gap-2">
+                  <select
+                    value={phone2Type}
+                    onChange={(e) => setPhone2Type(e.target.value as PhoneType | '')}
+                    className="input w-32 flex-shrink-0"
+                  >
+                    <option value="">Type</option>
+                    <option value="cell">Cellulaire</option>
+                    <option value="home">Maison</option>
+                    <option value="work">Travail</option>
+                    <option value="other">Autre</option>
+                  </select>
+                  <input
+                    type="tel"
+                    value={phone2}
+                    onChange={handlePhone2Change}
+                    placeholder="+1-514-555-1234"
+                    className="input flex-1"
+                  />
+                </div>
+              </div>
+            )}
+
+            {showPhone3 && (
+              <div>
+                <label className="block text-sm font-medium mb-1">Téléphone 3</label>
+                <div className="flex gap-2">
+                  <select
+                    value={phone3Type}
+                    onChange={(e) => setPhone3Type(e.target.value as PhoneType | '')}
+                    className="input w-32 flex-shrink-0"
+                  >
+                    <option value="">Type</option>
+                    <option value="cell">Cellulaire</option>
+                    <option value="home">Maison</option>
+                    <option value="work">Travail</option>
+                    <option value="other">Autre</option>
+                  </select>
+                  <input
+                    type="tel"
+                    value={phone3}
+                    onChange={handlePhone3Change}
+                    placeholder="+1-514-555-1234"
+                    className="input flex-1"
+                  />
+                </div>
+              </div>
+            )}
+
+            {(!showPhone2 || !showPhone3) && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!showPhone2) setShowPhone2(true)
+                  else if (!showPhone3) setShowPhone3(true)
+                }}
+                className="text-sm text-bleu hover:underline flex items-center gap-1"
+              >
+                <Plus className="h-3 w-3" />
+                Ajouter un numéro
+              </button>
+            )}
 
             <div>
               <label className="block text-sm font-medium mb-1">Adresse</label>
@@ -472,13 +626,50 @@ export default function ProfilPage() {
             <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
               <Phone className="h-5 w-5 text-gray-400" />
               {user.phone ? (
-                <a href={`tel:${user.phone}`} className="hover:text-bleu">
-                  {user.phone}
-                </a>
+                <span>
+                  <a href={`tel:${user.phone}`} className="hover:text-bleu">
+                    {user.phone}
+                  </a>
+                  {user.phoneType && (
+                    <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+                      {phoneTypeLabels[user.phoneType as PhoneType] || user.phoneType}
+                    </span>
+                  )}
+                </span>
               ) : (
                 <span className="text-gray-400 italic">Non renseigné</span>
               )}
             </div>
+            {user.phone2 && (
+              <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                <Phone className="h-5 w-5 text-gray-400" />
+                <span>
+                  <a href={`tel:${user.phone2}`} className="hover:text-bleu">
+                    {user.phone2}
+                  </a>
+                  {user.phone2Type && (
+                    <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+                      {phoneTypeLabels[user.phone2Type as PhoneType] || user.phone2Type}
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
+            {user.phone3 && (
+              <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                <Phone className="h-5 w-5 text-gray-400" />
+                <span>
+                  <a href={`tel:${user.phone3}`} className="hover:text-bleu">
+                    {user.phone3}
+                  </a>
+                  {user.phone3Type && (
+                    <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+                      {phoneTypeLabels[user.phone3Type as PhoneType] || user.phone3Type}
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
             <div className="flex items-start gap-3 text-gray-600 dark:text-gray-400">
               <MapPin className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" />
               {user.address ? (

@@ -2,12 +2,26 @@
 
 import { Mail, Phone, MapPin, Download } from 'lucide-react'
 
+type PhoneType = 'cell' | 'home' | 'work' | 'other'
+
+const phoneTypeLabels: Record<PhoneType, string> = {
+  cell: 'Cellulaire',
+  home: 'Maison',
+  work: 'Travail',
+  other: 'Autre',
+}
+
 interface Contact {
   id: string
   firstName: string
   lastName: string
   email: string
   phone: string | null
+  phoneType: string | null
+  phone2: string | null
+  phone2Type: string | null
+  phone3: string | null
+  phone3Type: string | null
   address: string | null
   avatarUrl: string | null
 }
@@ -59,7 +73,7 @@ export function ContactCard({ contact }: ContactCardProps) {
               </a>
             </div>
 
-            {/* Phone */}
+            {/* Phones */}
             {contact.phone && (
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <Phone className="h-4 w-4 flex-shrink-0 text-gray-400" />
@@ -69,6 +83,43 @@ export function ContactCard({ contact }: ContactCardProps) {
                 >
                   {contact.phone}
                 </a>
+                {contact.phoneType && (
+                  <span className="text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+                    {phoneTypeLabels[contact.phoneType as PhoneType] || contact.phoneType}
+                  </span>
+                )}
+              </div>
+            )}
+            {contact.phone2 && (
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <Phone className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                <a
+                  href={`tel:${contact.phone2}`}
+                  className="hover:text-bleu"
+                >
+                  {contact.phone2}
+                </a>
+                {contact.phone2Type && (
+                  <span className="text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+                    {phoneTypeLabels[contact.phone2Type as PhoneType] || contact.phone2Type}
+                  </span>
+                )}
+              </div>
+            )}
+            {contact.phone3 && (
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <Phone className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                <a
+                  href={`tel:${contact.phone3}`}
+                  className="hover:text-bleu"
+                >
+                  {contact.phone3}
+                </a>
+                {contact.phone3Type && (
+                  <span className="text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+                    {phoneTypeLabels[contact.phone3Type as PhoneType] || contact.phone3Type}
+                  </span>
+                )}
               </div>
             )}
 

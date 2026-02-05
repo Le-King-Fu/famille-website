@@ -7,6 +7,11 @@ export interface VCardContact {
   lastName: string
   email: string
   phone?: string | null
+  phoneType?: string | null
+  phone2?: string | null
+  phone2Type?: string | null
+  phone3?: string | null
+  phone3Type?: string | null
   address?: string | null
 }
 
@@ -22,6 +27,19 @@ function escapeVCard(text: string): string {
 }
 
 /**
+ * Map phone type to vCard TEL TYPE value
+ */
+function phoneTypeToVCard(type?: string | null): string {
+  switch (type) {
+    case 'cell': return 'CELL'
+    case 'home': return 'HOME'
+    case 'work': return 'WORK'
+    case 'other': return 'VOICE'
+    default: return 'CELL'
+  }
+}
+
+/**
  * Generate a vCard 3.0 string for a single contact
  */
 export function generateVCard(contact: VCardContact): string {
@@ -34,7 +52,15 @@ export function generateVCard(contact: VCardContact): string {
   ]
 
   if (contact.phone) {
-    lines.push(`TEL;TYPE=CELL:${contact.phone}`)
+    lines.push(`TEL;TYPE=${phoneTypeToVCard(contact.phoneType)}:${contact.phone}`)
+  }
+
+  if (contact.phone2) {
+    lines.push(`TEL;TYPE=${phoneTypeToVCard(contact.phone2Type)}:${contact.phone2}`)
+  }
+
+  if (contact.phone3) {
+    lines.push(`TEL;TYPE=${phoneTypeToVCard(contact.phone3Type)}:${contact.phone3}`)
   }
 
   if (contact.address) {
