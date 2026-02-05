@@ -46,6 +46,8 @@ model User {
   invitationCodesCreated InvitationCode[] @relation("CreatedBy")
   eventRsvps            EventRsvp[]
   topicReads            TopicRead[]
+  notificationsReceived Notification[] @relation("NotificationRecipient")
+  notificationsCreated  Notification[] @relation("NotificationCreator")
 }
 
 model SecurityQuestion {
@@ -214,13 +216,14 @@ model Topic {
   lastReplyAt DateTime @default(now())
 
   // Relations
-  categoryId  String
-  category    ForumCategory @relation(fields: [categoryId], references: [id])
-  authorId    String
-  author      User          @relation(fields: [authorId], references: [id])
-  replies     Reply[]
-  event       Event?
-  reads       TopicRead[]
+  categoryId    String
+  category      ForumCategory  @relation(fields: [categoryId], references: [id])
+  authorId      String
+  author        User           @relation(fields: [authorId], references: [id])
+  replies       Reply[]
+  event         Event?
+  reads         TopicRead[]
+  notifications Notification[]
 }
 
 model TopicRead {
@@ -253,6 +256,7 @@ model Reply {
   quotedReply   Reply?  @relation("QuotedReplies", fields: [quotedReplyId], references: [id])
   quotedBy      Reply[] @relation("QuotedReplies")
   history       ReplyHistory[]
+  notifications Notification[]
 }
 
 model ReplyHistory {
@@ -284,4 +288,33 @@ model GameScore {
   // Relations
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+}
+
+// ==================== NOTIFICATIONS ====================
+
+enum NotificationType {
+  MENTION        // Someone mentioned you with @Name
+  QUOTE          // Someone quoted your reply
+  TOPIC_REPLY    // Someone replied to your topic
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  type        NotificationType
+  message     String           // Display text
+  link        String           // URL to navigate to
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  // Relations
+  userId      String           // Recipient
+  user        User             @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  createdById String?          // Who triggered the notification
+  createdBy   User?            @relation("NotificationCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  topicId     String?
+  topic       Topic?           @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  replyId     String?
+  reply       Reply?           @relation(fields: [replyId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
 }

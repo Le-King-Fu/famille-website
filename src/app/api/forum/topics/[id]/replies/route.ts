@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { parseMentions } from '@/lib/mentions'
 
 // POST /api/forum/topics/[id]/replies - Add a reply to a topic
 export async function POST(
@@ -38,9 +39,12 @@ export async function POST(
       )
     }
 
-    // Verify topic exists
+    // Verify topic exists and get author info
     const topic = await db.topic.findUnique({
       where: { id: topicId },
+      include: {
+        category: { select: { id: true } },
+      },
     })
 
     if (!topic) {
@@ -48,6 +52,7 @@ export async function POST(
     }
 
     // Validate quoted reply if provided
+    let quotedReplyAuthorId: string | null = null
     if (body.quotedReplyId) {
       const quotedReply = await db.reply.findUnique({
         where: { id: body.quotedReplyId },
@@ -59,6 +64,7 @@ export async function POST(
           { status: 400 }
         )
       }
+      quotedReplyAuthorId = quotedReply.authorId
     }
 
     // Create reply and update topic's lastReplyAt
@@ -95,6 +101,51 @@ export async function POST(
         data: { lastReplyAt: new Date() },
       }),
     ])
+
+    // Create notifications (async, don't block response)
+    const topicLink = `/forum/${topic.category.id}/${topicId}`
+    const notificationsToCreate: {
+      type: 'MENTION' | 'QUOTE' | 'TOPIC_REPLY'
+      userId: string
+      message: string
+    }[] = []
+
+    // 1. Notify quoted reply author (if not self)
+    if (quotedReplyAuthorId && quotedReplyAuthorId !== session.user.id) {
+      notificationsToCreate.push({
+        type: 'QUOTE',
+        userId: quotedReplyAuthorId,
+        message: `${reply.author.firstName} a cité votre réponse`,
+      })
+    }
+
+    // 2. Notify mentioned users
+    const mentionedUsers = await parseMentions(body.content.trim())
+    for (const user of mentionedUsers) {
+      // Don't notify self or already notified users
+      if (user.id !== session.user.id && user.id !== quotedReplyAuthorId) {
+        notificationsToCreate.push({
+          type: 'MENTION',
+          userId: user.id,
+          message: `${reply.author.firstName} vous a mentionné`,
+        })
+      }
+    }
+
+    // Create all notifications
+    if (notificationsToCreate.length > 0) {
+      await db.notification.createMany({
+        data: notificationsToCreate.map((n) => ({
+          type: n.type,
+          userId: n.userId,
+          message: n.message,
+          link: topicLink,
+          createdById: session.user.id,
+          topicId,
+          replyId: reply.id,
+        })),
+      })
+    }
 
     return NextResponse.json({ reply }, { status: 201 })
   } catch (error) {

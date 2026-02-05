@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Loader2, X } from 'lucide-react'
+import { Loader2, X, AtSign } from 'lucide-react'
 import { Reply } from './types'
 import { FormatToolbar } from './FormatContent'
 
@@ -21,7 +21,19 @@ export function ReplyForm({
   const [content, setContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [showTagSuggestion, setShowTagSuggestion] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Show tag suggestion when quoting, hide if tag already present
+  useEffect(() => {
+    if (quotedReply) {
+      const authorTag = `@${quotedReply.author.firstName}`
+      const hasTag = content.toLowerCase().includes(authorTag.toLowerCase())
+      setShowTagSuggestion(!hasTag)
+    } else {
+      setShowTagSuggestion(false)
+    }
+  }, [quotedReply, content])
 
   // Focus textarea when quoting
   useEffect(() => {
@@ -30,6 +42,13 @@ export function ReplyForm({
       textareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   }, [quotedReply])
+
+  const insertMention = () => {
+    if (!quotedReply) return
+    const mention = `@${quotedReply.author.firstName} `
+    setContent((prev) => mention + prev)
+    textareaRef.current?.focus()
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -68,19 +87,31 @@ export function ReplyForm({
 
       {/* Quoted reply preview */}
       {quotedReply && (
-        <div className="mb-4 p-3 bg-gray-50 border-l-4 border-bleu rounded relative">
+        <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 border-l-4 border-bleu rounded relative">
           <button
             onClick={onClearQuote}
-            className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+            className="absolute top-2 right-2 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
-          <div className="text-sm text-gray-500 mb-1">
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
             En réponse à {quotedReply.author.firstName}:
           </div>
-          <div className="text-sm text-gray-600 line-clamp-2 pr-6">
+          <div className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 pr-6">
             {quotedReply.content}
           </div>
+
+          {/* Tag suggestion */}
+          {showTagSuggestion && (
+            <button
+              type="button"
+              onClick={insertMention}
+              className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-bleu/10 text-bleu hover:bg-bleu/20 rounded-full transition-colors"
+            >
+              <AtSign className="h-3 w-3" />
+              Mentionner @{quotedReply.author.firstName}
+            </button>
+          )}
         </div>
       )}
 

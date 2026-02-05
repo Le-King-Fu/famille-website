@@ -40,6 +40,12 @@ export function FormatContent({ content, className = '' }: FormatContentProps) {
       '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-bleu hover:underline">$1</a>'
     )
 
+    // Mentions: @Name or @Name Name (highlight with distinct style)
+    html = html.replace(
+      /@([A-Za-zÀ-ÿ]+(?:\s+[A-Za-zÀ-ÿ]+)?)/g,
+      '<span class="text-bleu font-medium bg-bleu/10 px-1 rounded">@$1</span>'
+    )
+
     // Line breaks
     html = html.replace(/\n/g, '<br />')
 
@@ -61,6 +67,7 @@ export function FormatToolbar() {
       <span>**gras**</span>
       <span>*italique*</span>
       <span>[texte](url)</span>
+      <span>@prénom</span>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { parseMentions } from '@/lib/mentions'
 
 // POST /api/forum/topics - Create a new topic
 export async function POST(request: NextRequest) {
@@ -85,6 +86,25 @@ export async function POST(request: NextRequest) {
         category: true,
       },
     })
+
+    // Create notifications for mentioned users
+    const topicLink = `/forum/${body.categoryId}/${topic.id}`
+    const mentionedUsers = await parseMentions(body.content.trim())
+
+    if (mentionedUsers.length > 0) {
+      await db.notification.createMany({
+        data: mentionedUsers
+          .filter((user) => user.id !== session.user.id) // Don't notify self
+          .map((user) => ({
+            type: 'MENTION' as const,
+            userId: user.id,
+            message: `${topic.author.firstName} vous a mentionné dans "${topic.title}"`,
+            link: topicLink,
+            createdById: session.user.id,
+            topicId: topic.id,
+          })),
+      })
+    }
 
     return NextResponse.json({ topic }, { status: 201 })
   } catch (error) {

@@ -20,6 +20,7 @@ import {
   Users,
 } from 'lucide-react'
 import { useTheme } from '@/components/providers/ThemeProvider'
+import { NotificationDropdown } from '@/components/notifications/NotificationDropdown'
 
 const navigation = [
   { name: 'Accueil', href: '/', icon: Home, hideForChild: false },
@@ -106,6 +107,11 @@ export function Header() {
                 <Moon className="h-5 w-5" />
               )}
             </button>
+
+            {/* Notifications (not for CHILD role) */}
+            {session?.user && !isChild && (
+              <NotificationDropdown />
+            )}
 
             {session?.user && (
               <>
