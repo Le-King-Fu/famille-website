@@ -21,3 +21,24 @@
 - Affiche les 5 dernières réponses non lues des autres membres
 - Inclut : avatar, auteur, date, titre du sujet, extrait du contenu
 - Lien direct vers le topic concerné
+
+### Forum - Édition des sujets
+- Les auteurs peuvent maintenant modifier leurs propres sujets
+- Affichage de l'indicateur "modifié" avec la date
+
+### Forum - Texte enrichi (#13)
+- Barre d'outils interactive avec boutons: **Gras**, *Italique*, __Souligné__, Titre
+- Sélecteur d'emojis intégré pour insérer facilement des emojis
+- Nouvelle syntaxe markdown: `## titre` et `__souligné__`
+- Toolbar disponible dans: nouveau sujet, réponses, mode édition
+
+### Forum & Photos - Réactions emoji (#15)
+- Ajout de réactions emoji aux sujets, réponses et commentaires photos
+- 6 emojis disponibles: 👍 ❤️ 😂 😮 😢 🎉
+- Affichage groupé avec compteur et tooltip des utilisateurs
+- Réactions personnelles mises en évidence en bleu
+- Cliquer pour ajouter/retirer une réaction
+
+### Contacts
+- Support de plusieurs numéros de téléphone par contact (jusqu'à 3)
+- Types de téléphone: cellulaire, domicile, travail, autre
