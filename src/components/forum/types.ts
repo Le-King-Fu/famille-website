@@ -46,6 +46,7 @@ export interface Reply {
     author: {
       id: string
       firstName: string
+      lastName: string
     }
   } | null
 }

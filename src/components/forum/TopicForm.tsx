@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, X } from 'lucide-react'
 import { FormatToolbar } from './FormatContent'
+import { MentionAutocomplete } from './MentionAutocomplete'
 
 interface TopicFormProps {
   categoryId: string
@@ -78,15 +79,14 @@ export function TopicForm({ categoryId, onClose }: TopicFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Message <span className="text-red-500">*</span>
           </label>
-          <textarea
+          <MentionAutocomplete
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={setContent}
             className="input min-h-[150px]"
-            placeholder="Écrivez votre message..."
-            required
+            placeholder="Écrivez votre message... (tapez @ pour mentionner)"
             maxLength={10000}
             disabled={isSubmitting}
           />

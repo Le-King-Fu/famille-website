@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Loader2, X, AtSign } from 'lucide-react'
 import { Reply } from './types'
 import { FormatToolbar } from './FormatContent'
+import { MentionAutocomplete } from './MentionAutocomplete'
 
 interface ReplyFormProps {
   topicId: string
@@ -27,8 +28,8 @@ export function ReplyForm({
   // Show tag suggestion when quoting, hide if tag already present
   useEffect(() => {
     if (quotedReply) {
-      const authorTag = `@${quotedReply.author.firstName}`
-      const hasTag = content.toLowerCase().includes(authorTag.toLowerCase())
+      const authorFullName = `@${quotedReply.author.firstName} ${quotedReply.author.lastName}`
+      const hasTag = content.toLowerCase().includes(authorFullName.toLowerCase())
       setShowTagSuggestion(!hasTag)
     } else {
       setShowTagSuggestion(false)
@@ -45,7 +46,7 @@ export function ReplyForm({
 
   const insertMention = () => {
     if (!quotedReply) return
-    const mention = `@${quotedReply.author.firstName} `
+    const mention = `@${quotedReply.author.firstName} ${quotedReply.author.lastName} `
     setContent((prev) => mention + prev)
     textareaRef.current?.focus()
   }
@@ -109,7 +110,7 @@ export function ReplyForm({
               className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-bleu/10 text-bleu hover:bg-bleu/20 rounded-full transition-colors"
             >
               <AtSign className="h-3 w-3" />
-              Mentionner @{quotedReply.author.firstName}
+              Mentionner @{quotedReply.author.firstName} {quotedReply.author.lastName}
             </button>
           )}
         </div>
@@ -117,13 +118,12 @@ export function ReplyForm({
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <textarea
-            ref={textareaRef}
+          <MentionAutocomplete
+            textareaRef={textareaRef}
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={setContent}
             className="input min-h-[120px]"
-            placeholder="Écrivez votre réponse..."
-            required
+            placeholder="Écrivez votre réponse... (tapez @ pour mentionner)"
             maxLength={10000}
             disabled={isSubmitting}
           />

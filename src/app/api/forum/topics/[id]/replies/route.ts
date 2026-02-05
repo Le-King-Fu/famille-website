@@ -90,6 +90,7 @@ export async function POST(
                 select: {
                   id: true,
                   firstName: true,
+                  lastName: true,
                 },
               },
             },
