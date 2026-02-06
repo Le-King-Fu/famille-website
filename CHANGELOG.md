@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-02-06
+
+### Page d'accueil
+- Déplacement de la section "Nouvelles réponses non lues" sous la grille de résumé (Événements, Forum, Scores)
+- Augmentation de la limite de réponses non lues affichées de 5 à 10
+
 ## 2026-02-05
 
 ### Forum - Suivi de lecture
@@ -18,7 +24,7 @@
 
 ### Page d'accueil
 - Nouvelle section "Nouvelles réponses non lues" en haut de la page
-- Affiche les 5 dernières réponses non lues des autres membres
+- Affiche les 10 dernières réponses non lues des autres membres
 - Inclut : avatar, auteur, date, titre du sujet, extrait du contenu
 - Lien direct vers le topic concerné
 
