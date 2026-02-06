@@ -2,6 +2,15 @@
 
 ## 2026-02-06
 
+### Jeu Belle Bête Sage - Améliorations (#14)
+- Score de distance qui s'accumule en jouant, multiplié par la stat Vitesse du chien
+- Bonus de +50 points pour sauter par-dessus les petits obstacles (chat, rat, cône)
+- Combos multi-couloirs à partir du niveau Normal (2 obstacles en même temps)
+- Difficulté augmentée aux niveaux Difficile et Expert (obstacles plus fréquents)
+- Nouvelles couleurs des chiens : Nouki (brun pâle), Flora (brun foncé), Laska (noir et blanc avec taches)
+- Labels descriptifs pour les stats : ♥ Vie, ⚡ Distance, ⭐ Bonus (remplace F/V/B)
+- Écran tutoriel au premier lancement (touche T pour le revoir depuis le menu)
+
 ### Page d'accueil
 - Déplacement de la section "Nouvelles réponses non lues" sous la grille de résumé (Événements, Forum, Scores)
 - Augmentation de la limite de réponses non lues affichées de 5 à 10
