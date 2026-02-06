@@ -5,11 +5,22 @@ export const authConfig: NextAuthConfig = {
     signIn: '/connexion',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id
         token.role = user.role
         token.mustChangePassword = user.mustChangePassword
+      }
+      // Re-read mustChangePassword from DB when session is updated
+      if (trigger === 'update' && token.id) {
+        const { db } = await import('@/lib/db')
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: { mustChangePassword: true },
+        })
+        if (dbUser) {
+          token.mustChangePassword = dbUser.mustChangePassword
+        }
       }
       return token
     },

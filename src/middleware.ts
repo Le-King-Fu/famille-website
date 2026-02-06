@@ -46,7 +46,8 @@ export default auth((req) => {
   if (
     isLoggedIn &&
     req.auth?.user?.mustChangePassword &&
-    pathname !== '/profil/changer-mot-de-passe'
+    pathname !== '/profil/changer-mot-de-passe' &&
+    pathname !== '/api/users/me/password'
   ) {
     return NextResponse.redirect(new URL('/profil/changer-mot-de-passe', req.url))
   }
