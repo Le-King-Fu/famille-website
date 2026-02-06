@@ -22,7 +22,7 @@ const GAMES = {
     component: BelleBeteSageGame,
   },
   'witch-case': {
-    name: 'Witch Case',
+    name: 'Langue de seeeerpent',
     gameType: 'WITCH_CASE' as GameType,
     component: WitchCaseGame,
   },

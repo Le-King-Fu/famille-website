@@ -18,7 +18,7 @@ const games = [
   },
   {
     id: 'witch-case',
-    name: 'Witch Case',
+    name: 'Langue de seeeerpent',
     description: 'Collectez les lettres pour épeler "LANDRY"',
     icon: Bug,
     color: 'terracotta',

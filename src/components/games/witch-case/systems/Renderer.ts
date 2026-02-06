@@ -332,7 +332,7 @@ export class Renderer {
     this.ctx.fillStyle = COLORS.NEON_GREEN
     this.ctx.font = 'bold 32px monospace'
     this.ctx.textAlign = 'center'
-    this.ctx.fillText('WITCH CASE', CANVAS.WIDTH / 2, 80)
+    this.ctx.fillText('LANGUE DE SEEEERPENT', CANVAS.WIDTH / 2, 80)
     this.ctx.shadowBlur = 0
 
     // Subtitle
@@ -372,8 +372,8 @@ export class Renderer {
     // Instructions
     this.ctx.fillStyle = COLORS.PRIMARY
     this.ctx.font = '11px monospace'
-    this.ctx.fillText('↑ ↓ POUR CHOISIR', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 60)
-    this.ctx.fillText('ESPACE POUR JOUER', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 40)
+    this.ctx.fillText('CLIQUEZ OU ↑ ↓ POUR CHOISIR', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 60)
+    this.ctx.fillText('ESPACE OU CLIQUEZ POUR JOUER', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 40)
 
     // High score
     if (highScore > 0) {

@@ -93,7 +93,7 @@ export const DIFFICULTY_LEVELS: Record<DifficultyId, DifficultyLevel> = {
   hard: {
     id: 'hard',
     name: 'Difficile',
-    speed: 150,
+    speed: 100,
     showTarget: false,
     pascalDecoys: true,
   },

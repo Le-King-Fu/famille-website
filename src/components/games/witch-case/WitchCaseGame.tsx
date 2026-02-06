@@ -5,6 +5,7 @@ import { Renderer, type Letter } from './systems/Renderer'
 import { Audio } from './systems/Audio'
 import { Snake } from './entities/Snake'
 import {
+  CANVAS,
   GRID,
   PATTERN,
   KEYS,
@@ -113,26 +114,21 @@ function generateLetters(
 }
 
 /**
- * Count how many complete "LANDRY" patterns are in the snake body
- * Patterns are consecutive: "LANDRY", "LANDRYLANDRY", etc.
+ * Count how many complete "LANDRY" patterns are in the snake body.
+ * Scans the full string for non-overlapping occurrences anywhere
+ * (e.g. "LAxLANDRY" → 1, "LANDRYxxLANDRY" → 2).
  */
 function countLandryPatterns(snakeString: string): number {
   const str = snakeString.toUpperCase()
-  if (str.length < 6) return 0
+  let count = 0
+  let pos = 0
 
-  // Check if starts with "LANDRY"
-  if (str.substring(0, 6) !== 'LANDRY') return 0
-
-  let count = 1
-  let pos = 6
-
-  // Check for additional "LANDRY" patterns (no separator)
   while (pos + 6 <= str.length) {
     if (str.substring(pos, pos + 6) === 'LANDRY') {
       count++
       pos += 6
     } else {
-      break
+      pos++
     }
   }
 
@@ -541,14 +537,41 @@ export function WitchCaseGame({ onScoreSubmit, onGameOver }: WitchCaseGameProps)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState, start, pause, resume, goToMenu])
 
-  // Canvas click handler
-  const handleCanvasClick = useCallback(() => {
+  // Canvas click handler with position detection for difficulty buttons
+  const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (gameState === 'menu') {
+      const canvas = canvasRef.current
+      if (!canvas) return
+
+      // Convert click position to canvas coordinates
+      const rect = canvas.getBoundingClientRect()
+      const scaleX = CANVAS.WIDTH / rect.width
+      const scaleY = CANVAS.HEIGHT / rect.height
+      const x = (e.clientX - rect.left) * scaleX
+      const y = (e.clientY - rect.top) * scaleY
+
+      // Check if click is on a difficulty button
+      // Buttons are at: x = CANVAS.WIDTH/2 - 100, width 200, y = 268 + index*40, height 30
+      const btnLeft = CANVAS.WIDTH / 2 - 100
+      const btnRight = btnLeft + 200
+      if (x >= btnLeft && x <= btnRight) {
+        for (let i = 0; i < difficulties.length; i++) {
+          const btnTop = 280 + i * 40 - 12
+          const btnBottom = btnTop + 30
+          if (y >= btnTop && y <= btnBottom) {
+            setSelectedDifficulty(i)
+            audioRef.current?.playSelectSound()
+            return
+          }
+        }
+      }
+
+      // Click outside buttons starts the game
       start()
     } else if (gameState === 'gameover') {
       start()
     }
-  }, [gameState, start])
+  }, [gameState, start, difficulties.length])
 
   // Mobile D-pad handlers
   const handleDirection = useCallback(

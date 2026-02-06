@@ -2,6 +2,12 @@
 
 ## 2026-02-06
 
+### Sécurité - Changement de mot de passe
+- Nouvelle page `/profil/changer-mot-de-passe` pour les utilisateurs avec mot de passe temporaire
+- API `PUT /api/users/me/password` avec validation (8+ caractères, majuscule, chiffre)
+- Rafraîchissement automatique de la session JWT après changement
+- Correction du 404 quand le middleware redirige vers la page de changement de mot de passe
+
 ### Jeu Belle Bête Sage - Améliorations (#14)
 - Score de distance qui s'accumule en jouant, multiplié par la stat Vitesse du chien
 - Bonus de +50 points pour sauter par-dessus les petits obstacles (chat, rat, cône)
