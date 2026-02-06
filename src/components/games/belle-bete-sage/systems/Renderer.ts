@@ -6,6 +6,7 @@ import {
   COLORS,
   LANES,
   PLAYER,
+  OBSTACLES,
   type CharacterStats,
   type ObstacleType,
   type CharacterId,
@@ -386,6 +387,21 @@ export class Renderer {
       y - height * 0.7
     )
     this.ctx.stroke()
+
+    // Laska: white patches (chest + paw tips) for black-and-white look
+    if (character.id === 'laska') {
+      this.ctx.fillStyle = '#FFFFFF'
+      // Chest patch
+      this.ctx.beginPath()
+      this.ctx.ellipse(x, y - height * 0.25, width * 0.2, height * 0.15, 0, 0, Math.PI * 2)
+      this.ctx.fill()
+      // Paw tips (front)
+      this.ctx.fillRect(x - width * 0.25 - legWidth / 2, y - 4, legWidth, 4)
+      this.ctx.fillRect(x + width * 0.25 - legWidth / 2, y - 4, legWidth, 4)
+      // Paw tips (back)
+      this.ctx.fillRect(x - width * 0.35 - legWidth / 2, y - height * 0.2 + height * 0.25 - 4, legWidth, 4)
+      this.ctx.fillRect(x + width * 0.35 - legWidth / 2, y - height * 0.2 + height * 0.25 - 4, legWidth, 4)
+    }
   }
 
   // ===========================================================================
@@ -797,20 +813,20 @@ export class Renderer {
 
     // Character info (bottom left)
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
-    this.ctx.fillRect(8, CANVAS.HEIGHT - 50, 120, 42)
+    this.ctx.fillRect(8, CANVAS.HEIGHT - 62, 145, 54)
 
     this.ctx.textAlign = 'left'
     this.ctx.font = 'bold 12px monospace'
     this.ctx.fillStyle = data.character.accentColor
-    this.ctx.fillText(data.character.name, 16, CANVAS.HEIGHT - 32)
+    this.ctx.fillText(data.character.name, 16, CANVAS.HEIGHT - 46)
 
-    this.ctx.font = '10px monospace'
-    this.ctx.fillStyle = COLORS.TEXT_DIM
-    this.ctx.fillText(
-      `F:${data.character.force} V:${data.character.vitesse} B:${data.character.beaute}`,
-      16,
-      CANVAS.HEIGHT - 18
-    )
+    this.ctx.font = '9px monospace'
+    this.ctx.fillStyle = COLORS.ACCENT
+    this.ctx.fillText(`♥ Vie: ${data.character.force}`, 16, CANVAS.HEIGHT - 32)
+    this.ctx.fillStyle = COLORS.NEON_CYAN
+    this.ctx.fillText(`⚡ Dist: ${data.character.vitesse}`, 16, CANVAS.HEIGHT - 20)
+    this.ctx.fillStyle = COLORS.GOLD
+    this.ctx.fillText(`⭐ Bonus: ${data.character.beaute}`, 80, CANVAS.HEIGHT - 20)
 
     // Collectibles count (bottom right)
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
@@ -860,8 +876,8 @@ export class Renderer {
       this.ctx.fillStyle = isSelected ? 'rgba(193, 119, 103, 0.3)' : 'rgba(0, 0, 0, 0.5)'
       this.ctx.strokeStyle = isSelected ? COLORS.PRIMARY : COLORS.TEXT_DIM
       this.ctx.lineWidth = isSelected ? 3 : 1
-      this.ctx.fillRect(cardX - 60, cardY - 50, 120, 130)
-      this.ctx.strokeRect(cardX - 60, cardY - 50, 120, 130)
+      this.ctx.fillRect(cardX - 60, cardY - 50, 120, 145)
+      this.ctx.strokeRect(cardX - 60, cardY - 50, 120, 145)
 
       // Draw mini dog
       this.drawDog(cardX, cardY + 10, 40, 50, char, 0, false)
@@ -871,17 +887,26 @@ export class Renderer {
       this.ctx.font = 'bold 12px monospace'
       this.ctx.fillText(char.name, cardX, cardY + 50)
 
-      // Stats
-      this.ctx.font = '10px monospace'
-      this.ctx.fillStyle = COLORS.TEXT_DIM
-      this.ctx.fillText(`F:${char.force} V:${char.vitesse} B:${char.beaute}`, cardX, cardY + 68)
+      // Stats with descriptive labels
+      this.ctx.textAlign = 'left'
+      this.ctx.font = '9px monospace'
+      this.ctx.fillStyle = COLORS.ACCENT
+      this.ctx.fillText(`♥ Vie: ${char.force}`, cardX - 50, cardY + 65)
+      this.ctx.fillStyle = COLORS.NEON_CYAN
+      this.ctx.fillText(`⚡ Dist: ${char.vitesse}`, cardX - 50, cardY + 76)
+      this.ctx.fillStyle = COLORS.GOLD
+      this.ctx.fillText(`⭐ Bonus: ${char.beaute}`, cardX + 5, cardY + 76)
+      this.ctx.textAlign = 'center'
     })
 
     // Instructions
     this.ctx.fillStyle = COLORS.PRIMARY
     this.ctx.font = '12px monospace'
-    this.ctx.fillText('← → POUR CHOISIR', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 80)
-    this.ctx.fillText('ESPACE POUR JOUER', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 60)
+    this.ctx.fillText('← → POUR CHOISIR', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 90)
+    this.ctx.fillText('ESPACE POUR JOUER', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 70)
+    this.ctx.fillStyle = COLORS.TEXT_DIM
+    this.ctx.font = '10px monospace'
+    this.ctx.fillText('T = TUTORIEL', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 52)
 
     // High score
     if (highScore > 0) {
@@ -980,6 +1005,125 @@ export class Renderer {
     // Red flash on screen edges
     this.ctx.fillStyle = 'rgba(229, 115, 115, 0.3)'
     this.ctx.fillRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT)
+  }
+
+  drawJumpBonus(x: number, y: number, timer: number): void {
+    const scale = CANVAS.SCALE
+    const alpha = Math.min(1, timer / 300)
+    const floatOffset = (1 - timer / 1000) * 40
+
+    this.ctx.save()
+    this.ctx.globalAlpha = alpha
+    this.ctx.shadowColor = COLORS.NEON_GREEN
+    this.ctx.shadowBlur = 10
+    this.ctx.fillStyle = COLORS.NEON_GREEN
+    this.ctx.font = 'bold 16px monospace'
+    this.ctx.textAlign = 'center'
+    this.ctx.fillText('+50', x * scale, (y - 20) * scale - floatOffset)
+    this.ctx.shadowBlur = 0
+    this.ctx.restore()
+  }
+
+  drawTutorial(): void {
+    // Full-screen dark overlay
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.9)'
+    this.ctx.fillRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT)
+
+    // Title
+    this.ctx.shadowColor = COLORS.NEON_CYAN
+    this.ctx.shadowBlur = 15
+    this.ctx.fillStyle = COLORS.NEON_CYAN
+    this.ctx.font = 'bold 22px monospace'
+    this.ctx.textAlign = 'center'
+    this.ctx.fillText('COMMENT JOUER', CANVAS.WIDTH / 2, 45)
+    this.ctx.shadowBlur = 0
+
+    // --- Small obstacles section ---
+    this.ctx.fillStyle = COLORS.NEON_GREEN
+    this.ctx.font = 'bold 13px monospace'
+    this.ctx.fillText('Saute par-dessus ! (+50 pts)', CANVAS.WIDTH / 2, 80)
+
+    // Draw small obstacle examples
+    const smallY = 120
+    const smallObs = OBSTACLES.small
+    const smallSpacing = CANVAS.WIDTH / (smallObs.length + 1)
+    smallObs.forEach((obs, i) => {
+      const sx = smallSpacing * (i + 1)
+      const scale = CANVAS.SCALE
+      const w = obs.width * scale * 0.8
+      const h = obs.height * scale * 0.8
+      switch (obs.type) {
+        case 'cat':
+          this.drawCat(sx, smallY, w, h, obs.color)
+          break
+        case 'rat':
+          this.drawRat(sx, smallY, w, h, obs.color)
+          break
+        case 'cone':
+          this.drawCone(sx, smallY, w, h, obs.color)
+          break
+      }
+      this.ctx.fillStyle = COLORS.TEXT_DIM
+      this.ctx.font = '10px monospace'
+      this.ctx.fillText(obs.name, sx, smallY + 18)
+    })
+
+    // --- Large obstacles section ---
+    this.ctx.fillStyle = COLORS.ACCENT
+    this.ctx.font = 'bold 13px monospace'
+    this.ctx.fillText('Change de couloir !', CANVAS.WIDTH / 2, 165)
+
+    const largeY = 210
+    const largeObs = OBSTACLES.large
+    const largeSpacing = CANVAS.WIDTH / (largeObs.length + 1)
+    largeObs.forEach((obs, i) => {
+      const sx = largeSpacing * (i + 1)
+      const scale = CANVAS.SCALE
+      const w = obs.width * scale * 0.6
+      const h = obs.height * scale * 0.6
+      switch (obs.type) {
+        case 'car':
+          this.drawCar(sx, largeY, w, h, obs.color)
+          break
+        case 'motorcycle':
+          this.drawMotorcycle(sx, largeY, w, h, obs.color)
+          break
+        case 'cow':
+          this.drawCow(sx, largeY, w, h, obs.color)
+          break
+      }
+      this.ctx.fillStyle = COLORS.TEXT_DIM
+      this.ctx.font = '10px monospace'
+      this.ctx.fillText(obs.name, sx, largeY + 22)
+    })
+
+    // --- Character traits ---
+    this.ctx.fillStyle = COLORS.TEXT
+    this.ctx.font = 'bold 12px monospace'
+    this.ctx.fillText('TRAITS DES CHIENS', CANVAS.WIDTH / 2, 270)
+
+    this.ctx.font = '11px monospace'
+    this.ctx.fillStyle = COLORS.ACCENT
+    this.ctx.fillText('♥ Force = Plus de vies', CANVAS.WIDTH / 2, 295)
+    this.ctx.fillStyle = COLORS.NEON_CYAN
+    this.ctx.fillText('⚡ Vitesse = Plus de points distance', CANVAS.WIDTH / 2, 315)
+    this.ctx.fillStyle = COLORS.GOLD
+    this.ctx.fillText('⭐ Beauté = Plus de bonus étoile', CANVAS.WIDTH / 2, 335)
+
+    // --- Controls ---
+    this.ctx.fillStyle = COLORS.TEXT_DIM
+    this.ctx.font = '10px monospace'
+    this.ctx.fillText('← → : Changer de couloir', CANVAS.WIDTH / 2, 370)
+    this.ctx.fillText('↑ ou ESPACE : Sauter', CANVAS.WIDTH / 2, 385)
+    this.ctx.fillText('Échap : Pause', CANVAS.WIDTH / 2, 400)
+
+    // --- Start prompt ---
+    this.ctx.shadowColor = COLORS.NEON_PINK
+    this.ctx.shadowBlur = 10
+    this.ctx.fillStyle = COLORS.NEON_PINK
+    this.ctx.font = 'bold 14px monospace'
+    this.ctx.fillText('ESPACE POUR COMMENCER', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 30)
+    this.ctx.shadowBlur = 0
   }
 
   // ===========================================================================

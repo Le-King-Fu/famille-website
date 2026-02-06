@@ -17,6 +17,7 @@ export interface ObstacleState {
   config: ObstacleConfig
   active: boolean
   speed: number
+  jumpedOver: boolean
 }
 
 let obstacleIdCounter = 0
@@ -40,6 +41,7 @@ export class Obstacle {
       config,
       active: true,
       speed: OBSTACLE_SPAWN.BASE_SPEED * speedMultiplier,
+      jumpedOver: false,
     }
   }
 

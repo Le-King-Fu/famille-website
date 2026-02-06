@@ -13,6 +13,10 @@ import {
   KEYS,
   TOUCH,
   OBSTACLE_SPAWN,
+  MULTI_LANE_CHANCE,
+  DISTANCE_SCORING,
+  JUMP_BONUS_POINTS,
+  PLAYER,
   type CharacterId,
 } from './config'
 import type { GameMetadata } from '../common/types'
@@ -21,7 +25,7 @@ import type { GameMetadata } from '../common/types'
 // TYPES
 // =============================================================================
 
-type GameState = 'menu' | 'playing' | 'paused' | 'gameover'
+type GameState = 'menu' | 'tutorial' | 'playing' | 'paused' | 'gameover'
 
 interface BelleBeteSageGameProps {
   onScoreSubmit?: (score: number, metadata: GameMetadata) => Promise<boolean>
@@ -108,6 +112,9 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
   const hitEffectTimerRef = useRef(0)
   const levelUpDisplayRef = useRef<{ timer: number; name: string } | null>(null)
   const gameOverTimerRef = useRef(0)
+  const distanceRef = useRef(0)
+  const distanceAccumRef = useRef(0)
+  const jumpBonusDisplayRef = useRef<{ timer: number; x: number; y: number } | null>(null)
 
   const characters: CharacterId[] = ['flora', 'nouki', 'laska']
 
@@ -169,6 +176,8 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
         if (playerRef.current.jump()) {
           audioRef.current?.playJumpSound()
         }
+      } else if (gameState === 'tutorial') {
+        startGame()
       } else if (gameState === 'menu') {
         start()
       } else if (gameState === 'gameover') {
@@ -216,6 +225,15 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
     const handleKeyDown = (e: KeyboardEvent) => {
       const code = e.code
 
+      // Tutorial state
+      if (gameState === 'tutorial') {
+        if (KEYS.JUMP.includes(code)) {
+          e.preventDefault()
+          startGame()
+        }
+        return
+      }
+
       // Menu navigation
       if (gameState === 'menu') {
         if (KEYS.LEFT.includes(code)) {
@@ -229,6 +247,9 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
         } else if (KEYS.JUMP.includes(code)) {
           e.preventDefault()
           start()
+        } else if (KEYS.TUTORIAL.includes(code)) {
+          e.preventDefault()
+          showTutorial()
         }
         return
       }
@@ -283,8 +304,33 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState])
 
+  // Show tutorial
+  const showTutorial = useCallback(() => {
+    setGameState('tutorial')
+  }, [])
+
   // Start game
   const start = useCallback(() => {
+    audioRef.current?.init()
+
+    // Check if tutorial should be shown on first play
+    try {
+      const tutorialSeen = localStorage.getItem('belleBeteSageTutorialSeen')
+      if (!tutorialSeen) {
+        localStorage.setItem('belleBeteSageTutorialSeen', '1')
+        setGameState('tutorial')
+        return
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+
+    startGame()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCharacter])
+
+  // Actually start the game (after tutorial or directly)
+  const startGame = useCallback(() => {
     audioRef.current?.init()
 
     // Create player with selected character
@@ -302,6 +348,9 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
     hitEffectTimerRef.current = 0
     levelUpDisplayRef.current = null
     gameOverTimerRef.current = 0
+    distanceRef.current = 0
+    distanceAccumRef.current = 0
+    jumpBonusDisplayRef.current = null
 
     setScore(0)
     setCurrentLevel(0)
@@ -431,6 +480,20 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
     // Update player
     player.update(deltaTime / 16.67) // Normalize to ~60fps
 
+    // Distance scoring
+    const distanceThisFrame = OBSTACLE_SPAWN.BASE_SPEED * level.speedMultiplier * (deltaTime / 16.67)
+    distanceRef.current += distanceThisFrame
+    distanceAccumRef.current += distanceThisFrame
+    if (distanceAccumRef.current >= DISTANCE_SCORING.POINTS_INTERVAL) {
+      const intervals = Math.floor(distanceAccumRef.current / DISTANCE_SCORING.POINTS_INTERVAL)
+      distanceAccumRef.current -= intervals * DISTANCE_SCORING.POINTS_INTERVAL
+      const vitesseMultiplier = player.state.character.vitesse / 3
+      const distancePoints = Math.round(DISTANCE_SCORING.BASE_POINTS * intervals * vitesseMultiplier)
+      scoreRef.current += distancePoints
+      setScore(scoreRef.current)
+      checkLevelUp()
+    }
+
     // Spawn obstacles and collectibles
     lastSpawnRef.current += deltaTime
     if (lastSpawnRef.current >= level.spawnInterval) {
@@ -444,11 +507,32 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
         ...recentCollectibles.map((c) => c.state.lane),
       ]
 
+      // Level-dependent obstacle chance
+      const obstacleChance = OBSTACLE_SPAWN.OBSTACLE_CHANCE_BY_LEVEL[currentLevelRef.current] ?? OBSTACLE_SPAWN.OBSTACLE_CHANCE
+
       // Spawn obstacle or collectible
-      if (Math.random() < OBSTACLE_SPAWN.OBSTACLE_CHANCE) {
+      if (Math.random() < obstacleChance) {
         const obstacle = spawnObstacle(level.speedMultiplier, occupiedLanes)
         if (obstacle) {
           obstaclesRef.current.push(obstacle)
+          occupiedLanes.push(obstacle.state.lane)
+
+          // Multi-lane combo: spawn a second obstacle in a different lane
+          const multiChance = MULTI_LANE_CHANCE[currentLevelRef.current] ?? 0
+          if (multiChance > 0 && Math.random() < multiChance) {
+            // Force at least one to be small (jumpable) for escape route
+            const secondObstacle = spawnObstacle(level.speedMultiplier, occupiedLanes)
+            if (secondObstacle) {
+              // If the first was large, force the second to be small
+              if (obstacle.state.config.isLarge && secondObstacle.state.config.isLarge) {
+                // Replace with a forced-small obstacle
+                const smallObstacle = new Obstacle(secondObstacle.state.lane, level.speedMultiplier, true)
+                obstaclesRef.current.push(smallObstacle)
+              } else {
+                obstaclesRef.current.push(secondObstacle)
+              }
+            }
+          }
         }
       }
 
@@ -468,6 +552,27 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
       if (obstacle.checkCollision(player)) {
         handleCollision()
         obstacle.state.active = false
+      }
+
+      // Jump bonus: detect when player jumps over a small obstacle
+      if (
+        obstacle.state.active &&
+        !obstacle.state.jumpedOver &&
+        obstacle.state.config.canJumpOver &&
+        obstacle.state.lane === player.state.lane &&
+        obstacle.state.y > PLAYER.Y_POSITION &&
+        player.canAvoidByJumping()
+      ) {
+        obstacle.state.jumpedOver = true
+        scoreRef.current += JUMP_BONUS_POINTS
+        setScore(scoreRef.current)
+        checkLevelUp()
+        audioRef.current?.playBonusSound()
+        jumpBonusDisplayRef.current = {
+          timer: 800,
+          x: obstacle.state.x,
+          y: PLAYER.Y_POSITION - 20,
+        }
       }
 
       // Remove inactive
@@ -516,12 +621,25 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
         levelUpDisplayRef.current = null
       }
     }
+
+    // Update jump bonus display
+    if (jumpBonusDisplayRef.current) {
+      jumpBonusDisplayRef.current.timer -= deltaTime
+      if (jumpBonusDisplayRef.current.timer <= 0) {
+        jumpBonusDisplayRef.current = null
+      }
+    }
   }, [gameState, stopGame, handleCollision, checkLevelUp])
 
   // Game render logic
   const onRender = useCallback(() => {
     const renderer = rendererRef.current
     if (!renderer) return
+
+    if (gameState === 'tutorial') {
+      renderer.drawTutorial()
+      return
+    }
 
     if (gameState === 'menu') {
       renderer.drawMenu(highScore, characters, selectedCharacter)
@@ -573,6 +691,15 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
       renderer.drawLevelUp(levelUpDisplayRef.current.name)
     }
 
+    // Draw jump bonus
+    if (jumpBonusDisplayRef.current) {
+      renderer.drawJumpBonus(
+        jumpBonusDisplayRef.current.x,
+        jumpBonusDisplayRef.current.y,
+        jumpBonusDisplayRef.current.timer
+      )
+    }
+
     // Draw pause overlay
     if (gameState === 'paused') {
       renderer.drawPauseOverlay()
@@ -583,21 +710,23 @@ export function BelleBeteSageGame({ onScoreSubmit, onGameOver }: BelleBeteSageGa
   // Game loop
   useGameLoop(gameState === 'playing' ? 'playing' : 'menu', { onUpdate, onRender })
 
-  // Render paused/gameover screens
+  // Render paused/gameover/tutorial screens
   useEffect(() => {
-    if (gameState === 'paused' || gameState === 'gameover') {
+    if (gameState === 'paused' || gameState === 'gameover' || gameState === 'tutorial') {
       onRender()
     }
   }, [gameState, onRender])
 
   // Canvas click handler
   const handleCanvasClick = useCallback(() => {
-    if (gameState === 'menu') {
+    if (gameState === 'tutorial') {
+      startGame()
+    } else if (gameState === 'menu') {
       start()
     } else if (gameState === 'gameover') {
       start()
     }
-  }, [gameState, start])
+  }, [gameState, start, startGame])
 
   return (
     <div className="belle-bete-sage-game flex flex-col items-center w-full max-w-[640px] mx-auto px-2">

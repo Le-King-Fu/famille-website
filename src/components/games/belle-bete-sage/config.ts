@@ -99,8 +99,8 @@ export const CHARACTERS: Record<CharacterId, CharacterStats> = {
     force: 3,
     vitesse: 4,
     beaute: 5,
-    color: '#8B4513', // Saddle brown
-    accentColor: '#D2691E', // Chocolate
+    color: '#5C3317', // Dark brown
+    accentColor: '#8B4513', // Saddle brown
   },
   nouki: {
     id: 'nouki',
@@ -109,8 +109,8 @@ export const CHARACTERS: Record<CharacterId, CharacterStats> = {
     force: 5,
     vitesse: 3,
     beaute: 4,
-    color: '#DAA520', // Goldenrod
-    accentColor: '#FFD700', // Gold
+    color: '#D2B48C', // Tan
+    accentColor: '#F5DEB3', // Wheat
   },
   laska: {
     id: 'laska',
@@ -119,8 +119,8 @@ export const CHARACTERS: Record<CharacterId, CharacterStats> = {
     force: 3,
     vitesse: 5,
     beaute: 4,
-    color: '#2F4F4F', // Dark slate gray (blue merle)
-    accentColor: '#87CEEB', // Sky blue
+    color: '#1a1a1a', // Near black
+    accentColor: '#FFFFFF', // White
   },
 }
 
@@ -138,8 +138,8 @@ export const DIFFICULTY_LEVELS: DifficultyLevel[] = [
   { name: 'Débutant', speedMultiplier: 0.8, spawnInterval: 1600 },
   { name: 'Facile', speedMultiplier: 1.0, spawnInterval: 1300 },
   { name: 'Normal', speedMultiplier: 1.3, spawnInterval: 1000 },
-  { name: 'Difficile', speedMultiplier: 1.6, spawnInterval: 800 },
-  { name: 'Expert', speedMultiplier: 2.0, spawnInterval: 600 },
+  { name: 'Difficile', speedMultiplier: 1.6, spawnInterval: 700 },
+  { name: 'Expert', speedMultiplier: 2.0, spawnInterval: 450 },
 ]
 
 export const LEVEL_UP_SCORE = 2000
@@ -225,10 +225,35 @@ export const OBSTACLES: {
 }
 
 export const OBSTACLE_SPAWN = {
-  OBSTACLE_CHANCE: 0.6, // 60% obstacles
+  OBSTACLE_CHANCE: 0.6, // 60% obstacles (base, overridden by level)
   LARGE_CHANCE: 0.3, // 30% of obstacles are large
   BASE_SPEED: 2, // Native pixels per frame
+  // Level-dependent obstacle chance: [Débutant, Facile, Normal, Difficile, Expert]
+  OBSTACLE_CHANCE_BY_LEVEL: [0.6, 0.6, 0.6, 0.7, 0.8],
 }
+
+// =============================================================================
+// MULTI-LANE OBSTACLES
+// =============================================================================
+
+// Chance of spawning 2 obstacles at once (by level index)
+// Only active from level 2 (Normal) onwards
+export const MULTI_LANE_CHANCE: number[] = [0, 0, 0.3, 0.5, 0.7]
+
+// =============================================================================
+// DISTANCE SCORING
+// =============================================================================
+
+export const DISTANCE_SCORING = {
+  POINTS_INTERVAL: 100, // Every 100 native pixels traveled = score
+  BASE_POINTS: 10, // Base points per interval
+}
+
+// =============================================================================
+// JUMP BONUS
+// =============================================================================
+
+export const JUMP_BONUS_POINTS = 50
 
 // =============================================================================
 // COLLECTIBLES
@@ -268,6 +293,7 @@ export const KEYS = {
   RIGHT: ['ArrowRight', 'KeyD'],
   JUMP: ['ArrowUp', 'KeyW', 'KeyZ', 'Space'], // AZERTY + QWERTY
   PAUSE: ['Escape', 'KeyP'],
+  TUTORIAL: ['KeyT'],
 }
 
 // =============================================================================
