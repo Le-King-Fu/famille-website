@@ -1,0 +1,1 @@
+export { TeteDeSoccerGame } from './TeteDeSoccerGame'

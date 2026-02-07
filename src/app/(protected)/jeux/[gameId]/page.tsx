@@ -6,6 +6,7 @@ import { GameWrapper } from '@/components/games/common'
 import { PianoHeroGame } from '@/components/games/piano-hero-v2'
 import { BelleBeteSageGame } from '@/components/games/belle-bete-sage'
 import { WitchCaseGame } from '@/components/games/witch-case'
+import { TeteDeSoccerGame } from '@/components/games/tete-de-soccer'
 import { GameType } from '@prisma/client'
 import type { GameMetadata } from '@/components/games/common/types'
 
@@ -25,6 +26,11 @@ const GAMES = {
     name: 'Langue de seeeerpent',
     gameType: 'WITCH_CASE' as GameType,
     component: WitchCaseGame,
+  },
+  'tete-de-soccer': {
+    name: 'Tête de Soccer',
+    gameType: 'TETE_DE_SOCCER' as GameType,
+    component: TeteDeSoccerGame,
   },
   // Future games:
   // 'piano-hero': { ... },

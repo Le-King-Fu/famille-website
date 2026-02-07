@@ -290,6 +290,7 @@ enum GameType {
   PIANO_HERO_V2
   WITCH_CASE
   BELLE_BETE_SAGE
+  TETE_DE_SOCCER
 }
 
 model GameScore {

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Gamepad2, Music, Bug, Dog, Trophy } from 'lucide-react'
+import { Gamepad2, Music, Bug, Dog, Trophy, Circle } from 'lucide-react'
 
 const games = [
   {
@@ -21,6 +21,13 @@ const games = [
     name: 'Langue de seeeerpent',
     description: 'Collectez les lettres pour épeler "LANDRY"',
     icon: Bug,
+    color: 'terracotta',
+  },
+  {
+    id: 'tete-de-soccer',
+    name: 'Tête de Soccer',
+    description: 'Casse-briques cyberpunk ! Détruis les briques avec un ballon de soccer. 5 niveaux + bonus !',
+    icon: Circle,
     color: 'terracotta',
   },
   // Coming soon:
