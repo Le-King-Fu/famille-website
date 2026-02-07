@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { cookies } from 'next/headers'
+import { getClientIP, checkRateLimit, recordFailedAttempt, resetAttempts } from '@/lib/rate-limit'
 
-function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for')
-  const ip = forwarded ? forwarded.split(',')[0].trim() : '127.0.0.1'
-  return ip
-}
+const MAX_ATTEMPTS = 3
+const BLOCK_MINUTES = 15
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,15 +12,12 @@ export async function POST(request: NextRequest) {
     const { answers } = await request.json()
 
     // Vérifier si l'IP est bloquée
-    let attempt = await db.securityAttempt.findFirst({
-      where: { ipAddress },
-    })
-
-    if (attempt?.blockedUntil && attempt.blockedUntil > new Date()) {
+    const limit = await checkRateLimit(ipAddress, 'security', MAX_ATTEMPTS)
+    if (!limit.allowed) {
       return NextResponse.json({
         success: false,
         blocked: true,
-        blockedUntil: attempt.blockedUntil,
+        blockedUntil: limit.blockedUntil,
       })
     }
 
@@ -45,9 +40,7 @@ export async function POST(request: NextRequest) {
 
     if (allCorrect) {
       // Réinitialiser les tentatives
-      if (attempt) {
-        await db.securityAttempt.delete({ where: { id: attempt.id } })
-      }
+      await resetAttempts(ipAddress, 'security')
 
       // Créer un cookie de session pour indiquer que le portail est passé
       const cookieStore = await cookies()
@@ -62,37 +55,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Incrémenter les tentatives
-    if (attempt) {
-      attempt = await db.securityAttempt.update({
-        where: { id: attempt.id },
-        data: {
-          attempts: attempt.attempts + 1,
-          blockedUntil:
-            attempt.attempts + 1 >= 3
-              ? new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
-              : null,
-        },
-      })
-    } else {
-      attempt = await db.securityAttempt.create({
-        data: {
-          ipAddress,
-          attempts: 1,
-        },
-      })
-    }
+    const result = await recordFailedAttempt(ipAddress, 'security', MAX_ATTEMPTS, BLOCK_MINUTES)
 
-    if (attempt.blockedUntil) {
+    if (result.blockedUntil) {
       return NextResponse.json({
         success: false,
         blocked: true,
-        blockedUntil: attempt.blockedUntil,
+        blockedUntil: result.blockedUntil,
       })
     }
 
     return NextResponse.json({
       success: false,
-      attemptsLeft: 3 - attempt.attempts,
+      attemptsLeft: result.attemptsLeft,
     })
   } catch (error) {
     console.error('Error verifying security questions:', error)

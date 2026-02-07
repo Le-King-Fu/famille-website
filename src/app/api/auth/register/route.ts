@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import bcrypt from 'bcryptjs'
+import { getClientIP, checkRateLimit, recordFailedAttempt } from '@/lib/rate-limit'
+
+const MAX_REGISTER_ATTEMPTS = 5
+const BLOCK_MINUTES = 60
 
 export async function POST(request: NextRequest) {
   try {
+    const ipAddress = getClientIP(request)
+
+    // Rate limit: 5 attempts per hour per IP
+    const limit = await checkRateLimit(ipAddress, 'register', MAX_REGISTER_ATTEMPTS)
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: 'Trop de tentatives d\'inscription. Réessayez dans une heure.' },
+        { status: 429 }
+      )
+    }
+
     const { invitationCode, firstName, lastName, email, password } =
       await request.json()
 
@@ -13,6 +28,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (!invitation) {
+      await recordFailedAttempt(ipAddress, 'register', MAX_REGISTER_ATTEMPTS, BLOCK_MINUTES)
       return NextResponse.json(
         { error: 'Code d\'invitation invalide' },
         { status: 400 }
@@ -20,6 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (invitation.isUsed) {
+      await recordFailedAttempt(ipAddress, 'register', MAX_REGISTER_ATTEMPTS, BLOCK_MINUTES)
       return NextResponse.json(
         { error: 'Ce code d\'invitation a déjà été utilisé' },
         { status: 400 }
@@ -27,6 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (invitation.expiresAt < new Date()) {
+      await recordFailedAttempt(ipAddress, 'register', MAX_REGISTER_ATTEMPTS, BLOCK_MINUTES)
       return NextResponse.json(
         { error: 'Ce code d\'invitation a expiré' },
         { status: 400 }
@@ -39,6 +57,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingUser) {
+      await recordFailedAttempt(ipAddress, 'register', MAX_REGISTER_ATTEMPTS, BLOCK_MINUTES)
       return NextResponse.json(
         { error: 'Cet email est déjà utilisé' },
         { status: 400 }
@@ -51,6 +70,7 @@ export async function POST(request: NextRequest) {
     const hasNumber = /[0-9]/.test(password)
 
     if (!hasMinLength || !hasUppercase || !hasNumber) {
+      await recordFailedAttempt(ipAddress, 'register', MAX_REGISTER_ATTEMPTS, BLOCK_MINUTES)
       return NextResponse.json(
         {
           error:
@@ -82,6 +102,9 @@ export async function POST(request: NextRequest) {
         usedById: user.id,
       },
     })
+
+    // Still record the attempt on success (to prevent rapid account creation)
+    await recordFailedAttempt(ipAddress, 'register', MAX_REGISTER_ATTEMPTS, BLOCK_MINUTES)
 
     return NextResponse.json({
       success: true,

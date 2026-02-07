@@ -1,25 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-
-function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for')
-  const ip = forwarded ? forwarded.split(',')[0].trim() : '127.0.0.1'
-  return ip
-}
+import { getClientIP, checkRateLimit } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   try {
     const ipAddress = getClientIP(request)
 
     // Vérifier si l'IP est bloquée
-    const attempt = await db.securityAttempt.findFirst({
-      where: { ipAddress },
-    })
-
-    if (attempt?.blockedUntil && attempt.blockedUntil > new Date()) {
+    const limit = await checkRateLimit(ipAddress, 'security', 3)
+    if (!limit.allowed) {
       return NextResponse.json({
         blocked: true,
-        blockedUntil: attempt.blockedUntil,
+        blockedUntil: limit.blockedUntil,
       })
     }
 
@@ -36,11 +28,9 @@ export async function GET(request: NextRequest) {
     const randomIndex = Math.floor(Math.random() * allQuestions.length)
     const questions = allQuestions.length > 0 ? [allQuestions[randomIndex]] : []
 
-    const attemptsLeft = attempt ? 3 - attempt.attempts : 3
-
     return NextResponse.json({
       questions,
-      attemptsLeft: Math.max(0, attemptsLeft),
+      attemptsLeft: limit.attemptsLeft,
     })
   } catch (error) {
     console.error('Error fetching security questions:', error)

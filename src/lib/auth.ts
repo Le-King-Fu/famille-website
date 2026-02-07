@@ -3,6 +3,7 @@ import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { db } from './db'
 import { authConfig } from './auth.config'
+import { checkRateLimit, recordFailedAttempt, resetAttempts } from './rate-limit'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -18,11 +19,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
+        const email = (credentials.email as string).toLowerCase()
+
+        // Check email-based rate limit
+        const limit = await checkRateLimit(email, 'login', 5)
+        if (!limit.allowed) {
+          return null
+        }
+
         const user = await db.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email },
         })
 
         if (!user) {
+          await recordFailedAttempt(email, 'login', 5, 15)
           return null
         }
 
@@ -37,10 +47,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         )
 
         if (!isPasswordValid) {
+          await recordFailedAttempt(email, 'login', 5, 15)
           return null
         }
 
-        // Mettre à jour la dernière connexion
+        // Success: reset attempts and update last login
+        await resetAttempts(email, 'login')
+
         await db.user.update({
           where: { id: user.id },
           data: { lastLoginAt: new Date() },

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-02-07
+
+### Sécurité - Rate limiting sur les endpoints d'authentification
+- Nouvelle librairie partagée `src/lib/rate-limit.ts` (getClientIP, checkRateLimit, recordFailedAttempt, resetAttempts)
+- Rate limiting sur la connexion : 5 tentatives / 15 min par IP + par email
+- Rate limiting sur l'inscription : 5 tentatives / heure par IP
+- Refactorisation du rate limiting existant du portail de sécurité vers la librairie partagée
+- Ajout du champ `type` au modèle `SecurityAttempt` avec contrainte unique `[ipAddress, type]`
+- Extraction et amélioration de `getClientIP()` (support `x-real-ip`)
+
 ## 2026-02-06
 
 ### Sécurité - Durcissement
