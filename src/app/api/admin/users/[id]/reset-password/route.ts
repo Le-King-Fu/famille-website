@@ -34,7 +34,7 @@ export async function POST(
 
     // Generate temporary password (12 characters)
     const tempPassword = crypto.randomBytes(6).toString('base64').slice(0, 12)
-    const hashedPassword = await bcrypt.hash(tempPassword, 10)
+    const hashedPassword = await bcrypt.hash(tempPassword, 12)
 
     // Update user with new password and require password change
     await db.user.update({

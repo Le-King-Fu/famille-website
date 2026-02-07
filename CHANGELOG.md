@@ -2,6 +2,18 @@
 
 ## 2026-02-06
 
+### Sécurité - Durcissement
+- Ajout des en-têtes de sécurité HTTP (X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy)
+- Standardisation du hachage bcrypt à 12 rounds (reset mot de passe admin)
+- Validation des métadonnées de scores de jeux (type objet, taille max 1 Ko)
+- Réduction de la durée de session JWT de 7 à 3 jours
+
+### Langue de seeeerpent - Correctifs (#19)
+- Jeu renommé de "Witch Case" à "Langue de seeeerpent"
+- Correction du niveau Difficile (même vitesse que Moyen → maintenant plus rapide)
+- Boutons de difficulté cliquables sur le menu du jeu
+- Correction du bonus LANDRY : détection dans tout le corps du serpent (ex: LAxLANDRY donne le bonus)
+
 ### Sécurité - Changement de mot de passe
 - Nouvelle page `/profil/changer-mot-de-passe` pour les utilisateurs avec mot de passe temporaire
 - API `PUT /api/users/me/password` avec validation (8+ caractères, majuscule, chiffre)

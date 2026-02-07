@@ -30,6 +30,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate metadata if provided
+    if (body.metadata !== undefined && body.metadata !== null) {
+      if (typeof body.metadata !== 'object' || Array.isArray(body.metadata)) {
+        return NextResponse.json(
+          { error: 'Métadonnées invalides' },
+          { status: 400 }
+        )
+      }
+      if (JSON.stringify(body.metadata).length > 1024) {
+        return NextResponse.json(
+          { error: 'Métadonnées trop volumineuses' },
+          { status: 400 }
+        )
+      }
+    }
+
     // Create score entry
     const gameScore = await db.gameScore.create({
       data: {
