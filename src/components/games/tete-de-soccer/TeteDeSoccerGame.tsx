@@ -179,11 +179,9 @@ export function TeteDeSoccerGame({ onScoreSubmit }: TeteDeSoccerGameProps) {
     tearsRef.current = []
     tearsTimerRef.current = 0
 
-    // Clear power-ups (except keep bonus head across levels)
-    powerUpsRef.current = powerUpsRef.current.filter(p => p.type === 'bonushead')
-
-    // Update paddle bonus head from power-ups
-    paddle.hasBonusHead = powerUpsRef.current.some(p => p.type === 'bonushead')
+    // Clear all power-ups on level change
+    powerUpsRef.current = []
+    paddle.hasBonusHead = false
   }, [])
 
   const checkLevelComplete = useCallback((): boolean => {
@@ -292,10 +290,13 @@ export function TeteDeSoccerGame({ onScoreSubmit }: TeteDeSoccerGameProps) {
         break
       }
       case BrickType.GREEN: {
-        // Bonus head
+        // Bonus head (10s duration)
         paddle.hasBonusHead = true
-        if (!powerUpsRef.current.some(p => p.type === 'bonushead')) {
-          powerUpsRef.current.push({ type: 'bonushead', timer: -1 })
+        const existingHead = powerUpsRef.current.find(p => p.type === 'bonushead')
+        if (existingHead) {
+          existingHead.timer = GAME.BONUS_HEAD_DURATION // Reset timer
+        } else {
+          powerUpsRef.current.push({ type: 'bonushead', timer: GAME.BONUS_HEAD_DURATION })
         }
         break
       }
@@ -646,6 +647,9 @@ export function TeteDeSoccerGame({ onScoreSubmit }: TeteDeSoccerGameProps) {
           if (pu.type === 'explosive') {
             ballsRef.current.forEach(b => { b.isExplosive = false })
           }
+          if (pu.type === 'bonushead') {
+            paddle.hasBonusHead = false
+          }
           if (pu.type === 'tears') {
             tearsRef.current = []
           }
@@ -735,7 +739,7 @@ export function TeteDeSoccerGame({ onScoreSubmit }: TeteDeSoccerGameProps) {
       switch (p.type) {
         case 'multiball': return `Multi-ballon`
         case 'explosive': return `Explosif ${Math.ceil(p.timer / 1000)}s`
-        case 'bonushead': return `Tête bonus`
+        case 'bonushead': return `Tête bonus ${Math.ceil(p.timer / 1000)}s`
         case 'tears': return `Larmes ${Math.ceil(p.timer / 1000)}s`
       }
     })

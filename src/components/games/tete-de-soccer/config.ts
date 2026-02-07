@@ -165,6 +165,7 @@ export const GAME = {
   TEARS_INTERVAL: 400,      // ms between tear shots
   TEARS_SPEED: 3,
   TEARS_DURATION: 10000,    // ms
+  BONUS_HEAD_DURATION: 10000, // ms
   BONUS_HEAD_OFFSET: 30,    // native pixels offset from main paddle
   LEVEL_TRANSITION_TIME: 2000, // ms
   GAME_OVER_DELAY: 1500,
