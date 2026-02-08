@@ -8,6 +8,7 @@ const gameNames: Record<string, string> = {
   PIANO_HERO_V2: 'Piano Hero v2',
   WITCH_CASE: 'Langue de seeeerpent',
   BELLE_BETE_SAGE: 'Belle Bête Sage',
+  TETE_DE_SOCCER: 'Tête de Soccer',
 }
 
 export default async function ClassementPage() {
