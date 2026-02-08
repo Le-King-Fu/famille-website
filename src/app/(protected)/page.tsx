@@ -115,6 +115,7 @@ export default async function HomePage() {
     PIANO_HERO_V2: 'Piano Hero v2',
     WITCH_CASE: 'Witch Case',
     BELLE_BETE_SAGE: 'Belle Bête Sage',
+    TETE_DE_SOCCER: 'Tête de Soccer',
   }
 
   return (
