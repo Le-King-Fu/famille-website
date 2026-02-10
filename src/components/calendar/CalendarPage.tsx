@@ -67,7 +67,7 @@ export function CalendarPage({ userId, userRole }: CalendarPageProps) {
 
   // Create event
   const handleCreateEvent = useCallback(
-    async (eventData: Partial<CalendarEvent>) => {
+    async (eventData: Partial<CalendarEvent> & { hiddenFromUserIds?: string[] }) => {
       const response = await fetch('/api/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,7 +93,7 @@ export function CalendarPage({ userId, userRole }: CalendarPageProps) {
 
   // Update event
   const handleUpdateEvent = useCallback(
-    async (id: string, eventData: Partial<CalendarEvent>) => {
+    async (id: string, eventData: Partial<CalendarEvent> & { hiddenFromUserIds?: string[] }) => {
       const response = await fetch(`/api/events/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

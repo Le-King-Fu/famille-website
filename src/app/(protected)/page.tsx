@@ -4,14 +4,17 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import Link from 'next/link'
 import { Calendar, Gamepad2, Image, MessageSquare, Trophy, Clock, Reply } from 'lucide-react'
+import { eventVisibilityFilter, topicVisibilityFilter } from '@/lib/event-visibility'
 
 export default async function HomePage() {
   const session = await auth()
 
   // Récupérer les prochains événements
+  const isAdmin = session?.user?.role === 'ADMIN'
   const upcomingEvents = await db.event.findMany({
     where: {
       startDate: { gte: new Date() },
+      ...eventVisibilityFilter(session?.user?.id || '', isAdmin),
     },
     orderBy: { startDate: 'asc' },
     take: 5,
@@ -25,6 +28,7 @@ export default async function HomePage() {
   // Récupérer les derniers sujets du forum avec statut lu/non-lu
   const userId = session?.user?.id
   const recentTopics = await db.topic.findMany({
+    where: topicVisibilityFilter(userId || '', isAdmin),
     orderBy: { lastReplyAt: 'desc' },
     take: 5,
     include: {
@@ -69,6 +73,7 @@ export default async function HomePage() {
   const recentRepliesRaw = userId ? await db.reply.findMany({
     where: {
       authorId: { not: userId },
+      topic: topicVisibilityFilter(userId, isAdmin),
     },
     orderBy: { createdAt: 'desc' },
     take: 20,

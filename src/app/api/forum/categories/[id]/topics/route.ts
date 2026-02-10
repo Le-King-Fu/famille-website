@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { topicVisibilityFilter } from '@/lib/event-visibility'
 
 // GET /api/forum/categories/[id]/topics - List topics in a category
 export async function GET(
@@ -38,9 +39,11 @@ export async function GET(
     const skip = (page - 1) * limit
 
     // Get topics with reply count and last reply info
+    const isAdmin = session.user.role === 'ADMIN'
+    const topicWhere = { categoryId, ...topicVisibilityFilter(userId, isAdmin) }
     const [topics, total] = await Promise.all([
       db.topic.findMany({
-        where: { categoryId },
+        where: topicWhere,
         orderBy: [
           { isPinned: 'desc' },
           { lastReplyAt: 'desc' },
@@ -76,7 +79,7 @@ export async function GET(
           },
         },
       }),
-      db.topic.count({ where: { categoryId } }),
+      db.topic.count({ where: topicWhere }),
     ])
 
     // Calculate unread status for each topic

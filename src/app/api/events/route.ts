@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { expandEvents, RecurrenceRule } from '@/lib/recurrence'
 import { EventCategory, Prisma } from '@prisma/client'
+import { eventVisibilityFilter } from '@/lib/event-visibility'
 
 // GET /api/events - List events in date range
 export async function GET(request: NextRequest) {
@@ -35,17 +36,24 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const isAdmin = session.user.role === 'ADMIN'
+
     // Build the where clause
     const where: Prisma.EventWhereInput = {
-      OR: [
-        // Non-recurring events that start before the range ends
+      AND: [
+        eventVisibilityFilter(session.user.id, isAdmin),
         {
-          recurrence: { equals: Prisma.DbNull },
-          startDate: { lte: rangeEnd },
-        },
-        // Recurring events (we need all of them to expand occurrences)
-        {
-          NOT: { recurrence: { equals: Prisma.DbNull } },
+          OR: [
+            // Non-recurring events that start before the range ends
+            {
+              recurrence: { equals: Prisma.DbNull },
+              startDate: { lte: rangeEnd },
+            },
+            // Recurring events (we need all of them to expand occurrences)
+            {
+              NOT: { recurrence: { equals: Prisma.DbNull } },
+            },
+          ],
         },
       ],
     }
@@ -76,6 +84,17 @@ export async function GET(request: NextRequest) {
             },
           },
         },
+        hiddenFrom: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { startDate: 'asc' },
     })
@@ -93,7 +112,17 @@ export async function GET(request: NextRequest) {
     // Sort by start date
     expandedEvents.sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
 
-    return NextResponse.json({ events: expandedEvents })
+    // Only expose hiddenFrom to creator/admin
+    const sanitizedEvents = expandedEvents.map((e) => {
+      const isCreator = e.createdById === session.user.id
+      if (!isAdmin && !isCreator) {
+        const { hiddenFrom, ...rest } = e as typeof e & { hiddenFrom?: unknown }
+        return rest
+      }
+      return e
+    })
+
+    return NextResponse.json({ events: sanitizedEvents })
   } catch (error) {
     console.error('Error fetching events:', error)
     return NextResponse.json(
@@ -227,6 +256,11 @@ export async function POST(request: NextRequest) {
       topicId = topic.id
     }
 
+    // Validate hiddenFromUserIds
+    const hiddenFromUserIds: string[] = Array.isArray(body.hiddenFromUserIds)
+      ? body.hiddenFromUserIds.filter((id: string) => typeof id === 'string' && id !== session.user.id)
+      : []
+
     const event = await db.event.create({
       data: {
         title: body.title.trim(),
@@ -241,6 +275,11 @@ export async function POST(request: NextRequest) {
         location: body.location?.trim() || null,
         topicId,
         createdById: session.user.id,
+        hiddenFrom: hiddenFromUserIds.length > 0 ? {
+          createMany: {
+            data: hiddenFromUserIds.map((userId: string) => ({ userId })),
+          },
+        } : undefined,
       },
       include: {
         createdBy: {
@@ -252,6 +291,17 @@ export async function POST(request: NextRequest) {
         },
         topic: true,
         rsvps: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        hiddenFrom: {
           include: {
             user: {
               select: {

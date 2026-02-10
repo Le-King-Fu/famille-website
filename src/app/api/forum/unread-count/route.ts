@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { topicVisibilityFilter } from '@/lib/event-visibility'
 
 // GET /api/forum/unread-count - Get count of unread topics for the current user
 export async function GET() {
@@ -17,8 +18,11 @@ export async function GET() {
   const userId = session.user.id
 
   try {
+    const isAdmin = session.user.role === 'ADMIN'
+
     // Get all topics with their last activity and user's read status
     const topics = await db.topic.findMany({
+      where: topicVisibilityFilter(userId, isAdmin),
       select: {
         id: true,
         lastReplyAt: true,

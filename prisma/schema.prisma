@@ -54,6 +54,7 @@ model User {
   topicReads            TopicRead[]
   notificationsReceived Notification[] @relation("NotificationRecipient")
   notificationsCreated  Notification[] @relation("NotificationCreator")
+  hiddenEvents          EventHiddenFrom[] @relation("HiddenEvents")
 }
 
 model SecurityQuestion {
@@ -130,6 +131,7 @@ model Event {
   topicId     String?       @unique
   topic       Topic?        @relation(fields: [topicId], references: [id], onDelete: SetNull)
   rsvps       EventRsvp[]
+  hiddenFrom  EventHiddenFrom[]
 }
 
 model EventRsvp {
@@ -143,6 +145,19 @@ model EventRsvp {
   event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
   userId    String
   user      User       @relation(fields: [userId], references: [id])
+
+  @@unique([eventId, userId])
+}
+
+model EventHiddenFrom {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Relations
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation("HiddenEvents", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, userId])
 }

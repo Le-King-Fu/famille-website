@@ -26,12 +26,22 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params
 
   try {
-    // Verify event exists
+    // Verify event exists and is not hidden from user
     const event = await db.event.findUnique({
       where: { id },
+      include: {
+        hiddenFrom: { where: { userId: session.user.id }, select: { id: true } },
+      },
     })
 
     if (!event) {
+      return NextResponse.json(
+        { error: 'Événement non trouvé' },
+        { status: 404 }
+      )
+    }
+
+    if (event.hiddenFrom.length > 0 && session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Événement non trouvé' },
         { status: 404 }

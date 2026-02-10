@@ -45,6 +45,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             },
           },
         },
+        hiddenFrom: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
       },
     })
 
@@ -53,6 +64,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         { error: 'Événement non trouvé' },
         { status: 404 }
       )
+    }
+
+    // If user is in hiddenFrom and not admin, return 404
+    const isAdmin = session.user.role === 'ADMIN'
+    const isHidden = event.hiddenFrom.some((h) => h.userId === session.user.id)
+    if (isHidden && !isAdmin) {
+      return NextResponse.json(
+        { error: 'Événement non trouvé' },
+        { status: 404 }
+      )
+    }
+
+    // Only expose hiddenFrom to creator/admin
+    const isCreator = event.createdById === session.user.id
+    if (!isAdmin && !isCreator) {
+      const { hiddenFrom, ...rest } = event
+      return NextResponse.json({ event: rest })
     }
 
     return NextResponse.json({ event })
@@ -225,6 +253,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
     }
 
+    // Handle hiddenFromUserIds update
+    if (body.hiddenFromUserIds !== undefined) {
+      const hiddenFromUserIds: string[] = Array.isArray(body.hiddenFromUserIds)
+        ? body.hiddenFromUserIds.filter((uid: string) => typeof uid === 'string' && uid !== session.user.id)
+        : []
+
+      // Delete-and-recreate in a transaction
+      await db.$transaction([
+        db.eventHiddenFrom.deleteMany({ where: { eventId: id } }),
+        ...hiddenFromUserIds.map((userId: string) =>
+          db.eventHiddenFrom.create({ data: { eventId: id, userId } })
+        ),
+      ])
+    }
+
     const event = await db.event.update({
       where: { id },
       data: updateData,
@@ -243,6 +286,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
           },
         },
         rsvps: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        hiddenFrom: {
           include: {
             user: {
               select: {

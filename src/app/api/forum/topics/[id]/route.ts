@@ -76,6 +76,20 @@ export async function GET(
       return NextResponse.json({ error: 'Sujet non trouvé' }, { status: 404 })
     }
 
+    // Check if topic is linked to an event hidden from this user
+    if (session.user.role !== 'ADMIN') {
+      const hiddenEvent = await db.event.findFirst({
+        where: {
+          topicId: topic.id,
+          hiddenFrom: { some: { userId: session.user.id } },
+        },
+        select: { id: true },
+      })
+      if (hiddenEvent) {
+        return NextResponse.json({ error: 'Sujet non trouvé' }, { status: 404 })
+      }
+    }
+
     return NextResponse.json({ topic })
   } catch (error) {
     console.error('Error fetching topic:', error)

@@ -39,10 +39,18 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             lastName: true,
           },
         },
+        hiddenFrom: { where: { userId: session.user.id }, select: { id: true } },
       },
     })
 
     if (!event) {
+      return NextResponse.json(
+        { error: 'Événement non trouvé' },
+        { status: 404 }
+      )
+    }
+
+    if (event.hiddenFrom.length > 0 && session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Événement non trouvé' },
         { status: 404 }

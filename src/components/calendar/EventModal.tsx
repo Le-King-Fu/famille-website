@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Loader2, MapPin, ExternalLink, MessageSquare } from 'lucide-react'
+import { X, Loader2, MapPin, ExternalLink, MessageSquare, EyeOff } from 'lucide-react'
 import { EventCategory, UserRole } from '@prisma/client'
 import { RecurrenceRule } from '@/lib/recurrence'
 import { CalendarEvent, EventFormData, defaultEventFormData, categoryConfig } from './types'
@@ -11,16 +11,23 @@ import { EventImage } from './EventImage'
 import { format } from 'date-fns'
 import Link from 'next/link'
 
+interface FamilyMember {
+  id: string
+  firstName: string
+  lastName: string
+}
+
 interface EventModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (data: Partial<CalendarEvent> & { createForumTopic?: boolean }) => Promise<void>
+  onSave: (data: Partial<CalendarEvent> & { createForumTopic?: boolean; hiddenFromUserIds?: string[] }) => Promise<void>
   onDelete?: () => Promise<void>
   event?: CalendarEvent | null
   selectedDate?: Date | null
   isAdmin: boolean
   canEdit: boolean
   userRole?: UserRole
+  currentUserId?: string
 }
 
 export function EventModal({
@@ -33,11 +40,15 @@ export function EventModal({
   isAdmin,
   canEdit,
   userRole,
+  currentUserId,
 }: EventModalProps) {
   const [formData, setFormData] = useState<EventFormData>(defaultEventFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState('')
+  const [showSurprise, setShowSurprise] = useState(false)
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([])
+  const [loadingMembers, setLoadingMembers] = useState(false)
 
   const isEditing = !!event
 
@@ -47,6 +58,7 @@ export function EventModal({
       const startDate = new Date(event.startDate)
       const endDate = event.endDate ? new Date(event.endDate) : null
 
+      const hiddenIds = event.hiddenFrom?.map((h) => h.user.id) ?? []
       setFormData({
         title: event.title,
         description: event.description || '',
@@ -65,7 +77,9 @@ export function EventModal({
         recurrence: event.recurrence,
         location: event.location || '',
         createForumTopic: false,
+        hiddenFromUserIds: hiddenIds,
       })
+      setShowSurprise(hiddenIds.length > 0)
     } else if (selectedDate) {
       // New event with selected date
       setFormData({
@@ -73,11 +87,34 @@ export function EventModal({
         startDate: format(selectedDate, 'yyyy-MM-dd'),
         endDate: format(selectedDate, 'yyyy-MM-dd'),
       })
+      setShowSurprise(false)
     } else {
       setFormData(defaultEventFormData)
+      setShowSurprise(false)
     }
     setError('')
   }, [event, selectedDate, isOpen])
+
+  // Fetch family members when surprise toggle is activated
+  useEffect(() => {
+    if (showSurprise && familyMembers.length === 0) {
+      setLoadingMembers(true)
+      fetch('/api/contacts')
+        .then((res) => res.json())
+        .then((data) => {
+          const members = (data.contacts || [])
+            .filter((c: FamilyMember) => c.id !== currentUserId)
+            .map((c: FamilyMember & { firstName: string; lastName: string }) => ({
+              id: c.id,
+              firstName: c.firstName,
+              lastName: c.lastName,
+            }))
+          setFamilyMembers(members)
+        })
+        .catch(() => {})
+        .finally(() => setLoadingMembers(false))
+    }
+  }, [showSurprise, familyMembers.length, currentUserId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -101,7 +138,7 @@ export function EventModal({
         }
       }
 
-      const eventData: Partial<CalendarEvent> & { createForumTopic?: boolean } = {
+      const eventData: Partial<CalendarEvent> & { createForumTopic?: boolean; hiddenFromUserIds?: string[] } = {
         title: formData.title,
         description: formData.description || null,
         startDate,
@@ -122,6 +159,9 @@ export function EventModal({
       if (!isEditing && formData.createForumTopic) {
         eventData.createForumTopic = true
       }
+
+      // Include hiddenFromUserIds
+      eventData.hiddenFromUserIds = showSurprise ? formData.hiddenFromUserIds : []
 
       await onSave(eventData)
       onClose()
@@ -366,6 +406,68 @@ export function EventModal({
                   <MessageSquare className="h-4 w-4 inline mr-1" />
                   Créer une discussion dans le forum
                 </label>
+              </div>
+            )}
+
+            {/* Surprise event toggle - only for non-CHILD users */}
+            {userRole && userRole !== 'CHILD' && canEdit && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="surpriseEvent"
+                    checked={showSurprise}
+                    onChange={(e) => {
+                      setShowSurprise(e.target.checked)
+                      if (!e.target.checked) {
+                        setFormData((prev) => ({ ...prev, hiddenFromUserIds: [] }))
+                      }
+                    }}
+                    className="rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                  />
+                  <label htmlFor="surpriseEvent" className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    <EyeOff className="h-4 w-4" />
+                    Événement surprise
+                  </label>
+                </div>
+
+                {showSurprise && (
+                  <div className="ml-6 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg space-y-2">
+                    <p className="text-xs text-amber-700 dark:text-amber-400">
+                      Sélectionnez les personnes pour qui cet événement sera caché :
+                    </p>
+                    {loadingMembers ? (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Chargement...
+                      </div>
+                    ) : (
+                      <div className="space-y-1 max-h-40 overflow-y-auto">
+                        {familyMembers.map((member) => (
+                          <label
+                            key={member.id}
+                            className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/30 p-1 rounded"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.hiddenFromUserIds.includes(member.id)}
+                              onChange={(e) => {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  hiddenFromUserIds: e.target.checked
+                                    ? [...prev.hiddenFromUserIds, member.id]
+                                    : prev.hiddenFromUserIds.filter((id) => id !== member.id),
+                                }))
+                              }}
+                              className="rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                            />
+                            {member.firstName} {member.lastName}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 

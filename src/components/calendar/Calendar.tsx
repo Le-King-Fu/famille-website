@@ -22,7 +22,7 @@ import { EventCategory, UserRole } from '@prisma/client'
 import { CalendarEvent, categoryConfig } from './types'
 import { EventModal } from './EventModal'
 import { CategoryFilter } from './CategoryFilter'
-import { ChevronLeft, ChevronRight, Plus, Download } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Download, EyeOff } from 'lucide-react'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
@@ -55,8 +55,8 @@ const messages = {
 
 interface CalendarProps {
   events: CalendarEvent[]
-  onEventCreate: (event: Partial<CalendarEvent> & { createForumTopic?: boolean }) => Promise<void>
-  onEventUpdate: (id: string, event: Partial<CalendarEvent>) => Promise<void>
+  onEventCreate: (event: Partial<CalendarEvent> & { createForumTopic?: boolean; hiddenFromUserIds?: string[] }) => Promise<void>
+  onEventUpdate: (id: string, event: Partial<CalendarEvent> & { hiddenFromUserIds?: string[] }) => Promise<void>
   onEventDelete: (id: string) => Promise<void>
   onRangeChange: (start: Date, end: Date) => void
   isAdmin: boolean
@@ -181,10 +181,12 @@ export function Calendar({
   const EventComponent = useCallback(
     ({ event }: { event: CalendarEvent }) => {
       const config = categoryConfig[event.category]
+      const hasSurprise = (event.hiddenFrom?.length ?? 0) > 0
       return (
         <div className="flex items-center gap-1 px-1 overflow-hidden">
           <span className="flex-shrink-0">{config.icon}</span>
           <span className="truncate">{event.title}</span>
+          {hasSurprise && <EyeOff className="h-3 w-3 flex-shrink-0 opacity-70" />}
         </div>
       )
     },
@@ -327,6 +329,7 @@ export function Calendar({
         isAdmin={isAdmin}
         canEdit={canEditEvent}
         userRole={userRole}
+        currentUserId={currentUserId}
       />
 
       <style jsx global>{`

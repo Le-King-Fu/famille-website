@@ -14,6 +14,15 @@ export interface EventRsvp {
   }
 }
 
+export interface EventHiddenFromEntry {
+  id: string
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+  }
+}
+
 export interface CalendarEvent {
   id: string
   title: string
@@ -34,6 +43,7 @@ export interface CalendarEvent {
     lastName: string
   }
   rsvps?: EventRsvp[]
+  hiddenFrom?: EventHiddenFromEntry[]
   // Added by expansion
   originalDate?: Date
   isRecurring?: boolean
@@ -53,6 +63,7 @@ export interface EventFormData {
   recurrence: RecurrenceRule | null
   location: string
   createForumTopic: boolean
+  hiddenFromUserIds: string[]
 }
 
 export const categoryConfig: Record<
@@ -80,4 +91,5 @@ export const defaultEventFormData: EventFormData = {
   recurrence: null,
   location: '',
   createForumTopic: false,
+  hiddenFromUserIds: [],
 }

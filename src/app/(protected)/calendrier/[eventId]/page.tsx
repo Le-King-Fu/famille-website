@@ -16,6 +16,7 @@ import {
   MessageSquare,
   RefreshCw,
   User,
+  EyeOff,
 } from 'lucide-react'
 import { categoryConfig } from '@/components/calendar/types'
 import { describeRecurrence, RecurrenceRule } from '@/lib/recurrence'
@@ -61,6 +62,17 @@ export default async function EventDetailPage({ params }: PageProps) {
           },
         },
       },
+      hiddenFrom: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      },
     },
   })
 
@@ -71,6 +83,12 @@ export default async function EventDetailPage({ params }: PageProps) {
   const config = categoryConfig[event.category]
   const isAdmin = session.user.role === 'ADMIN'
   const isCreator = event.createdById === session.user.id
+
+  // If user is hidden from this event (and not admin), show 404
+  const isHiddenFromUser = event.hiddenFrom.some((h) => h.userId === session.user.id)
+  if (isHiddenFromUser && !isAdmin) {
+    notFound()
+  }
   const canEdit = isAdmin || isCreator
   const canRsvp = session.user.role !== 'CHILD'
 
@@ -153,6 +171,26 @@ export default async function EventDetailPage({ params }: PageProps) {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             {event.title}
           </h1>
+
+          {/* Surprise event indicator (creator/admin only) */}
+          {event.hiddenFrom.length > 0 && (isAdmin || isCreator) && (
+            <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+              <EyeOff className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                  Événement surprise
+                  {isHiddenFromUser && (
+                    <span className="ml-2 text-xs font-normal text-amber-600 dark:text-amber-400">
+                      (vous êtes dans la liste)
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+                  Caché de : {event.hiddenFrom.map((h) => `${h.user.firstName} ${h.user.lastName}`).join(', ')}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Meta info */}
           <div className="space-y-3">

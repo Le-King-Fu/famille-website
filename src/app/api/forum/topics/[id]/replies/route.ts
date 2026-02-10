@@ -44,12 +44,25 @@ export async function POST(
       where: { id: topicId },
       include: {
         category: { select: { id: true } },
+        event: {
+          select: {
+            hiddenFrom: { select: { userId: true } },
+          },
+        },
       },
     })
 
     if (!topic) {
       return NextResponse.json({ error: 'Sujet non trouvé' }, { status: 404 })
     }
+
+    // Check if topic is linked to an event hidden from this user
+    if (session.user.role !== 'ADMIN' && topic.event?.hiddenFrom.some((h) => h.userId === session.user.id)) {
+      return NextResponse.json({ error: 'Sujet non trouvé' }, { status: 404 })
+    }
+
+    // Collect hidden user IDs so we don't notify them
+    const hiddenUserIds = new Set(topic.event?.hiddenFrom.map((h) => h.userId) ?? [])
 
     // Validate quoted reply if provided
     let quotedReplyAuthorId: string | null = null
@@ -136,8 +149,8 @@ export async function POST(
       message: string
     }[] = []
 
-    // 1. Notify quoted reply author (if not self)
-    if (quotedReplyAuthorId && quotedReplyAuthorId !== session.user.id) {
+    // 1. Notify quoted reply author (if not self, and not hidden from event)
+    if (quotedReplyAuthorId && quotedReplyAuthorId !== session.user.id && !hiddenUserIds.has(quotedReplyAuthorId)) {
       notificationsToCreate.push({
         type: 'QUOTE',
         userId: quotedReplyAuthorId,
@@ -145,11 +158,11 @@ export async function POST(
       })
     }
 
-    // 2. Notify mentioned users
+    // 2. Notify mentioned users (skip hidden users)
     const mentionedUsers = await parseMentions(body.content.trim())
     for (const user of mentionedUsers) {
-      // Don't notify self or already notified users
-      if (user.id !== session.user.id && user.id !== quotedReplyAuthorId) {
+      // Don't notify self, already notified users, or hidden users
+      if (user.id !== session.user.id && user.id !== quotedReplyAuthorId && !hiddenUserIds.has(user.id)) {
         notificationsToCreate.push({
           type: 'MENTION',
           userId: user.id,
