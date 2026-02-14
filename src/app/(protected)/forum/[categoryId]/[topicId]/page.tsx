@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { ArrowLeft, Pin, Trash2, Pencil, Loader2 } from 'lucide-react'
+import { ArrowLeft, Pin, Trash2, Pencil, Loader2, ArrowUpDown } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import {
   ReplyCard,
@@ -35,6 +35,7 @@ export default function TopicPage() {
   const [editContent, setEditContent] = useState('')
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false)
   const [editError, setEditError] = useState('')
+  const [sortMode, setSortMode] = useState<'recent' | 'oldest' | 'reactions'>('recent')
   const editTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   const isAdmin = session?.user?.role === 'ADMIN'
@@ -288,6 +289,29 @@ export default function TopicPage() {
     }
   }
 
+  const sortedReplies = useMemo(() => {
+    if (!topic?.replies) return []
+    const replies = [...topic.replies]
+    switch (sortMode) {
+      case 'recent':
+        return replies.sort((a, b) => {
+          const dateA = new Date(a.editedAt ?? a.createdAt).getTime()
+          const dateB = new Date(b.editedAt ?? b.createdAt).getTime()
+          return dateB - dateA
+        })
+      case 'oldest':
+        return replies.sort((a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+      case 'reactions':
+        return replies.sort((a, b) => {
+          const diff = (b.reactions?.length || 0) - (a.reactions?.length || 0)
+          if (diff !== 0) return diff
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        })
+    }
+  }, [topic?.replies, sortMode])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -470,13 +494,43 @@ export default function TopicPage() {
         )}
       </div>
 
+      {/* Reply form */}
+      <ReplyForm
+        topicId={topicId}
+        quotedReply={quotedReply}
+        onClearQuote={() => setQuotedReply(null)}
+        onSuccess={handleNewReply}
+      />
+
       {/* Replies */}
-      {topic.replies && topic.replies.length > 0 && (
+      {sortedReplies.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">
-            {topic.replies.length} réponse{topic.replies.length > 1 ? 's' : ''}
-          </h2>
-          {topic.replies.map((reply) => (
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">
+              {sortedReplies.length} réponse{sortedReplies.length > 1 ? 's' : ''}
+            </h2>
+            <div className="flex items-center gap-1">
+              <ArrowUpDown className="h-3.5 w-3.5 text-gray-400 mr-1" />
+              {([
+                ['recent', 'Récentes'],
+                ['oldest', 'Anciennes'],
+                ['reactions', 'Réactions'],
+              ] as const).map(([mode, label]) => (
+                <button
+                  key={mode}
+                  onClick={() => setSortMode(mode)}
+                  className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+                    sortMode === mode
+                      ? 'bg-bleu text-white'
+                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {sortedReplies.map((reply) => (
             <ReplyCard
               key={reply.id}
               reply={reply}
@@ -491,14 +545,6 @@ export default function TopicPage() {
           ))}
         </div>
       )}
-
-      {/* Reply form */}
-      <ReplyForm
-        topicId={topicId}
-        quotedReply={quotedReply}
-        onClearQuote={() => setQuotedReply(null)}
-        onSuccess={handleNewReply}
-      />
     </div>
   )
 }

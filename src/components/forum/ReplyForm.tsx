@@ -153,7 +153,7 @@ export function ReplyForm({
                 Envoi...
               </>
             ) : (
-              'Répondre'
+              'Envoyer'
             )}
           </button>
         </div>
