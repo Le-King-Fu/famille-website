@@ -1,8 +1,6 @@
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
-import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -20,6 +18,7 @@ import {
 } from 'lucide-react'
 import { categoryConfig } from '@/components/calendar/types'
 import { describeRecurrence, RecurrenceRule } from '@/lib/recurrence'
+import { FormattedEventDate } from '@/components/calendar/FormattedEventDate'
 import { EventDetailClient } from './EventDetailClient'
 
 interface PageProps {
@@ -91,29 +90,6 @@ export default async function EventDetailPage({ params }: PageProps) {
   }
   const canEdit = isAdmin || isCreator
   const canRsvp = session.user.role !== 'CHILD'
-
-  // Format dates
-  const startDate = new Date(event.startDate)
-  const endDate = event.endDate ? new Date(event.endDate) : null
-
-  const formatEventDate = () => {
-    if (event.allDay) {
-      if (endDate && endDate.toDateString() !== startDate.toDateString()) {
-        return `${format(startDate, 'EEEE d MMMM yyyy', { locale: fr })} - ${format(endDate, 'EEEE d MMMM yyyy', { locale: fr })}`
-      }
-      return format(startDate, 'EEEE d MMMM yyyy', { locale: fr })
-    }
-
-    if (endDate && endDate.toDateString() !== startDate.toDateString()) {
-      return `${format(startDate, 'EEEE d MMMM yyyy à HH:mm', { locale: fr })} - ${format(endDate, 'EEEE d MMMM yyyy à HH:mm', { locale: fr })}`
-    }
-
-    if (endDate) {
-      return `${format(startDate, 'EEEE d MMMM yyyy', { locale: fr })} de ${format(startDate, 'HH:mm')} à ${format(endDate, 'HH:mm')}`
-    }
-
-    return format(startDate, 'EEEE d MMMM yyyy à HH:mm', { locale: fr })
-  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -199,7 +175,11 @@ export default async function EventDetailPage({ params }: PageProps) {
               <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
               <div>
                 <p className="text-gray-900 dark:text-white capitalize">
-                  {formatEventDate()}
+                  <FormattedEventDate
+                    startDate={event.startDate.toISOString()}
+                    endDate={event.endDate?.toISOString() ?? null}
+                    allDay={event.allDay}
+                  />
                 </p>
                 {event.allDay && (
                   <p className="text-sm text-gray-500 dark:text-gray-400">
