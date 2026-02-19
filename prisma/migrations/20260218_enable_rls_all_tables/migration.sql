@@ -30,61 +30,61 @@ ALTER TABLE "_prisma_migrations" ENABLE ROW LEVEL SECURITY;
 -- The postgres role (used by Prisma via DATABASE_URL) bypasses RLS as table owner
 
 CREATE POLICY "service_role_all" ON "User"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "SecurityQuestion"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "SecurityAttempt"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "InvitationCode"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "Event"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "EventRsvp"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "EventHiddenFrom"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "Album"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "Photo"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "PersonTag"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "PhotoComment"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "ForumCategory"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "Topic"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "TopicRead"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "Reply"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "ReplyHistory"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "GameScore"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "Notification"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "Reaction"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
 
 CREATE POLICY "service_role_all" ON "_prisma_migrations"
-  FOR ALL USING (current_setting('role') = 'service_role');
+  FOR ALL USING ((select current_setting('role')) = 'service_role');
