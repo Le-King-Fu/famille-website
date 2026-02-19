@@ -68,13 +68,14 @@ export async function POST(request: NextRequest) {
     const hasMinLength = password.length >= 8
     const hasUppercase = /[A-Z]/.test(password)
     const hasNumber = /[0-9]/.test(password)
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>\-_=+\[\]\\\/~`';]/.test(password)
 
-    if (!hasMinLength || !hasUppercase || !hasNumber) {
+    if (!hasMinLength || !hasUppercase || !hasNumber || !hasSpecial) {
       await recordFailedAttempt(ipAddress, 'register', MAX_REGISTER_ATTEMPTS, BLOCK_MINUTES)
       return NextResponse.json(
         {
           error:
-            'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre',
+            'Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial',
         },
         { status: 400 }
       )

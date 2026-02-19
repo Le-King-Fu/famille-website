@@ -47,12 +47,13 @@ export async function PUT(request: NextRequest) {
     const hasMinLength = newPassword.length >= 8
     const hasUppercase = /[A-Z]/.test(newPassword)
     const hasNumber = /[0-9]/.test(newPassword)
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>\-_=+\[\]\\\/~`';]/.test(newPassword)
 
-    if (!hasMinLength || !hasUppercase || !hasNumber) {
+    if (!hasMinLength || !hasUppercase || !hasNumber || !hasSpecial) {
       return NextResponse.json(
         {
           error:
-            'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre',
+            'Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial',
         },
         { status: 400 }
       )

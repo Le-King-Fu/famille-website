@@ -19,8 +19,9 @@ export default function ChangerMotDePassePage() {
   const hasMinLength = newPassword.length >= 8
   const hasUppercase = /[A-Z]/.test(newPassword)
   const hasNumber = /[0-9]/.test(newPassword)
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>\-_=+\[\]\\\/~`';]/.test(newPassword)
   const passwordsMatch = newPassword === confirmPassword && confirmPassword.length > 0
-  const isValid = hasMinLength && hasUppercase && hasNumber && passwordsMatch && currentPassword.length > 0
+  const isValid = hasMinLength && hasUppercase && hasNumber && hasSpecial && passwordsMatch && currentPassword.length > 0
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -129,6 +130,9 @@ export default function ChangerMotDePassePage() {
                 </li>
                 <li className={hasNumber ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}>
                   {hasNumber ? '✓' : '○'} Au moins un chiffre
+                </li>
+                <li className={hasSpecial ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}>
+                  {hasSpecial ? '✓' : '○'} Au moins un caractère spécial (!@#$...)
                 </li>
               </ul>
             )}

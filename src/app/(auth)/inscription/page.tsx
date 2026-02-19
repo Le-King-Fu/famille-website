@@ -26,7 +26,8 @@ export default function InscriptionPage() {
     const hasMinLength = password.length >= 8
     const hasUppercase = /[A-Z]/.test(password)
     const hasNumber = /[0-9]/.test(password)
-    return hasMinLength && hasUppercase && hasNumber
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>\-_=+\[\]\\\/~`';]/.test(password)
+    return hasMinLength && hasUppercase && hasNumber && hasSpecial
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +43,7 @@ export default function InscriptionPage() {
 
     if (!validatePassword(formData.password)) {
       setError(
-        'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre'
+        'Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial'
       )
       setLoading(false)
       return
@@ -79,6 +80,7 @@ export default function InscriptionPage() {
     length: formData.password.length >= 8,
     uppercase: /[A-Z]/.test(formData.password),
     number: /[0-9]/.test(formData.password),
+    special: /[!@#$%^&*(),.?":{}|<>\-_=+\[\]\\\/~`';]/.test(formData.password),
   }
 
   return (
@@ -200,6 +202,10 @@ export default function InscriptionPage() {
                 <PasswordCheck
                   valid={passwordStrength.number}
                   text="Un chiffre"
+                />
+                <PasswordCheck
+                  valid={passwordStrength.special}
+                  text="Un caractère spécial (!@#$...)"
                 />
               </div>
             )}

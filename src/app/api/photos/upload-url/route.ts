@@ -35,7 +35,11 @@ export async function POST(request: NextRequest) {
     // Generate unique filename
     const timestamp = Date.now()
     const randomStr = Math.random().toString(36).substring(2, 8)
-    const ext = filename.split('.').pop()?.toLowerCase() || 'bin'
+    const ALLOWED_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'mp4', 'mov', 'webm']
+    const ext = filename.split('.').pop()?.toLowerCase() || ''
+    if (!ALLOWED_EXTS.includes(ext)) {
+      return NextResponse.json({ error: 'Type de fichier non autorisé' }, { status: 400 })
+    }
     const storagePath = `${albumId}/${timestamp}-${randomStr}.${ext}`
 
     // Create signed upload URL (valid for 5 minutes)
