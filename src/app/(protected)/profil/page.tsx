@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { User, Mail, Calendar, Trophy, Pencil, X, Loader2, AlertTriangle, Check, Phone, MapPin, Plus } from 'lucide-react'
 import { PrivacyConsentModal } from '@/components/contact/PrivacyConsentModal'
+import { NotificationPreferences } from '@/components/notifications/NotificationPreferences'
 
 type PhoneType = 'cell' | 'home' | 'work' | 'other'
 
@@ -681,6 +682,8 @@ export default function ProfilPage() {
           </div>
         )}
       </div>
+
+      <NotificationPreferences />
 
       <div className="card">
         <h3 className="font-semibold mb-4 flex items-center gap-2">

@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { expandEvents, RecurrenceRule } from '@/lib/recurrence'
 import { EventCategory, Prisma } from '@prisma/client'
 import { eventVisibilityFilter } from '@/lib/event-visibility'
+import { sendPushNotifications } from '@/lib/push'
 
 // GET /api/events - List events in date range
 export async function GET(request: NextRequest) {
@@ -314,6 +315,37 @@ export async function POST(request: NextRequest) {
         },
       },
     })
+
+    // Notify all active users about new event (except creator and hidden users)
+    const allUsers = await db.user.findMany({
+      where: { isActive: true },
+      select: { id: true },
+    })
+
+    const eventNotifyUserIds = allUsers
+      .map((u) => u.id)
+      .filter((id) => id !== session.user.id)
+      .filter((id) => !hiddenFromUserIds.includes(id))
+
+    if (eventNotifyUserIds.length > 0) {
+      await db.notification.createMany({
+        data: eventNotifyUserIds.map((userId) => ({
+          type: 'NEW_EVENT' as const,
+          userId,
+          message: `${event.createdBy.firstName} a créé un événement : "${event.title}"`,
+          link: '/calendrier',
+          createdById: session.user.id,
+        })),
+      })
+
+      // Send push notifications (fire-and-forget)
+      sendPushNotifications(eventNotifyUserIds, 'NEW_EVENT', {
+        title: 'Nouvel événement',
+        body: `${event.createdBy.firstName} a créé "${event.title}"`,
+        url: '/calendrier',
+        tag: `event-${event.id}`,
+      })
+    }
 
     return NextResponse.json({ event }, { status: 201 })
   } catch (error) {

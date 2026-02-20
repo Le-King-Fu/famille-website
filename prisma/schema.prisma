@@ -55,6 +55,8 @@ model User {
   notificationsReceived Notification[] @relation("NotificationRecipient")
   notificationsCreated  Notification[] @relation("NotificationCreator")
   hiddenEvents          EventHiddenFrom[] @relation("HiddenEvents")
+  pushSubscriptions     PushSubscription[]
+  notificationPreferences NotificationPreference[]
 }
 
 model SecurityQuestion {
@@ -326,6 +328,7 @@ enum NotificationType {
   MENTION        // Someone mentioned you with @Name
   QUOTE          // Someone quoted your reply
   TOPIC_REPLY    // Someone replied to your topic
+  NEW_EVENT      // A new calendar event was created
 }
 
 model Notification {
@@ -347,6 +350,36 @@ model Notification {
   reply       Reply?           @relation(fields: [replyId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
+}
+
+// ==================== PUSH NOTIFICATIONS ====================
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model NotificationPreference {
+  id          String           @id @default(cuid())
+  type        NotificationType
+  pushEnabled Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Relations
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
 }
 
 // ==================== REACTIONS ====================

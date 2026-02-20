@@ -8,7 +8,7 @@ import { fr } from 'date-fns/locale'
 
 interface Notification {
   id: string
-  type: 'MENTION' | 'QUOTE' | 'TOPIC_REPLY'
+  type: 'MENTION' | 'QUOTE' | 'TOPIC_REPLY' | 'NEW_EVENT'
   message: string
   link: string
   isRead: boolean
@@ -107,6 +107,8 @@ export function NotificationDropdown() {
         return '"'
       case 'TOPIC_REPLY':
         return '>'
+      case 'NEW_EVENT':
+        return '\u{1F4C5}'
       default:
         return '!'
     }

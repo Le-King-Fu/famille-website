@@ -4,6 +4,7 @@ import Script from 'next/script'
 import './globals.css'
 import { SessionProvider } from '@/components/providers/SessionProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
+import { ServiceWorkerRegistration } from '@/components/providers/ServiceWorkerRegistration'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,7 +22,10 @@ export default function RootLayout({
     <html lang="fr" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider>
-          <SessionProvider>{children}</SessionProvider>
+          <SessionProvider>
+            <ServiceWorkerRegistration />
+            {children}
+          </SessionProvider>
         </ThemeProvider>
         {process.env.NEXT_PUBLIC_UMAMI_URL && process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
           <Script

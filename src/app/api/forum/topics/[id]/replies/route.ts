@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { parseMentions } from '@/lib/mentions'
+import { sendPushNotifications } from '@/lib/push'
 
 // POST /api/forum/topics/[id]/replies - Add a reply to a topic
 export async function POST(
@@ -184,6 +185,31 @@ export async function POST(
           replyId: reply.id,
         })),
       })
+
+      // Send push notifications (fire-and-forget)
+      const quoteUserIds = notificationsToCreate
+        .filter((n) => n.type === 'QUOTE')
+        .map((n) => n.userId)
+      const mentionUserIds = notificationsToCreate
+        .filter((n) => n.type === 'MENTION')
+        .map((n) => n.userId)
+
+      if (quoteUserIds.length > 0) {
+        sendPushNotifications(quoteUserIds, 'QUOTE', {
+          title: 'Citation',
+          body: `${reply.author.firstName} a cité votre réponse`,
+          url: topicLink,
+          tag: `quote-${reply.id}`,
+        })
+      }
+      if (mentionUserIds.length > 0) {
+        sendPushNotifications(mentionUserIds, 'MENTION', {
+          title: 'Mention',
+          body: `${reply.author.firstName} vous a mentionné`,
+          url: topicLink,
+          tag: `mention-${reply.id}`,
+        })
+      }
     }
 
     return NextResponse.json({ reply }, { status: 201 })

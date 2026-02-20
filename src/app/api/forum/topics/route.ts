@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { parseMentions } from '@/lib/mentions'
+import { sendPushNotifications } from '@/lib/push'
 
 // POST /api/forum/topics - Create a new topic
 export async function POST(request: NextRequest) {
@@ -101,17 +102,27 @@ export async function POST(request: NextRequest) {
     const mentionedUsers = await parseMentions(body.content.trim())
 
     if (mentionedUsers.length > 0) {
+      const mentionUserIds = mentionedUsers
+        .filter((user) => user.id !== session.user.id)
+        .map((user) => user.id)
+
       await db.notification.createMany({
-        data: mentionedUsers
-          .filter((user) => user.id !== session.user.id) // Don't notify self
-          .map((user) => ({
-            type: 'MENTION' as const,
-            userId: user.id,
-            message: `${topic.author.firstName} vous a mentionné dans "${topic.title}"`,
-            link: topicLink,
-            createdById: session.user.id,
-            topicId: topic.id,
-          })),
+        data: mentionUserIds.map((userId) => ({
+          type: 'MENTION' as const,
+          userId,
+          message: `${topic.author.firstName} vous a mentionné dans "${topic.title}"`,
+          link: topicLink,
+          createdById: session.user.id,
+          topicId: topic.id,
+        })),
+      })
+
+      // Send push notifications (fire-and-forget)
+      sendPushNotifications(mentionUserIds, 'MENTION', {
+        title: 'Mention',
+        body: `${topic.author.firstName} vous a mentionné dans "${topic.title}"`,
+        url: topicLink,
+        tag: `mention-${topic.id}`,
       })
     }
 
