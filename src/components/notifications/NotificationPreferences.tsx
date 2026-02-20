@@ -104,19 +104,32 @@ export function NotificationPreferences() {
       if (response.ok) {
         setSubscribed(true)
 
-        // Enable all notification types by default on first activation
-        const allEnabled = Object.keys(TYPE_LABELS).map((type) => ({
-          type,
-          pushEnabled: true,
-        }))
+        // Fetch existing preferences from server
+        const prefResponse = await fetch('/api/push/preferences')
+        if (prefResponse.ok) {
+          const prefData = await prefResponse.json()
+          const existingPrefs: Preference[] = prefData.preferences
+          const hasAnyEnabled = existingPrefs.some((p) => p.pushEnabled)
 
-        await fetch('/api/push/preferences', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ preferences: allEnabled }),
-        })
+          if (!hasAnyEnabled) {
+            // First time: enable all types by default
+            const allEnabled = Object.keys(TYPE_LABELS).map((type) => ({
+              type,
+              pushEnabled: true,
+            }))
 
-        setPreferences(allEnabled)
+            await fetch('/api/push/preferences', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ preferences: allEnabled }),
+            })
+
+            setPreferences(allEnabled)
+          } else {
+            // Re-activation: keep existing preferences
+            setPreferences(existingPrefs)
+          }
+        }
       }
     } catch (error) {
       console.error('Error subscribing to push:', error)
@@ -151,6 +164,7 @@ export function NotificationPreferences() {
   }
 
   const handleToggleType = async (type: string, enabled: boolean) => {
+    const previous = [...preferences]
     const updated = preferences.map((p) =>
       p.type === type ? { ...p, pushEnabled: enabled } : p
     )
@@ -167,7 +181,7 @@ export function NotificationPreferences() {
     } catch (error) {
       console.error('Error updating preference:', error)
       // Revert on error
-      setPreferences(preferences)
+      setPreferences(previous)
     }
   }
 
