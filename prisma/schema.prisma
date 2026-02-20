@@ -369,11 +369,12 @@ model PushSubscription {
 }
 
 model NotificationPreference {
-  id          String           @id @default(cuid())
-  type        NotificationType
-  pushEnabled Boolean          @default(true)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id           String           @id @default(cuid())
+  type         NotificationType
+  pushEnabled  Boolean          @default(true)
+  emailEnabled Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 
   // Relations
   userId      String

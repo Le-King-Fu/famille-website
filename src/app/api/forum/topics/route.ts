@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { parseMentions } from '@/lib/mentions'
 import { sendPushNotifications } from '@/lib/push'
+import { sendEmailNotifications } from '@/lib/email'
 
 // POST /api/forum/topics - Create a new topic
 export async function POST(request: NextRequest) {
@@ -123,6 +124,13 @@ export async function POST(request: NextRequest) {
         body: `${topic.author.firstName} vous a mentionné dans "${topic.title}"`,
         url: topicLink,
         tag: `mention-${topic.id}`,
+      })
+
+      // Send email notifications (fire-and-forget)
+      sendEmailNotifications(mentionUserIds, 'MENTION', {
+        subject: 'Vous avez été mentionné',
+        body: `${topic.author.firstName} vous a mentionné dans « ${topic.title} »`,
+        url: topicLink,
       })
     }
 

@@ -5,6 +5,7 @@ import { expandEvents, RecurrenceRule } from '@/lib/recurrence'
 import { EventCategory, Prisma } from '@prisma/client'
 import { eventVisibilityFilter } from '@/lib/event-visibility'
 import { sendPushNotifications } from '@/lib/push'
+import { sendEmailNotifications } from '@/lib/email'
 
 // GET /api/events - List events in date range
 export async function GET(request: NextRequest) {
@@ -344,6 +345,13 @@ export async function POST(request: NextRequest) {
         body: `${event.createdBy.firstName} a créé "${event.title}"`,
         url: '/calendrier',
         tag: `event-${event.id}`,
+      })
+
+      // Send email notifications (fire-and-forget)
+      sendEmailNotifications(eventNotifyUserIds, 'NEW_EVENT', {
+        subject: 'Nouvel événement',
+        body: `${event.createdBy.firstName} a créé un événement : « ${event.title} »`,
+        url: '/calendrier',
       })
     }
 

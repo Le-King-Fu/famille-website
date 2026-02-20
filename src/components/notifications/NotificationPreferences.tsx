@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Bell, BellOff, Loader2 } from 'lucide-react'
+import { Bell, BellOff, Mail, Loader2 } from 'lucide-react'
 
 interface Preference {
   type: string
   pushEnabled: boolean
+  emailEnabled: boolean
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -26,6 +27,39 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray
 }
 
+function Toggle({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean
+  onChange: (value: boolean) => void
+  disabled?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+        disabled
+          ? 'bg-gray-200 dark:bg-gray-700 cursor-not-allowed'
+          : checked
+            ? 'bg-bleu'
+            : 'bg-gray-300 dark:bg-gray-600'
+      }`}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+          checked ? 'translate-x-6' : 'translate-x-1'
+        }`}
+      />
+    </button>
+  )
+}
+
 export function NotificationPreferences() {
   const [supported, setSupported] = useState(true)
   const [permission, setPermission] = useState<NotificationPermission>('default')
@@ -38,24 +72,21 @@ export function NotificationPreferences() {
     try {
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
         setSupported(false)
-        setLoading(false)
-        return
+      } else {
+        setPermission(Notification.permission)
+        const registration = await navigator.serviceWorker.ready
+        const subscription = await registration.pushManager.getSubscription()
+        setSubscribed(!!subscription)
       }
 
-      setPermission(Notification.permission)
-
-      const registration = await navigator.serviceWorker.ready
-      const subscription = await registration.pushManager.getSubscription()
-      setSubscribed(!!subscription)
-
-      // Fetch preferences from server
+      // Always fetch preferences (needed for email toggles too)
       const response = await fetch('/api/push/preferences')
       if (response.ok) {
         const data = await response.json()
         setPreferences(data.preferences)
       }
     } catch (error) {
-      console.error('Error checking push subscription:', error)
+      console.error('Error checking subscription:', error)
     } finally {
       setLoading(false)
     }
@@ -91,7 +122,6 @@ export function NotificationPreferences() {
 
       const subJson = subscription.toJSON()
 
-      // Save subscription to server
       const response = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,16 +134,14 @@ export function NotificationPreferences() {
       if (response.ok) {
         setSubscribed(true)
 
-        // Fetch existing preferences from server
         const prefResponse = await fetch('/api/push/preferences')
         if (prefResponse.ok) {
           const prefData = await prefResponse.json()
           const existingPrefs: Preference[] = prefData.preferences
-          const hasAnyEnabled = existingPrefs.some((p) => p.pushEnabled)
+          const hasAnyPushEnabled = existingPrefs.some((p) => p.pushEnabled)
 
-          if (!hasAnyEnabled) {
-            // First time: enable all types by default
-            const allEnabled = Object.keys(TYPE_LABELS).map((type) => ({
+          if (!hasAnyPushEnabled) {
+            const allPushEnabled = Object.keys(TYPE_LABELS).map((type) => ({
               type,
               pushEnabled: true,
             }))
@@ -121,12 +149,13 @@ export function NotificationPreferences() {
             await fetch('/api/push/preferences', {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ preferences: allEnabled }),
+              body: JSON.stringify({ preferences: allPushEnabled }),
             })
 
-            setPreferences(allEnabled)
+            setPreferences(
+              existingPrefs.map((p) => ({ ...p, pushEnabled: true }))
+            )
           } else {
-            // Re-activation: keep existing preferences
             setPreferences(existingPrefs)
           }
         }
@@ -145,7 +174,6 @@ export function NotificationPreferences() {
       const subscription = await registration.pushManager.getSubscription()
 
       if (subscription) {
-        // Remove from server
         await fetch('/api/push/subscribe', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
@@ -163,10 +191,14 @@ export function NotificationPreferences() {
     }
   }
 
-  const handleToggleType = async (type: string, enabled: boolean) => {
+  const handleToggle = async (
+    type: string,
+    field: 'pushEnabled' | 'emailEnabled',
+    value: boolean
+  ) => {
     const previous = [...preferences]
     const updated = preferences.map((p) =>
-      p.type === type ? { ...p, pushEnabled: enabled } : p
+      p.type === type ? { ...p, [field]: value } : p
     )
     setPreferences(updated)
 
@@ -175,28 +207,13 @@ export function NotificationPreferences() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          preferences: [{ type, pushEnabled: enabled }],
+          preferences: [{ type, [field]: value }],
         }),
       })
     } catch (error) {
       console.error('Error updating preference:', error)
-      // Revert on error
       setPreferences(previous)
     }
-  }
-
-  if (!supported) {
-    return (
-      <div className="card">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <BellOff className="h-5 w-5 text-gray-400" />
-          Notifications push
-        </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Les notifications push ne sont pas supportées par votre navigateur.
-        </p>
-      </div>
-    )
   }
 
   if (loading) {
@@ -204,7 +221,7 @@ export function NotificationPreferences() {
       <div className="card">
         <h3 className="font-semibold mb-4 flex items-center gap-2">
           <Bell className="h-5 w-5 text-bleu" />
-          Notifications push
+          Notifications
         </h3>
         <div className="flex items-center gap-2 text-gray-500">
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -214,27 +231,35 @@ export function NotificationPreferences() {
     )
   }
 
+  const pushBlocked = permission === 'denied'
+  const pushAvailable = supported && !pushBlocked
+
   return (
     <div className="card">
       <h3 className="font-semibold mb-4 flex items-center gap-2">
         <Bell className="h-5 w-5 text-bleu" />
-        Notifications push
+        Notifications
       </h3>
 
-      {permission === 'denied' ? (
-        <p className="text-sm text-red-500">
-          Les notifications sont bloquées par votre navigateur. Veuillez les
-          autoriser dans les paramètres de votre navigateur pour ce site.
-        </p>
-      ) : !subscribed ? (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Recevez des notifications même quand le site n&apos;est pas ouvert.
+      {/* Push subscription section */}
+      <div className="mb-4">
+        <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-1.5">
+          <Bell className="h-4 w-4" />
+          Notifications push
+        </h4>
+        {!supported ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Non supportées par votre navigateur.
           </p>
+        ) : pushBlocked ? (
+          <p className="text-sm text-red-500">
+            Bloquées par votre navigateur. Autorisez-les dans les paramètres de votre navigateur pour ce site.
+          </p>
+        ) : !subscribed ? (
           <button
             onClick={handleSubscribe}
             disabled={toggling}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 text-sm"
           >
             {toggling ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -243,43 +268,7 @@ export function NotificationPreferences() {
             )}
             Activer les notifications push
           </button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            {preferences
-              .filter((p) => TYPE_LABELS[p.type])
-              .map((pref) => (
-                <label
-                  key={pref.type}
-                  className="flex items-center justify-between cursor-pointer"
-                >
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {TYPE_LABELS[pref.type]}
-                  </span>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={pref.pushEnabled}
-                    onClick={() =>
-                      handleToggleType(pref.type, !pref.pushEnabled)
-                    }
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      pref.pushEnabled
-                        ? 'bg-bleu'
-                        : 'bg-gray-300 dark:bg-gray-600'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        pref.pushEnabled ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </label>
-              ))}
-          </div>
-
+        ) : (
           <button
             onClick={handleUnsubscribe}
             disabled={toggling}
@@ -292,8 +281,60 @@ export function NotificationPreferences() {
             )}
             Désactiver les notifications push
           </button>
+        )}
+      </div>
+
+      {/* Preferences table */}
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+        <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">
+          Préférences par type
+        </h4>
+
+        {/* Header */}
+        <div className="flex items-center justify-end gap-4 mb-2 pr-1">
+          {pushAvailable && subscribed && (
+            <span className="text-xs text-gray-500 dark:text-gray-400 w-11 text-center">
+              Push
+            </span>
+          )}
+          <span className="text-xs text-gray-500 dark:text-gray-400 w-11 text-center flex items-center justify-center gap-1">
+            <Mail className="h-3 w-3" />
+            Email
+          </span>
         </div>
-      )}
+
+        {/* Type rows */}
+        <div className="space-y-3">
+          {preferences
+            .filter((p) => TYPE_LABELS[p.type])
+            .map((pref) => (
+              <div
+                key={pref.type}
+                className="flex items-center justify-between"
+              >
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  {TYPE_LABELS[pref.type]}
+                </span>
+                <div className="flex items-center gap-4">
+                  {pushAvailable && subscribed && (
+                    <Toggle
+                      checked={pref.pushEnabled}
+                      onChange={(val) =>
+                        handleToggle(pref.type, 'pushEnabled', val)
+                      }
+                    />
+                  )}
+                  <Toggle
+                    checked={pref.emailEnabled}
+                    onChange={(val) =>
+                      handleToggle(pref.type, 'emailEnabled', val)
+                    }
+                  />
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
     </div>
   )
 }
