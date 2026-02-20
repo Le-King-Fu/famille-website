@@ -3,7 +3,6 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { parseMentions } from '@/lib/mentions'
 import { sendPushNotifications } from '@/lib/push'
-import { sendEmailNotifications } from '@/lib/email'
 
 // POST /api/forum/topics/[id]/replies - Add a reply to a topic
 export async function POST(
@@ -203,11 +202,6 @@ export async function POST(
           tag: `quote-${reply.id}`,
         })
 
-        sendEmailNotifications(quoteUserIds, 'QUOTE', {
-          subject: 'Votre réponse a été citée',
-          body: `${reply.author.firstName} a cité votre réponse dans le forum`,
-          url: topicLink,
-        })
       }
       if (mentionUserIds.length > 0) {
         sendPushNotifications(mentionUserIds, 'MENTION', {
@@ -215,12 +209,6 @@ export async function POST(
           body: `${reply.author.firstName} vous a mentionné`,
           url: topicLink,
           tag: `mention-${reply.id}`,
-        })
-
-        sendEmailNotifications(mentionUserIds, 'MENTION', {
-          subject: 'Vous avez été mentionné',
-          body: `${reply.author.firstName} vous a mentionné dans le forum`,
-          url: topicLink,
         })
       }
     }

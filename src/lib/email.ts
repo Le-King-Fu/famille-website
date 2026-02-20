@@ -1,6 +1,4 @@
 import { Resend } from 'resend'
-import { db } from './db'
-import { NotificationType } from '@prisma/client'
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -9,75 +7,90 @@ const resend = process.env.RESEND_API_KEY
 const fromEmail =
   process.env.RESEND_FROM_EMAIL || 'notifications@lacompagniemaximus.com'
 
-interface EmailPayload {
-  subject: string
-  body: string
-  url: string
+interface DigestNotification {
+  type: string
+  message: string
+  link: string
+  createdAt: Date
+}
+
+const TYPE_SECTIONS: Record<string, { emoji: string; label: string }> = {
+  NEW_EVENT: { emoji: '📅', label: 'Nouveaux événements' },
+  MENTION: { emoji: '💬', label: 'Mentions' },
+  QUOTE: { emoji: '💬', label: 'Citations' },
+  TOPIC_REPLY: { emoji: '💬', label: 'Réponses à vos sujets' },
+}
+
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString('fr-CA', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'America/Toronto',
+  })
 }
 
 /**
- * Send email notifications to users, respecting their preferences.
- * Called fire-and-forget (don't await in API routes).
+ * Send a daily digest email to a user with their recent notifications.
  */
-export async function sendEmailNotifications(
-  userIds: string[],
-  type: NotificationType,
-  payload: EmailPayload
+export async function sendDigestEmail(
+  user: { email: string; firstName: string },
+  notifications: DigestNotification[]
 ): Promise<void> {
-  if (userIds.length === 0 || !resend) return
+  if (!resend || notifications.length === 0) return
+
+  const siteUrl = process.env.NEXTAUTH_URL || 'https://lacompagniemaximus.com'
+
+  // Group notifications by type
+  const grouped = new Map<string, DigestNotification[]>()
+  for (const n of notifications) {
+    const list = grouped.get(n.type) || []
+    list.push(n)
+    grouped.set(n.type, list)
+  }
+
+  // Build HTML sections
+  const sections = Array.from(grouped.entries())
+    .map(([type, items]) => {
+      const section = TYPE_SECTIONS[type] || { emoji: '🔔', label: type }
+      const itemsHtml = items
+        .map(
+          (n) =>
+            `<li style="margin-bottom: 8px;">
+              <a href="${siteUrl}${n.link}" style="color: #2563eb; text-decoration: none;">${n.message}</a>
+              <span style="color: #9ca3af; font-size: 12px;"> — ${formatTime(n.createdAt)}</span>
+            </li>`
+        )
+        .join('')
+
+      return `
+        <h3 style="color: #1a1a1a; font-size: 16px; margin: 20px 0 8px 0;">${section.emoji} ${section.label}</h3>
+        <ul style="list-style: none; padding: 0; margin: 0;">${itemsHtml}</ul>
+      `
+    })
+    .join('')
+
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #1a1a1a; margin-bottom: 4px;">La Compagnie Maximus</h2>
+      <p style="color: #6b7280; font-size: 14px; margin-top: 0;">Résumé quotidien</p>
+      <p style="color: #333; font-size: 16px; line-height: 1.5;">Bonjour ${user.firstName},</p>
+      <p style="color: #333; font-size: 15px; line-height: 1.5;">Voici votre résumé des dernières 24 heures :</p>
+      ${sections}
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin-top: 32px;" />
+      <p style="color: #9ca3af; font-size: 12px;">
+        <a href="${siteUrl}/profil" style="color: #9ca3af;">Gérer vos préférences de notification</a>
+      </p>
+    </div>
+  `
 
   try {
-    // Find users who have email enabled for this notification type
-    const preferences = await db.notificationPreference.findMany({
-      where: {
-        userId: { in: userIds },
-        type,
-        emailEnabled: true,
-      },
-      select: { userId: true },
+    await resend.emails.send({
+      from: `La Compagnie Maximus <${fromEmail}>`,
+      to: user.email,
+      subject: `Résumé du jour — La Compagnie Maximus`,
+      html,
     })
-
-    const enabledUserIds = preferences.map((p) => p.userId)
-    if (enabledUserIds.length === 0) return
-
-    // Get emails for those users
-    const users = await db.user.findMany({
-      where: { id: { in: enabledUserIds } },
-      select: { email: true, firstName: true },
-    })
-
-    if (users.length === 0) return
-
-    const siteUrl = process.env.NEXTAUTH_URL || 'https://lacompagniemaximus.com'
-
-    // Send to each recipient
-    await Promise.allSettled(
-      users.map(async (user) => {
-        try {
-          await resend.emails.send({
-            from: `La Compagnie Maximus <${fromEmail}>`,
-            to: user.email,
-            subject: payload.subject,
-            html: `
-              <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h2 style="color: #1a1a1a; margin-bottom: 16px;">La Compagnie Maximus</h2>
-                <p style="color: #333; font-size: 16px; line-height: 1.5;">Bonjour ${user.firstName},</p>
-                <p style="color: #333; font-size: 16px; line-height: 1.5;">${payload.body}</p>
-                <a href="${siteUrl}${payload.url}" style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 16px;">Voir sur le site</a>
-                <hr style="border: none; border-top: 1px solid #e5e7eb; margin-top: 32px;" />
-                <p style="color: #9ca3af; font-size: 12px;">Vous recevez cet email car vous avez activé les notifications par courriel. Vous pouvez les désactiver dans votre profil.</p>
-              </div>
-            `,
-          })
-        } catch (error) {
-          console.error(
-            `Email failed for ${user.email}:`,
-            (error as Error).message
-          )
-        }
-      })
-    )
   } catch (error) {
-    console.error('Error sending email notifications:', error)
+    console.error(`Digest email failed for ${user.email}:`, (error as Error).message)
   }
 }
