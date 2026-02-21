@@ -234,6 +234,45 @@ Reply {
 }
 ```
 
+### 3.5 Notifications
+
+**Description:** Système de notifications multi-canal pour informer les membres de l'activité sur le site.
+
+**Types de notification:**
+| Type | Déclencheur |
+|------|-------------|
+| `MENTION` | Quelqu'un vous mentionne avec @Prénom |
+| `QUOTE` | Quelqu'un cite votre réponse |
+| `TOPIC_REPLY` | Quelqu'un répond à votre sujet |
+| `NEW_EVENT` | Un nouvel événement est créé |
+
+**Canaux:**
+
+1. **Notifications in-app** — Toujours actives, cloche dans le header, marquage lu/non-lu
+2. **Push (Web Push API)** — Opt-in, nécessite la souscription du navigateur, envoi immédiat
+3. **Email (Resend)** — Opt-in par type, digest quotidien à 18h HE (un seul email récapitulatif)
+
+**Préférences:** Chaque utilisateur peut activer/désactiver indépendamment push et email pour chaque type de notification. Les préférences sont configurables dans `/profil`.
+
+**Modèle de données:**
+```
+NotificationPreference {
+  id: UUID
+  type: NotificationType
+  pushEnabled: Boolean (default: true)
+  emailEnabled: Boolean (default: false)
+  userId: User
+  @@unique([userId, type])
+}
+```
+
+**Cron digest email:**
+- Route : `GET /api/cron/email-digest` (sécurisée par `CRON_SECRET`)
+- Fréquence : tous les jours à 23h UTC (18h HE)
+- Collecte toutes les notifications des dernières 24h (y compris lues)
+- Filtre par préférences `emailEnabled` de chaque utilisateur
+- Envoie un email HTML groupé par type avec liens vers le site
+
 ---
 
 ## 4. Interface Utilisateur
@@ -325,9 +364,19 @@ SUPABASE_SERVICE_ROLE_KEY=xxx
 # Auth
 NEXTAUTH_SECRET=xxx
 NEXTAUTH_URL=https://famille.example.com
-```
 
-*Note: Pas de configuration email requise - la réinitialisation des mots de passe se fait via l'admin.*
+# Push Notifications (Web Push)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=xxx
+VAPID_PRIVATE_KEY=xxx
+VAPID_SUBJECT=mailto:admin@your-domain.com
+
+# Email Notifications (Resend)
+RESEND_API_KEY=xxx
+RESEND_FROM_EMAIL=notifications@lacompagniemaximus.com
+
+# Cron Jobs (Vercel)
+CRON_SECRET=xxx
+```
 
 ---
 

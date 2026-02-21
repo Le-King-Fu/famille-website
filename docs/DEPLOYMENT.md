@@ -136,6 +136,12 @@ Click **Environment Variables** and add:
 | `SUPABASE_SERVICE_ROLE_KEY` | `eyJhbGciOiJI...` (service role) | All |
 | `AUTH_SECRET` | Generate with `openssl rand -base64 32` | All |
 | `NEXTAUTH_URL` | `https://your-domain.com` (or Vercel URL) | Production |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | VAPID public key (Web Push) | All |
+| `VAPID_PRIVATE_KEY` | VAPID private key (Web Push) | All |
+| `VAPID_SUBJECT` | `mailto:admin@your-domain.com` | All |
+| `RESEND_API_KEY` | API key from [resend.com](https://resend.com) | All |
+| `RESEND_FROM_EMAIL` | `notifications@lacompagniemaximus.com` | All |
+| `CRON_SECRET` | Generate with `openssl rand -hex 32` | All |
 
 **Generate AUTH_SECRET:**
 ```bash
@@ -210,6 +216,7 @@ This creates:
 - [ ] **Calendar:** Create/view events
 - [ ] **Photos:** View albums (empty is OK)
 - [ ] **Forum:** View categories and topics
+- [ ] **Notifications:** Toggle email preferences in `/profil`, verify cron in Vercel dashboard
 - [ ] **Games:** Play Piano Hero, score submits
 - [ ] **Admin:** Access `/admin`, all sections work
 
@@ -228,6 +235,31 @@ This creates:
 4. Go to `/inscription`
 5. Enter invitation code and register
 6. Verify new user appears in admin
+
+---
+
+## Step 4b: Email Notifications (Resend)
+
+### 4b.1 Configure Resend
+
+1. Sign up at [resend.com](https://resend.com)
+2. Go to **Domains** > **Add Domain**
+3. Add `lacompagniemaximus.com`
+4. Add the required DNS records (SPF, DKIM, DMARC) at your domain registrar
+5. Wait for domain verification
+
+### 4b.2 Create API Key
+
+1. Go to **API Keys** > **Create API Key**
+2. Name it `famille-website-production`
+3. Add as `RESEND_API_KEY` in Vercel environment variables
+
+### 4b.3 Verify Cron Job
+
+After deployment, the daily email digest cron is configured via `vercel.json`:
+- **Schedule:** Every day at 23:00 UTC (18:00 ET)
+- **Path:** `/api/cron/email-digest`
+- Verify it appears in **Vercel Dashboard** > **Settings** > **Crons**
 
 ---
 

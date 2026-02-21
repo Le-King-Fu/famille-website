@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-02-20
+
+### Notifications par courriel - Digest quotidien (Resend)
+- Intégration de Resend pour l'envoi d'emails transactionnels
+- Nouvelle préférence `emailEnabled` par type de notification (opt-in, désactivé par défaut)
+- Digest quotidien à 18h HE : un seul email récapitulatif regroupant toutes les notifications des dernières 24h
+- Route cron `/api/cron/email-digest` sécurisée par `CRON_SECRET`
+- Configuration `vercel.json` pour le cron job Vercel
+- Types couverts : mentions, citations, réponses aux sujets, nouveaux événements
+- Notifications groupées par type dans l'email avec liens cliquables
+- Lien vers les préférences de notification en pied de page
+
+### Notifications push - Améliorations
+- Refactorisation du composant `NotificationPreferences` avec deux colonnes (Push + Email)
+- Les toggles email sont toujours visibles (indépendants de la souscription push)
+- API `/api/push/preferences` mise à jour pour supporter `emailEnabled`
+
 ## 2026-02-07
 
 ### Sécurité - Rate limiting sur les endpoints d'authentification

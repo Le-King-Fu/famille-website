@@ -27,8 +27,10 @@
 - [x] **Phase 5: Administration** (utilisateurs, questions, invitations)
 
 ### En Cours
-- [ ] **Phase 4: Jeux** - Autres jeux à venir (Piano Hero v1, Witch Case, Belle Bête Sage)
+- [ ] **Phase 4: Jeux** - Autres jeux à venir (Piano Hero v1, Witch Case)
 - [ ] **Phase 6: Tests** - À démarrer
+- [x] **Notifications push** (Web Push API) — opt-in, granulaire par type
+- [x] **Notifications email** (Resend) — digest quotidien à 18h HE, opt-in par type
 
 ### Bugs Résolus (GitHub Issues)
 - [x] **#1** Configuration domaine www.lafamillelandry.ca ✅
@@ -364,7 +366,9 @@
 - [ ] Catégories de forum souhaitées ?
 
 ### Décisions Prises
-- Pas de service email (réinitialisation par admin uniquement)
+- Emails via Resend (digest quotidien plutôt que fire-and-forget)
+- Domaine email : `lacompagniemaximus.com`
+- Réinitialisation mot de passe par admin uniquement (pas de lien par email)
 - Upload photos réservé à l'admin
 - Rôle "Enfant" = accès jeux uniquement
 
@@ -374,6 +378,8 @@
 
 | Date | Modification |
 |------|--------------|
+| 2026-02-20 | **Notifications email (Resend)** - Digest quotidien à 18h HE. Préférence `emailEnabled` par type. Route cron `/api/cron/email-digest`. `vercel.json` pour cron Vercel. Composant NotificationPreferences refactoré (colonnes Push + Email). |
+| 2026-02-20 | **Notifications push (Web Push)** - Opt-in avec VAPID. `sendPushNotifications` fire-and-forget. Préférences par type. Service worker. |
 | 2026-02-03 | **La Belle, la Bête et la Sage** - Nouveau jeu endless runner cyberpunk avec les chiens de la famille (Flora, Nouki, Laska). Sélection personnage, 3 couloirs, saut, 6 types d'obstacles, pièces/bonus, 5 niveaux difficulté, support mobile. |
 | 2026-02-03 | **Dark Mode Admin (#12)** - Correction visibilité en mode sombre pour toutes les pages admin (tables, badges, modals). |
 | 2026-02-03 | **Admin Forum (#11)** - Page `/admin/forum` pour gérer les catégories du forum (CRUD, drag-and-drop reorder, cascade delete avec avertissement). |
