@@ -78,18 +78,19 @@ describe('sendEmailNotifications', () => {
       { subject: 'New Event', message: 'Event created', link: '/events/1' }
     )
 
-    // Should use a single query with user relation filter
+    // Should use a single query with all critical filters
     expect(db.notificationPreference.findMany).toHaveBeenCalledTimes(1)
-    expect(db.notificationPreference.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          user: { isActive: true },
-        }),
-        select: expect.objectContaining({
-          user: { select: { email: true, firstName: true } },
-        }),
-      })
-    )
+    expect(db.notificationPreference.findMany).toHaveBeenCalledWith({
+      where: {
+        userId: { in: ['user-1', 'user-2'] },
+        type: 'NEW_EVENT',
+        emailEnabled: true,
+        user: { isActive: true },
+      },
+      select: {
+        user: { select: { email: true, firstName: true } },
+      },
+    })
 
     // Should send to both users
     expect(mockSend).toHaveBeenCalledTimes(2)
