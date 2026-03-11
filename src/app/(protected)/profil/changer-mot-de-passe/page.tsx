@@ -41,7 +41,7 @@ export default function ChangerMotDePassePage() {
 
       if (response.ok) {
         // Refresh the session so mustChangePassword is updated in the JWT cookie
-        await update()
+        await update({ mustChangePassword: false })
         // Hard navigation to ensure middleware sees the fresh token
         window.location.href = '/'
         return
