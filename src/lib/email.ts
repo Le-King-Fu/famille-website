@@ -1,4 +1,6 @@
 import { Resend } from 'resend'
+import { db } from './db'
+import { NotificationType } from '@prisma/client'
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -92,5 +94,80 @@ export async function sendDigestEmail(
     })
   } catch (error) {
     console.error(`Digest email failed for ${user.email}:`, (error as Error).message)
+  }
+}
+
+interface EmailNotificationPayload {
+  subject: string
+  message: string
+  link: string
+}
+
+/**
+ * Send immediate email notifications to users who have email enabled
+ * for the given notification type. Called fire-and-forget.
+ */
+export async function sendEmailNotifications(
+  userIds: string[],
+  type: NotificationType,
+  payload: EmailNotificationPayload
+): Promise<void> {
+  if (!resend || userIds.length === 0) return
+
+  try {
+    // Find users who have email enabled for this notification type
+    const preferences = await db.notificationPreference.findMany({
+      where: {
+        userId: { in: userIds },
+        type,
+        emailEnabled: true,
+      },
+      select: { userId: true },
+    })
+
+    const enabledUserIds = preferences.map((p) => p.userId)
+    if (enabledUserIds.length === 0) return
+
+    // Get user details
+    const users = await db.user.findMany({
+      where: { id: { in: enabledUserIds }, isActive: true },
+      select: { email: true, firstName: true },
+    })
+
+    if (users.length === 0) return
+
+    const siteUrl = process.env.NEXTAUTH_URL || 'https://lacompagniemaximus.com'
+
+    await Promise.allSettled(
+      users.map(async (user) => {
+        const html = `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #1a1a1a; margin-bottom: 4px;">La Compagnie Maximus</h2>
+            <p style="color: #333; font-size: 16px; line-height: 1.5;">Bonjour ${user.firstName},</p>
+            <p style="color: #333; font-size: 15px; line-height: 1.5;">${payload.message}</p>
+            <p style="margin-top: 20px;">
+              <a href="${siteUrl}${payload.link}" style="display: inline-block; background-color: #2563eb; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 14px;">Voir les détails</a>
+            </p>
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin-top: 32px;" />
+            <p style="color: #9ca3af; font-size: 12px;">
+              <a href="${siteUrl}/profil" style="color: #9ca3af;">Gérer vos préférences de notification</a>
+            </p>
+          </div>
+        `
+
+        try {
+          await resend!.emails.send({
+            from: `La Compagnie Maximus <${fromEmail}>`,
+            to: user.email,
+            subject: payload.subject,
+            html,
+          })
+        } catch (error) {
+          console.error(`Email notification failed for ${user.email}:`, (error as Error).message)
+        }
+      })
+    )
+  } catch (error) {
+    console.error('Error sending email notifications:', error)
   }
 }
