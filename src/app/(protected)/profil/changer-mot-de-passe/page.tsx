@@ -40,19 +40,22 @@ export default function ChangerMotDePassePage() {
       const data = await response.json()
 
       if (response.ok) {
-        // Re-authenticate to create a fresh JWT with mustChangePassword=false from DB
+        // Re-authenticate with the new password to create a fresh JWT.
+        // This calls authorize() which reads mustChangePassword=false from DB,
+        // then the jwt callback stores it in the token, and the Set-Cookie
+        // header updates the browser cookie before the promise resolves.
         const signInResult = await signIn('credentials', {
           email: session?.user?.email,
           password: newPassword,
           redirect: false,
         })
-        if (signInResult?.ok) {
-          // Hard navigation to ensure middleware sees the fresh token
-          window.location.href = '/'
+        if (!signInResult?.ok) {
+          // Edge case: password changed but re-auth failed.
+          // Redirect to login so user can sign in with new password.
+          window.location.href = '/connexion'
           return
         }
-        // Fallback: even if re-auth fails, password was changed successfully
-        // Force a full page reload to refresh the session cookie
+        // Hard navigation so middleware sees the fresh JWT cookie
         window.location.href = '/'
         return
       } else {
