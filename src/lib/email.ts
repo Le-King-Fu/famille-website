@@ -9,6 +9,18 @@ const resend = process.env.RESEND_API_KEY
 const fromEmail =
   process.env.RESEND_FROM_EMAIL || 'notifications@lacompagniemaximus.com'
 
+/**
+ * Escape special HTML characters to prevent HTML injection in email templates.
+ */
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 interface DigestNotification {
   type: string
   message: string
@@ -58,7 +70,7 @@ export async function sendDigestEmail(
         .map(
           (n) =>
             `<li style="margin-bottom: 8px;">
-              <a href="${siteUrl}${n.link}" style="color: #2563eb; text-decoration: none;">${n.message}</a>
+              <a href="${siteUrl}${escapeHtml(n.link)}" style="color: #2563eb; text-decoration: none;">${escapeHtml(n.message)}</a>
               <span style="color: #9ca3af; font-size: 12px;"> — ${formatTime(n.createdAt)}</span>
             </li>`
         )
@@ -75,7 +87,7 @@ export async function sendDigestEmail(
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <h2 style="color: #1a1a1a; margin-bottom: 4px;">La Compagnie Maximus</h2>
       <p style="color: #6b7280; font-size: 14px; margin-top: 0;">Résumé quotidien</p>
-      <p style="color: #333; font-size: 16px; line-height: 1.5;">Bonjour ${user.firstName},</p>
+      <p style="color: #333; font-size: 16px; line-height: 1.5;">Bonjour ${escapeHtml(user.firstName)},</p>
       <p style="color: #333; font-size: 15px; line-height: 1.5;">Voici votre résumé des dernières 24 heures :</p>
       ${sections}
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin-top: 32px;" />
@@ -115,25 +127,22 @@ export async function sendEmailNotifications(
   if (!resend || userIds.length === 0) return
 
   try {
-    // Find users who have email enabled for this notification type
+    // Single query: find users with email enabled for this notification type
     const preferences = await db.notificationPreference.findMany({
       where: {
         userId: { in: userIds },
         type,
         emailEnabled: true,
+        user: { isActive: true },
       },
-      select: { userId: true },
+      select: {
+        user: {
+          select: { email: true, firstName: true },
+        },
+      },
     })
 
-    const enabledUserIds = preferences.map((p) => p.userId)
-    if (enabledUserIds.length === 0) return
-
-    // Get user details
-    const users = await db.user.findMany({
-      where: { id: { in: enabledUserIds }, isActive: true },
-      select: { email: true, firstName: true },
-    })
-
+    const users = preferences.map((p) => p.user)
     if (users.length === 0) return
 
     const siteUrl = process.env.NEXTAUTH_URL || 'https://lacompagniemaximus.com'
@@ -143,10 +152,10 @@ export async function sendEmailNotifications(
         const html = `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2 style="color: #1a1a1a; margin-bottom: 4px;">La Compagnie Maximus</h2>
-            <p style="color: #333; font-size: 16px; line-height: 1.5;">Bonjour ${user.firstName},</p>
-            <p style="color: #333; font-size: 15px; line-height: 1.5;">${payload.message}</p>
+            <p style="color: #333; font-size: 16px; line-height: 1.5;">Bonjour ${escapeHtml(user.firstName)},</p>
+            <p style="color: #333; font-size: 15px; line-height: 1.5;">${escapeHtml(payload.message)}</p>
             <p style="margin-top: 20px;">
-              <a href="${siteUrl}${payload.link}" style="display: inline-block; background-color: #2563eb; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 14px;">Voir les détails</a>
+              <a href="${siteUrl}${escapeHtml(payload.link)}" style="display: inline-block; background-color: #2563eb; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 14px;">Voir les détails</a>
             </p>
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin-top: 32px;" />
             <p style="color: #9ca3af; font-size: 12px;">
