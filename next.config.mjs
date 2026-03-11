@@ -10,14 +10,17 @@ const nextConfig = {
     ],
   },
   async headers() {
+    // Allow Umami analytics domain in CSP if configured
+    const umamiUrl = process.env.NEXT_PUBLIC_UMAMI_URL || ''
+
     // Content-Security-Policy directives
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      `script-src 'self' 'unsafe-inline'${umamiUrl ? ` ${umamiUrl}` : ''}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.supabase.co",
       "font-src 'self'",
-      "connect-src 'self' https://*.supabase.co",
+      `connect-src 'self' https://*.supabase.co${umamiUrl ? ` ${umamiUrl}` : ''}`,
       "worker-src 'self'",
       "frame-ancestors 'none'",
       "form-action 'self'",
