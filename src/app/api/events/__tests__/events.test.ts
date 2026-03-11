@@ -18,12 +18,28 @@ vi.mock('@/lib/db', () => ({
       update: vi.fn(),
       delete: vi.fn(),
     },
+    user: {
+      findMany: vi.fn().mockResolvedValue([]),
+    },
+    notification: {
+      createMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
   },
 }))
 
 // Mock recurrence module
 vi.mock('@/lib/recurrence', () => ({
   expandEvents: vi.fn((events) => events),
+}))
+
+// Mock push notifications
+vi.mock('@/lib/push', () => ({
+  sendPushNotifications: vi.fn(),
+}))
+
+// Mock email notifications
+vi.mock('@/lib/email', () => ({
+  sendEmailNotifications: vi.fn(),
 }))
 
 import { auth } from '@/lib/auth'
