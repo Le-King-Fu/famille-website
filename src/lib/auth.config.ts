@@ -5,14 +5,14 @@ export const authConfig: NextAuthConfig = {
     signIn: '/connexion',
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id
         token.role = user.role
         token.mustChangePassword = user.mustChangePassword
       }
-      // Always re-read mustChangePassword from DB on session update
-      // Never trust client-provided values for security-sensitive fields
+      // Re-read mustChangePassword from DB on session update
+      // Never accept client-provided values for this security-sensitive field
       if (trigger === 'update' && token.id) {
         const { db } = await import('@/lib/db')
         const dbUser = await db.user.findUnique({

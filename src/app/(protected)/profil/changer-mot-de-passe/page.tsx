@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { Lock, AlertTriangle, Loader2, Check, Eye, EyeOff } from 'lucide-react'
 
 export default function ChangerMotDePassePage() {
-  const { update } = useSession()
+  const { data: session } = useSession()
 
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -40,9 +40,19 @@ export default function ChangerMotDePassePage() {
       const data = await response.json()
 
       if (response.ok) {
-        // Refresh the session so mustChangePassword is re-read from DB
-        await update()
-        // Hard navigation to ensure middleware sees the fresh token
+        // Re-authenticate to create a fresh JWT with mustChangePassword=false from DB
+        const signInResult = await signIn('credentials', {
+          email: session?.user?.email,
+          password: newPassword,
+          redirect: false,
+        })
+        if (signInResult?.ok) {
+          // Hard navigation to ensure middleware sees the fresh token
+          window.location.href = '/'
+          return
+        }
+        // Fallback: even if re-auth fails, password was changed successfully
+        // Force a full page reload to refresh the session cookie
         window.location.href = '/'
         return
       } else {
