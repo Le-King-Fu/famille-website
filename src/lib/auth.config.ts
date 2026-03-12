@@ -5,13 +5,17 @@ export const authConfig: NextAuthConfig = {
     signIn: '/connexion',
   },
   callbacks: {
+    // The `session` parameter (from client-side update() calls) is intentionally
+    // NOT destructured here. Security-sensitive fields like mustChangePassword
+    // must ALWAYS be read from the database, never from client-provided data.
     async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id
         token.role = user.role
         token.mustChangePassword = user.mustChangePassword
       }
-      // Re-read mustChangePassword from DB when session is updated
+      // Re-read mustChangePassword from DB on session update.
+      // On signIn, the `user` object from authorize() already has the fresh value.
       if (trigger === 'update' && token.id) {
         const { db } = await import('@/lib/db')
         const dbUser = await db.user.findUnique({
