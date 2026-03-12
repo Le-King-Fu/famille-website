@@ -14,9 +14,9 @@ export const authConfig: NextAuthConfig = {
         token.role = user.role
         token.mustChangePassword = user.mustChangePassword
       }
-      // Always re-read mustChangePassword from DB on session update or signIn
-      // to ensure the token reflects the latest DB state
-      if ((trigger === 'update' || trigger === 'signIn') && token.id) {
+      // Re-read mustChangePassword from DB on session update.
+      // On signIn, the `user` object from authorize() already has the fresh value.
+      if (trigger === 'update' && token.id) {
         const { db } = await import('@/lib/db')
         const dbUser = await db.user.findUnique({
           where: { id: token.id as string },
