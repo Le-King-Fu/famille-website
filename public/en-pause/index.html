@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Ma Famille Landry · En sieste</title>
+<style>
+  @font-face { font-family: "Fraunces"; font-weight: 600; font-display: swap; src: url("/en-pause/fonts/fraunces-600-latin.woff2") format("woff2"); }
+  @font-face { font-family: "Caveat"; font-weight: 600; font-display: swap; src: url("/en-pause/fonts/caveat-600-latin.woff2") format("woff2"); }
+  :root {
+    --bg: #FFF8F0;
+    --surface: #FFEFD9;
+    --ink: #1D3941;
+    --muted: #3B7383;
+    --accent: #C17767;
+    --accent-ink: #A85B4A;
+    --line: #E7D8C6;
+    /* illustration */
+    --sky-top: #A3D3DF;
+    --sky-bot: #FFE6C2;
+    --hill: #75BDCF;
+    --hill-2: #4A90A4;
+    --wall: #FFF8F0;
+    --wall-shade: #F3DFDA;
+    --roof: #C17767;
+    --roof-dark: #A85B4A;
+    --window: #2C5662;
+    --door: #3B7383;
+    --sign: #FFEFD9;
+    --moon: #FFFFFF;
+    --star: #FFFFFF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #0E1C21;
+      --surface: #16292F;
+      --ink: #FFF8F0;
+      --muted: #A3D3DF;
+      --accent: #DB9F90;
+      --accent-ink: #E7BFB5;
+      --line: #2C5662;
+      --sky-top: #0E1C21;
+      --sky-bot: #2C5662;
+      --hill: #1D3941;
+      --hill-2: #16292F;
+      --wall: #E7D8C6;
+      --wall-shade: #CDB9A5;
+      --roof: #A85B4A;
+      --roof-dark: #7E4438;
+      --window: #0E1C21;
+      --door: #2C5662;
+      --sign: #FFEFD9;
+      --moon: #FFEFD9;
+      --star: #FFEFD9;
+    }
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    padding-inline: 20px;
+  }
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding-block: 32px 56px;
+    display: grid;
+    gap: 32px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .lang {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .lang button {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 4px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .lang button[aria-pressed="true"] {
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 48px;
+    align-items: center;
+  }
+  .scene {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 28px 28px 4px 4px;
+  }
+  .copy { display: grid; gap: 20px; max-width: 34em; }
+  .status {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+  h1 {
+    font-family: "Fraunces", Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    font-size: clamp(2rem, 4.4vw, 3.1rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .copy p { margin: 0; }
+  .kept {
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+    color: var(--muted);
+  }
+  .sig {
+    font-family: "Caveat", "Segoe Script", cursive;
+    font-size: 30px;
+    line-height: 1.2;
+    color: var(--accent-ink);
+  }
+  footer {
+    font-size: 13px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+
+  @media (max-width: 760px) {
+    main { grid-template-columns: 1fr; gap: 28px; }
+    .scene { max-width: 460px; }
+  }
+
+  .smoke { animation: drift 7s ease-in-out infinite; }
+  @keyframes drift {
+    0%, 100% { transform: translateY(0); opacity: .55; }
+    50% { transform: translateY(-4px); opacity: .85; }
+  }
+  @media (prefers-reduced-motion: reduce) { .smoke { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="brand">Ma Famille Landry</span>
+    <div class="lang" role="group" aria-label="Langue / Language">
+      <button type="button" id="lang-fr" data-lang="fr" aria-pressed="true">FR</button>
+      <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main>
+    <svg class="scene" viewBox="0 0 480 400" role="img" aria-labelledby="scene-alt">
+      <title id="scene-alt">Une maison au crépuscule, fenêtres éteintes, avec une pancarte accrochée à la porte.</title>
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style="stop-color:var(--sky-top)"/>
+          <stop offset="1" style="stop-color:var(--sky-bot)"/>
+        </linearGradient>
+      </defs>
+      <rect width="480" height="400" fill="url(#sky)"/>
+      <!-- moon and stars -->
+      <circle cx="384" cy="78" r="26" style="fill:var(--moon)" opacity=".95"/>
+      <circle cx="396" cy="70" r="24" style="fill:var(--sky-top)" opacity=".9"/>
+      <g style="fill:var(--star)" opacity=".8">
+        <circle cx="70" cy="60" r="2"/>
+        <circle cx="140" cy="36" r="1.5"/>
+        <circle cx="300" cy="44" r="1.6"/>
+        <circle cx="440" cy="140" r="1.4"/>
+        <circle cx="42" cy="130" r="1.3"/>
+      </g>
+      <!-- hills -->
+      <path d="M0 300 C 90 262, 180 272, 260 292 S 420 270, 480 284 L480 400 L0 400 Z" style="fill:var(--hill)"/>
+      <path d="M0 338 C 120 318, 250 322, 340 336 S 450 330, 480 334 L480 400 L0 400 Z" style="fill:var(--hill-2)"/>
+      <!-- chimney with a last wisp -->
+      <rect x="276" y="118" width="24" height="52" style="fill:var(--roof-dark)"/>
+      <path class="smoke" d="M288 110 c -10 -10, 8 -16, -2 -28 c -8 -10, 6 -16, 0 -24" style="stroke:var(--wall)" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <!-- house body -->
+      <rect x="140" y="196" width="200" height="130" style="fill:var(--wall)"/>
+      <rect x="300" y="196" width="40" height="130" style="fill:var(--wall-shade)"/>
+      <!-- roof -->
+      <path d="M120 204 L240 116 L360 204 Z" style="fill:var(--roof)"/>
+      <path d="M120 204 L360 204 L360 212 L120 212 Z" style="fill:var(--roof-dark)"/>
+      <!-- windows, lights off -->
+      <g style="fill:var(--window)">
+        <rect x="162" y="226" width="44" height="40" rx="3"/>
+        <rect x="274" y="226" width="44" height="40" rx="3"/>
+        <circle cx="240" cy="168" r="14"/>
+      </g>
+      <g style="stroke:var(--wall)" stroke-width="3">
+        <line x1="184" y1="226" x2="184" y2="266"/>
+        <line x1="162" y1="246" x2="206" y2="246"/>
+        <line x1="296" y1="226" x2="296" y2="266"/>
+        <line x1="274" y1="246" x2="318" y2="246"/>
+      </g>
+      <!-- door -->
+      <rect x="220" y="254" width="40" height="72" rx="20" ry="20" style="fill:var(--door)"/>
+      <rect x="220" y="274" width="40" height="52" style="fill:var(--door)"/>
+      <circle cx="252" cy="294" r="2.5" style="fill:var(--sign)"/>
+      <!-- hanging sign -->
+      <path d="M228 262 L240 250 L252 262" style="stroke:var(--sign)" stroke-width="1.5" fill="none"/>
+      <rect x="216" y="262" width="48" height="22" rx="3" style="fill:var(--sign)" transform="rotate(-4 240 273)"/>
+      <text x="240" y="277" text-anchor="middle" font-family="Caveat, 'Segoe Script', cursive" font-size="13" font-weight="600" fill="#A85B4A" transform="rotate(-4 240 273)" id="sign-text">sieste</text>
+      <!-- step and path -->
+      <rect x="212" y="326" width="56" height="7" rx="2" style="fill:var(--wall-shade)"/>
+      <path d="M228 333 C 222 360, 200 380, 186 400 L 294 400 C 280 380, 258 360, 252 333 Z" style="fill:var(--wall)" opacity=".45"/>
+      <!-- mailbox -->
+      <rect x="380" y="292" width="4" height="40" style="fill:var(--roof-dark)"/>
+      <rect x="366" y="278" width="32" height="18" rx="9" style="fill:var(--roof)"/>
+    </svg>
+
+    <div class="copy">
+      <span class="status" data-i18n="status">En sieste depuis septembre 2026</span>
+      <h1 data-i18n="title">La maison fait la sieste</h1>
+      <p data-i18n="p1">Le calendrier est parti en vacances sans dire quand il revient. Le forum a épuisé ses sujets de placotage. Les albums, eux, attendent encore leur première photo floue du party de Noël.</p>
+      <p data-i18n="p2">Les jeux sont rangés dans le coffre à jouets. Le record de Piano Hero reste officiellement invaincu, ce qui fait bien l’affaire de son détenteur.</p>
+      <p class="kept" data-i18n="p3">Pendant ce temps, la famille continue de se voir, de s’appeler et de s’écrire. Comme avant Internet, ou presque.</p>
+      <span class="sig" data-i18n="sig">Fermez la lumière en sortant. Max</span>
+    </div>
+  </main>
+
+  <footer data-i18n="footer">Prière de ne pas sonner. Si la maison se réveille, vous serez les premiers avertis.</footer>
+</div>
+
+<script>
+  const strings = {
+    fr: {
+      status: "En sieste depuis septembre 2026",
+      title: "La maison fait la sieste",
+      p1: "Le calendrier est parti en vacances sans dire quand il revient. Le forum a épuisé ses sujets de placotage. Les albums, eux, attendent encore leur première photo floue du party de Noël.",
+      p2: "Les jeux sont rangés dans le coffre à jouets. Le record de Piano Hero reste officiellement invaincu, ce qui fait bien l’affaire de son détenteur.",
+      p3: "Pendant ce temps, la famille continue de se voir, de s’appeler et de s’écrire. Comme avant Internet, ou presque.",
+      sig: "Fermez la lumière en sortant. Max",
+      footer: "Prière de ne pas sonner. Si la maison se réveille, vous serez les premiers avertis.",
+      sign: "sieste"
+    },
+    en: {
+      status: "Napping since September 2026",
+      title: "The house is taking a nap",
+      p1: "The calendar went on vacation without saying when it would be back. The forum ran out of gossip. The albums are still waiting for their first blurry Christmas party photo.",
+      p2: "The games are back in the toy chest. The Piano Hero high score remains officially unbeaten, which suits its holder just fine.",
+      p3: "Meanwhile, the family keeps seeing, calling and writing each other. Like before the Internet, more or less.",
+      sig: "Please turn off the lights on your way out. Max",
+      footer: "Please don’t ring the bell. If the house wakes up, you’ll be the first to know.",
+      sign: "napping"
+    }
+  };
+  function setLang(lang) {
+    const s = strings[lang];
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = s[el.dataset.i18n]; });
+    document.getElementById("sign-text").textContent = s.sign;
+    document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+  }
+  document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+  if (new URLSearchParams(location.search).get("lang") === "en") setLang("en");
+</script>
+</body>
+</html>
