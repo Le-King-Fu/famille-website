@@ -1,10 +1,11 @@
 import NextAuth from 'next-auth'
 import { authConfig } from '@/lib/auth.config'
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextFetchEvent, type NextMiddleware, type NextRequest } from 'next/server'
+import { pauseResponse } from '@/lib/pause'
 
 const { auth } = NextAuth(authConfig)
 
-export default auth((req) => {
+const authMiddleware = auth((req) => {
   const { pathname } = req.nextUrl
   const isLoggedIn = !!req.auth
 
@@ -54,6 +55,14 @@ export default auth((req) => {
 
   return NextResponse.next()
 })
+
+export default function middleware(req: NextRequest, event: NextFetchEvent) {
+  // Paused site: short-circuit before auth, nothing else is reachable
+  const paused = pauseResponse(req)
+  if (paused) return paused
+
+  return (authMiddleware as unknown as NextMiddleware)(req, event)
+}
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
